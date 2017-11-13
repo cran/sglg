@@ -16,7 +16,7 @@ Build a Normal probability plot with simulated envelope for a deviance-type resi
 in semiparametric or multiple linear generalized log-gamma regression models.
 }
 \examples{
-rows <- 150
+rows <- 80
 columns <- 2
 t_beta  <- c(0.5, 2)
 t_sigma <- 1
@@ -25,10 +25,10 @@ set.seed(8142031)
 x1 <- rbinom(rows, 1, 0.5)
 x2 <- runif(columns, 0, 1)
 X <- cbind(x1,x2)
-error <- robustloggamma::rloggamma(rows, 0, 1, t_lambda)
+error <- rglg(rows, 0, 1, t_lambda)
 y1 <- X \%*\%t_beta + t_sigma * error
 data.example <- data.frame(y1,X)
-fit1 <- glg(y1 ~ x1 + x2,data=data.example)
+fit1 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
 envelope.sglg(fit1)
 }
 \references{

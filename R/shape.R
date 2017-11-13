@@ -14,7 +14,7 @@
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
-#' rows  <- 240
+#' rows  <- 200
 #' columns <- 2
 #' t_beta  <- c(0.5, 2)
 #' t_sigma <- 1
@@ -28,15 +28,19 @@
 #' a         <- 1/s
 #' t_ini1    <- exp(X %*% t_beta) * rgamma(rows, scale = s, shape = a)
 #' cens.time <- rweibull(rows, 0.3, 14)
-#' delta1     <- ifelse(t_ini1 > cens.time, 1, 0)
+#' delta     <- ifelse(t_ini1 > cens.time, 1, 0)
 #' obst1 = t_ini1
 #' for (i in 1:rows) {
-#' if (delta1[i] == 1) {
+#' if (delta[i] == 1) {
 #'    obst1[i] = cens.time[i]
 #'   }
 #' }
-#' data.example <- data.frame(obst1,delta1,X)
-#' lambda <- shape(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example)
+#' example <- data.frame(obst1,delta,X)
+#' lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example)
+#' lambda
+#' # To change interval or step or both options
+#' lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example, interval=c(0.95,1.3), step=0.05)
+#' lambda
 #' @export shape
 #'
 shape = function(formula, npc, data, interval, semi, step) {
@@ -72,8 +76,8 @@ shape = function(formula, npc, data, interval, semi, step) {
             output[j] <- out
         }
     }
-    plot(sh, output, pch = 20, xlab = "shape parameter", 
-        ylab = "log-likehood", main = "Profile log-likelihood")
+    plot(sh, output, pch = 20, xlab = "shape parameter", ylab = "log-likehood", 
+        main = "Profile log-likelihood")
     index <- which.max(output)
     points(sh[index], output[index], pch = 20, col = 2)
     return(sh[index])

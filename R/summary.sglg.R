@@ -58,8 +58,7 @@ summary.sglg <- function(object, ...) {
         cat(" Overall statistic: ", round(object$goodnessoffit, 
             digits = 3), "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
-        cat(" Log-lik: ", round(object$llglg, digits = 2), 
-            "\n\n")
+        cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
         cat(" ------ Information criterion ------\n\n")
         cat(" AIC: ", round(object$AIC, digits = 2), "\n")
         cat(" BIC: ", round(object$BIC, digits = 2), "\n\n")
@@ -102,16 +101,14 @@ summary.sglg <- function(object, ...) {
             digits = 5, signif.legend = FALSE, tst.ind = c(2, 
                 3))
         cat(" ------------------------------------------------------------\n\n")
-        cat(" Shape: ", round(object$lambda, digits = 2), 
-            "\n\n")
+        cat(" Shape: ", round(object$lambda, digits = 2), "\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), 
             "\n\n")
         cat(" ------ Goodness-of-fit ------\n\n")
         cat(" Overall statistic: ", round(object$goodnessoffit, 
             digits = 3), "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
-        cat(" Log-lik: ", round(object$llglg, digits = 2), 
-            "\n\n")
+        cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
         cat(" ------ Information criterion ------\n\n")
         cat(" AIC: ", round(object$AIC, digits = 2), "\n")
         cat(" BIC: ", round(object$BIC, digits = 2), "\n\n")
@@ -180,8 +177,7 @@ summary.sglg <- function(object, ...) {
         cat(" Overall statistic: ", round(object$goodnessoffit, 
             digits = 3), "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
-        cat(" Log-lik: ", round(object$llglg, digits = 2), 
-            "\n\n")
+        cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
         cat(" ------ Information criterion ------\n\n")
         cat(" AIC: ", round(object$AIC, digits = 2), "\n")
         cat(" BIC: ", round(object$BIC, digits = 2), "\n\n")
@@ -232,16 +228,14 @@ summary.sglg <- function(object, ...) {
             digits = 5, signif.legend = FALSE, tst.ind = c(2, 
                 3))
         cat(" ------------------------------------------------------------\n\n")
-        cat(" Shape: ", round(object$lambda, digits = 2), 
-            "\n\n")
+        cat(" Shape: ", round(object$lambda, digits = 2), "\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), 
             "\n\n")
         cat(" ------ Goodness-of-fit ------\n\n")
         cat(" Overall statistic: ", round(object$goodnessoffit, 
             digits = 3), "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
-        cat(" Log-lik: ", round(object$llglg, digits = 2), 
-            "\n\n")
+        cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
         cat(" ------ Information criterion ------\n\n")
         cat(" AIC: ", round(object$AIC, digits = 2), "\n")
         cat(" BIC: ", round(object$BIC, digits = 2), "\n\n")

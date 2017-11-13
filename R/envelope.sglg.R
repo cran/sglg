@@ -11,7 +11,7 @@
 
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
-#' rows <- 150
+#' rows <- 80
 #' columns <- 2
 #' t_beta  <- c(0.5, 2)
 #' t_sigma <- 1
@@ -20,23 +20,24 @@
 #' x1 <- rbinom(rows, 1, 0.5)
 #' x2 <- runif(columns, 0, 1)
 #' X <- cbind(x1,x2)
-#' error <- robustloggamma::rloggamma(rows, 0, 1, t_lambda)
+#' error <- rglg(rows, 0, 1, t_lambda)
 #' y1 <- X %*%t_beta + t_sigma * error
 #' data.example <- data.frame(y1,X)
-#' fit1 <- glg(y1 ~ x1 + x2,data=data.example)
+#' fit1 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
 #' envelope.sglg(fit1)
 #' @import stats
 #' @import graphics
 #' @export envelope.sglg
 #'
 envelope.sglg <- function(fit, Rep) {
-    
+
     if (fit$censored == FALSE) {
-        
-        if (missingArg(Rep)) 
-            Rep <- 50
-        
-        formula <- fit$formula
+
+        if (missingArg(Rep))
+            Rep <- 30
+
+        formula <- paste("~", as.character(fit$formula)[3])
+        formula <- as.formula(paste("y", formula))
         X <- fit$X
         sigma <- fit$sigma
         lambda <- fit$lambda
@@ -45,15 +46,16 @@ envelope.sglg <- function(fit, Rep) {
         rord <- fit$rord
         systematic_part <- rord * sigma
         e <- matrix(0, n, Rep)
+
         j <- 1
-        
+
         if (fit$Knot >= 3) {
             npc <- fit$npc
             while (j <= Rep) {
-                error <- rloggamma(n, lambda = lambda)
-                y1 <- systematic_part + sigma * error
-                data <- data.frame(y1, X)
-                newfit <- try(sglg(formula, npc = npc, data = data), 
+                error <- rglg(n, shape = lambda)
+                y <- systematic_part + sigma * error
+                data <- data.frame(y, X)
+                newfit <- try(sglg(formula, npc = npc, data = data),
                   silent = TRUE)
                 if (is.list(newfit)) {
                   if (newfit$convergence == TRUE) {
@@ -66,11 +68,10 @@ envelope.sglg <- function(fit, Rep) {
         }
         if (fit$Knot == 0) {
             while (j <= Rep) {
-                error <- rloggamma(n, lambda = lambda)
-                y1 <- systematic_part + sigma * error
-                data <- data.frame(y1, X)
-                newfit <- try(glg(formula, data = data), 
-                  silent = TRUE)
+                error <- rglg(n, shape = lambda)
+                y <- systematic_part + sigma * error
+                data <- data.frame(y, X)
+                newfit <- try(glg(formula, data = data), silent = TRUE)
                 if (is.list(newfit)) {
                   if (newfit$convergence == TRUE) {
                     print(j)
@@ -82,31 +83,31 @@ envelope.sglg <- function(fit, Rep) {
         }
         e1 <- numeric(n)
         e2 <- numeric(n)
-        
+
         for (i in 1:n) {
             eo <- sort(e[i, ])
             e1[i] <- (eo[1] + eo[2])/2
             e2[i] <- (eo[Rep - 1] + eo[Rep])/2
         }
-        
+
         med <- apply(e, 1, mean)
         faixa <- range(rdev, e1, e2)
         par(mfrow = c(1, 1))
         par(pty = "s")
-        qqnorm(rdev, xlab = "Quantiles of N(0,1)", ylab = "Desviance-type residuals", 
+        qqnorm(rdev, xlab = "Quantiles of N(0,1)", ylab = "Desviance-type residuals",
             ylim = faixa, pch = 20, main = "")
         par(new = T)
-        qqnorm(e1, axes = F, xlab = "", ylab = "", type = "l", 
+        qqnorm(e1, axes = F, xlab = "", ylab = "", type = "l",
             ylim = faixa, lty = 1, col = 2, main = "")
         par(new = T)
-        qqnorm(e2, axes = F, xlab = "", ylab = "", type = "l", 
+        qqnorm(e2, axes = F, xlab = "", ylab = "", type = "l",
             ylim = faixa, col = 2, lty = 1, main = "")
         par(new = T)
-        qqnorm(med, axes = F, xlab = "", ylab = "", type = "l", 
+        qqnorm(med, axes = F, xlab = "", ylab = "", type = "l",
             ylim = faixa, lty = 2, main = "")
     }
-    
+
     if (fit$censored == TRUE) {
-        print("For this kind of model it is not available this option.")
+        print("Sorry, for this kind of model it is not available this option.")
     }
 }

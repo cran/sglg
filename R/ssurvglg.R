@@ -26,7 +26,7 @@
 #' columns <- 2
 
 #' t_beta  <- c(0.5, 2)
-#' t_sigma <- 0.6
+#' t_sigma <- 0.75
 #' t_lambda <- 1
 
 #' set.seed(8142031)
@@ -37,12 +37,12 @@
 
 #' t_knot1 <- 6
 #' ts1 <- seq(0, 1, length = t_knot1)
-#' t_g1 <- 0.5 * sin(pi * ts1)
+#' t_g1 <- 0.4 * sin(pi * ts1)
 
 #' BasisN <- function(n, knot) {
 #' N <- matrix(0, n, knot)
 #' m <- n/knot
-#' block <- matrix(1, m, 1)
+#' block <- rep(1,m)
 #' for (i in 1:knot) {
 #'    l <- (i - 1) * m + 1
 #'  r <- i * m
@@ -55,18 +55,17 @@
 #' colnames(x3) <- 'x3'
 #' sys       <- X %*% t_beta + s_N1%*%t_g1
 #' t_ini1    <- exp(sys) * rweibull(rows,1/t_sigma,1)
-#' cens.time <- rweibull(rows, 0.8, 14)
+#' cens.time <- rweibull(rows, 1.1, 14)
 
-#' delta1     <- ifelse(t_ini1 > cens.time, 1, 0)
-#' per.censo1 = 100 * mean(delta1)
+#' delta     <- ifelse(t_ini1 > cens.time, 1, 0)
 #' obst1 = t_ini1
 #' for(i in 1:rows) {
-#'    if (delta1[i] == 1) {
+#'    if (delta[i] == 1) {
 #'        obst1[i] = cens.time[i]
 #'       }
 #' }
-#' data.example <- data.frame(obst1, delta1, X, x3)
-#' fit4  <- ssurvglg(Surv(log(obst1),delta1)~ x1 + x2 - 1, npc=x3, data=data.example, shape=t_lambda)
+#' data.example <- data.frame(obst1, delta, X, x3)
+#' fit4  <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1, npc=x3, data=data.example, shape=0.6)
 #' @import ssym
 #' @import robustloggamma
 #' @import methods
@@ -120,7 +119,7 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
     }
     Knot = as.numeric(Knot)
 
-    npoutput <- deBoor(npc, Knot)
+    npoutput <- deBoor2(npc, Knot)
     N <- npoutput$N
     K <- npoutput$K
 
@@ -134,9 +133,8 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
     # Initial values
     formula2 <- formula
 
-    formula21 <- as.character(formula(Formula(formula2),
-        rhs = 0))[2]
-    # formula21 <- sub('delta', '1 - delta', formula21)
+    formula21 <- as.character(formula(Formula(formula2), rhs = 0))[2]
+    formula21 <- sub("delta", "1 - delta", formula21)
     formula21 <- paste(formula21, "~ ")
 
     formula22 <- paste(" ncs(", colnames(npc), sep = "")
@@ -260,10 +258,10 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         output = matrix(0, p, p)
         for (l in 1:p) {
             for (j in 1:p) {
-                output[l, j] = sum(X[, l] * X[, j] * ((1 -
-                  delta) * (-1/sigm^2) * exp(lambd * epsil) +
-                  delta * ((lambd/sigm)^2) * bb * (aaa -
-                    1/lambd^2 - bb)))
+                output[l, j] = sum(X[, l] * X[, j] * ((1 - delta) *
+                  (-1/sigm^2) * exp(lambd * epsil) + delta *
+                  ((lambd/sigm)^2) * bb * (aaa - 1/lambd^2 -
+                  bb)))
             }
         }
         return(output)
@@ -278,10 +276,10 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         output = matrix(0, Knot, Knot)
         for (l in 1:Knot) {
             for (j in 1:Knot) {
-                output[l, j] = sum(N[, l] * N[, j] * ((1 -
-                  delta) * (-1/sigm^2) * exp(lambd * epsil) +
-                  delta * ((lambd/sigm)^2) * bb * (aaa -
-                    1/lambd^2 - bb)))
+                output[l, j] = sum(N[, l] * N[, j] * ((1 - delta) *
+                  (-1/sigm^2) * exp(lambd * epsil) + delta *
+                  ((lambd/sigm)^2) * bb * (aaa - 1/lambd^2 -
+                  bb)))
             }
         }
         output = output - alph * K
@@ -290,16 +288,15 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
 
     I_sigma = function(bet, g, sigm, lambd) {
         epsil = eps(bet, g, sigm)
-        part1 = (1/sigm^2) * (1 + (2/lambd) * epsil * (1 -
-            exp(lambd * epsil)) - (epsil^2) * exp(lambd *
-            epsil))
+        part1 = (1/sigm^2) * (1 + (2/lambd) * epsil * (1 - exp(lambd *
+            epsil)) - (epsil^2) * exp(lambd * epsil))
         aaa = aa(bet, g, sigm, lambd)
         S = S(epsil, lambd)
         bb = (aaa^(1/lambd^2) * exp(-aaa))/(gamma(1/lambd^2) *
             S)
         b = aaa - (1/lambd^2) - bb/gamma(1/lambd^2)
-        part2 = ((lambd * epsil * bb)/(sigm^2)) * (epsil *
-            b - 2/lambd)
+        part2 = ((lambd * epsil * bb)/(sigm^2)) * (epsil * b -
+            2/lambd)
         output = sum((1 - delta) * part1 + delta * part2)
         return(output)
     }
@@ -313,10 +310,10 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         output = matrix(0, p, Knot)
         for (l in 1:p) {
             for (j in 1:Knot) {
-                output[l, j] = sum(X[, l] * N[, j] * ((1 -
-                  delta) * (-1/sigm^2) * exp(lambd * epsil) +
-                  delta * ((lambd/sigm)^2) * bb * (aaa -
-                    1/lambd^2 - bb)))
+                output[l, j] = sum(X[, l] * N[, j] * ((1 - delta) *
+                  (-1/sigm^2) * exp(lambd * epsil) + delta *
+                  ((lambd/sigm)^2) * bb * (aaa - 1/lambd^2 -
+                  bb)))
             }
         }
         return(output)
@@ -327,8 +324,8 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         expep = exp(lambd * epsil)
         H = matrix(0, p, 1)
         for (k in 1:p) {
-            H[k] = sum((1 - delta) * X[, k] * (1 - expep -
-                lambd * epsil * expep))
+            H[k] = sum((1 - delta) * X[, k] * (1 - expep - lambd *
+                epsil * expep))
         }
         part1 = (1/(lambd * (sigm^2))) * H
         part2 = 0 * H
@@ -336,8 +333,7 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         bb = (aaa^(1/lambd^2)) * exp(-aaa)
         S = S(epsil, lambd)
         deno = gamma(1/lambd^2) * S
-        part21 = -1/lambd + epsil * (aaa - (1/lambd^2) -
-            bb/deno)
+        part21 = -1/lambd + epsil * (aaa - (1/lambd^2) - bb/deno)
         for (k in 1:p) {
             H[k] = sum(delta * X[, k] * ((((lambd/sigm)^2) *
                 bb/deno) * part21))
@@ -352,8 +348,8 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         expep = exp(lambd * epsil)
         H = matrix(0, Knot, 1)
         for (k in 1:Knot) {
-            H[k] = sum((1 - delta) * N[, k] * (1 - expep -
-                lambd * epsil * expep))
+            H[k] = sum((1 - delta) * N[, k] * (1 - expep - lambd *
+                epsil * expep))
         }
         part1 = (1/(lambd * (sigm^2))) * H
         part2 = 0 * H
@@ -361,8 +357,7 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         bb = (aaa^(1/lambd^2)) * exp(-aaa)
         S = S(epsil, lambd)
         deno = gamma(1/lambd^2) * S
-        part21 = -1/lambd + epsil * (aaa - (1/lambd^2) -
-            bb/deno)
+        part21 = -1/lambd + epsil * (aaa - (1/lambd^2) - bb/deno)
         for (k in 1:Knot) {
             H[k] = sum(delta * N[, k] * ((((lambd/sigm)^2) *
                 bb/deno) * part21))
@@ -376,8 +371,8 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         output = matrix(0, p + Knot + 1, p + Knot + 1)
 
         output[1:p, 1:p] = I_beta(bet, g, sigm, lambd)
-        output[1:p, (p + 1):(p + Knot)] = I_betg(bet, g,
-            sigm, lambd)
+        output[1:p, (p + 1):(p + Knot)] = I_betg(bet, g, sigm,
+            lambd)
         output[1:p, (p + Knot + 1)] = I_betsig(bet, g, sigm,
             lambd)
 
@@ -388,8 +383,8 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         output[(p + 1):(p + Knot), p + Knot + 1] = I_gsig(bet,
             g, sigm, lambd)
 
-        output[(p + Knot + 1), 1:p] = t(output[1:p, (p +
-            Knot + 1)])
+        output[(p + Knot + 1), 1:p] = t(output[1:p, (p + Knot +
+            1)])
         output[(p + Knot + 1), (p + 1):(p + Knot)] = t(output[(p +
             1):(p + Knot), p + Knot + 1])
         output[(p + Knot + 1), (p + Knot + 1)] = I_sigma(bet,
@@ -411,8 +406,7 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         epsil = eps(bet, g, sigm)
         S = S(epsil, lambd)
         output1 = sum(delta * log(S) + (1 - delta) * (log(c_l(lambd)/sigm) +
-            (1/lambd) * epsil - (1/lambd^2) * exp(lambd *
-            epsil)))
+            (1/lambd) * epsil - (1/lambd^2) * exp(lambd * epsil)))
         output2 = -(alph/2) * g %*% K %*% g
         output = output1 + output2
         return(output)
@@ -424,58 +418,49 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         new = output[, 1]
         l = 2
         output[, l] = output[, (l - 1)] - solve(I_tetha(output[1:p,
-            (l - 1)], output[(p + 1):(p + Knot), (l - 1)],
-            output[(p + Knot + 1), (l - 1)], lambd, alph)) %*%
-            U_theta(output[1:p, (l - 1)], output[(p + 1):(p +
-                Knot), (l - 1)], output[(p + Knot + 1), (l -
-                1)], lambd, alph)
+            (l - 1)], output[(p + 1):(p + Knot), (l - 1)], output[(p +
+            Knot + 1), (l - 1)], lambd, alph)) %*% U_theta(output[1:p,
+            (l - 1)], output[(p + 1):(p + Knot), (l - 1)], output[(p +
+            Knot + 1), (l - 1)], lambd, alph)
         llglg = loglikglg(output[1:p, 2], output[(p + 1):(p +
             Knot), 2], output[p + Knot + 1, 2], lambd, alph)
-        condition = llglg - loglikglg(new[1:p], new[(p +
-            1):(p + Knot)], new[p + Knot + 1], lambd, alph)
+        condition = llglg - loglikglg(new[1:p], new[(p + 1):(p +
+            Knot)], new[p + Knot + 1], lambd, alph)
 
         if (condition == "NaN") {
-            norm = as.numeric(sqrt(t(U_theta(output[1:p,
-                (l - 1)], output[(p + 1):(p + Knot), (l -
-                1)], output[(p + Knot + 1), (l - 1)], lambd,
-                alph)) %*% U_theta(output[1:p, (l - 1)],
-                output[(p + 1):(p + Knot), (l - 1)], output[(p +
-                  Knot + 1), (l - 1)], lambd, alph)))
-            output[, l] = output[, (l - 1)] - (1/norm) *
-                solve(I_tetha(output[1:p, (l - 1)], output[(p +
-                  1):(p + Knot), (l - 1)], output[(p + Knot +
-                  1), (l - 1)], lambd, alph)) %*% U_theta(output[1:p,
-                  (l - 1)], output[(p + 1):(p + Knot), (l -
-                  1)], output[(p + Knot + 1), (l - 1)], lambd,
-                  alph)
-            llglg = loglikglg(output[1:p, 2], output[(p +
-                1):(p + Knot), 2], output[p + Knot + 1, 2],
-                lambd, alph)
+            norm = as.numeric(sqrt(t(U_theta(output[1:p, (l -
+                1)], output[(p + 1):(p + Knot), (l - 1)], output[(p +
+                Knot + 1), (l - 1)], lambd, alph)) %*% U_theta(output[1:p,
+                (l - 1)], output[(p + 1):(p + Knot), (l - 1)],
+                output[(p + Knot + 1), (l - 1)], lambd, alph)))
+            output[, l] = output[, (l - 1)] - (1/norm) * solve(I_tetha(output[1:p,
+                (l - 1)], output[(p + 1):(p + Knot), (l - 1)],
+                output[(p + Knot + 1), (l - 1)], lambd, alph)) %*%
+                U_theta(output[1:p, (l - 1)], output[(p + 1):(p +
+                  Knot), (l - 1)], output[(p + Knot + 1), (l -
+                  1)], lambd, alph)
+            llglg = loglikglg(output[1:p, 2], output[(p + 1):(p +
+                Knot), 2], output[p + Knot + 1, 2], lambd, alph)
             condition = llglg - loglikglg(new[1:p], new[(p +
-                1):(p + Knot)], new[p + Knot + 1], lambd,
-                alph)
+                1):(p + Knot)], new[p + Knot + 1], lambd, alph)
         }
 
         if (condition < 0) {
-            norm = as.numeric(sqrt(t(U_theta(output[1:p,
-                (l - 1)], output[(p + 1):(p + Knot), (l -
-                1)], output[(p + Knot + 1), (l - 1)], lambd,
-                alph)) %*% U_theta(output[1:p, (l - 1)],
-                output[(p + 1):(p + Knot), (l - 1)], output[(p +
-                  Knot + 1), (l - 1)], lambd, alph)))
-            output[, l] = output[, (l - 1)] - (1/norm) *
-                solve(I_tetha(output[1:p, (l - 1)], output[(p +
-                  1):(p + Knot), (l - 1)], output[(p + Knot +
-                  1), (l - 1)], lambd, alph)) %*% U_theta(output[1:p,
-                  (l - 1)], output[(p + 1):(p + Knot), (l -
-                  1)], output[(p + Knot + 1), (l - 1)], lambd,
-                  alph)
-            llglg = loglikglg(output[1:p, 2], output[(p +
-                1):(p + Knot), 2], output[p + Knot + 1, 2],
-                lambd, alph)
+            norm = as.numeric(sqrt(t(U_theta(output[1:p, (l -
+                1)], output[(p + 1):(p + Knot), (l - 1)], output[(p +
+                Knot + 1), (l - 1)], lambd, alph)) %*% U_theta(output[1:p,
+                (l - 1)], output[(p + 1):(p + Knot), (l - 1)],
+                output[(p + Knot + 1), (l - 1)], lambd, alph)))
+            output[, l] = output[, (l - 1)] - (1/norm) * solve(I_tetha(output[1:p,
+                (l - 1)], output[(p + 1):(p + Knot), (l - 1)],
+                output[(p + Knot + 1), (l - 1)], lambd, alph)) %*%
+                U_theta(output[1:p, (l - 1)], output[(p + 1):(p +
+                  Knot), (l - 1)], output[(p + Knot + 1), (l -
+                  1)], lambd, alph)
+            llglg = loglikglg(output[1:p, 2], output[(p + 1):(p +
+                Knot), 2], output[p + Knot + 1, 2], lambd, alph)
             condition = llglg - loglikglg(new[1:p], new[(p +
-                1):(p + Knot)], new[p + Knot + 1], lambd,
-                alph)
+                1):(p + Knot)], new[p + Knot + 1], lambd, alph)
         }
 
         if (condition > 0) {
@@ -512,14 +497,13 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
 
         l = 2
         new[, l] = newpar(new[1:p, (l - 1)], new[(p + 1):(p +
-            Knot), (l - 1)], new[(p + Knot + 1), (l - 1)],
-            lambd, alph)
+            Knot), (l - 1)], new[(p + Knot + 1), (l - 1)], lambd,
+            alph)
 
         llglg = loglikglg(new[1:p, l], new[(p + 1):(p + Knot),
             l], new[(p + Knot + 1), l], lambd, alph)
         condition = llglg - loglikglg(output[1:p], output[(p +
-            1):(p + Knot)], output[p + Knot + 1], lambd,
-            alph)
+            1):(p + Knot)], output[p + Knot + 1], lambd, alph)
 
         if (condition > 0) {
             output = new[, l]
@@ -527,12 +511,11 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
 
         while (condition > Tolerance & l < Maxiter) {
             l = l + 1
-            new[, l] = newpar(new[1:p, (l - 1)], new[(p +
-                1):(p + Knot), (l - 1)], new[(p + Knot +
-                1), (l - 1)], lambd, alph)
+            new[, l] = newpar(new[1:p, (l - 1)], new[(p + 1):(p +
+                Knot), (l - 1)], new[(p + Knot + 1), (l - 1)],
+                lambd, alph)
             llglg = loglikglg(new[1:p, l], new[(p + 1):(p +
-                Knot), l], new[(p + Knot + 1), l], lambd,
-                alph)
+                Knot), l], new[(p + Knot + 1), l], lambd, alph)
 
             condition = llglg - loglikglg(output[1:p], output[(p +
                 1):(p + Knot)], output[(p + Knot + 1)], lambd,
@@ -540,9 +523,8 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
 
             if (condition > 0) {
                 output = new[, l]
-                llglg = loglikglg(output[1:p], output[(p +
-                  1):(p + Knot)], output[(p + Knot + 1)],
-                  lambd, alph)
+                llglg = loglikglg(output[1:p], output[(p + 1):(p +
+                  Knot)], output[(p + Knot + 1)], lambd, alph)
             }
         }
         if (l < Maxiter) {
@@ -570,17 +552,18 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
             num.iter = news$iter
             cond = news$cond
             llglg = news$llglg
-            df = edf(news$est[1:p], news$est[(p + 1):(p + Knot)], news$est[(p + Knot + 1)], lambda0, alph)
+            df = edf(news$est[1:p], news$est[(p + 1):(p + Knot)],
+                news$est[(p + Knot + 1)], lambda0, alph)
             aic = -2 * llglg + 2 * (p + df + 1)
             bic = -2 * llglg + log(n) * (p + df + 1)
             return(list(est = news$est, df = df, llglg = llglg,
-            AIC = aic, BIC = bic, Conv = Conv, iter = num.iter,
-            cond = cond))
+                AIC = aic, BIC = bic, Conv = Conv, iter = num.iter,
+                cond = cond))
         }
         if (news$iter >= Maxiter) {
-          Conv = FALSE
-          return(list(Conv = Conv))
-          stop("")
+            Conv = FALSE
+            return(list(Conv = Conv))
+            stop("")
         }
     }
 
@@ -601,35 +584,36 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         output1 <- output0[1:k]
         output2 <- output0[k + 1]
         output3 <- masterf(output1)
-        if(output3$Conv==FALSE)
-        { print("The optimization was not successful.")
-          return(0) }
+        if (output3$Conv == FALSE) {
+            print("The optimization was not successful.")
+            return(0)
+        }
         df <- output3$df
         d.f.npc <- df - p
         output <- output3$est
         llglg <- output3$llglg
         aic = output3$AIC
         bic = output3$BIC
-        scores = U_theta(output[1:p], output[(p + 1):(p +
-            Knot)], output[p + Knot + 1], lambda0, output1)
-        covar = I_tetha(output[1:p], output[(p + 1):(p +
-            Knot)], output[p + Knot + 1], lambda0, output1)
+        scores = U_theta(output[1:p], output[(p + 1):(p + Knot)],
+            output[p + Knot + 1], lambda0, output1)
+        covar = I_tetha(output[1:p], output[(p + 1):(p + Knot)],
+            output[p + Knot + 1], lambda0, output1)
         inter = matrix(0, p + Knot + 1, 2)
         scovar = solve(-covar)
         val = diag(scovar)
-        #if (min(val) > 0) {
-            ste = sqrt(val)
-            inter[, 1] = as.matrix(output - 1.96 * ste)
-            inter[, 2] = as.matrix(output + 1.96 * ste)
-            zs = abs(output/ste)
-            pval = 1 - (pnorm(zs) - pnorm(-zs))
-            pval2 = pval[-((p + 1):(p + Knot))]
-            as = output[(p + 1):(p + Knot)]
-        #}
+        # if (min(val) > 0) {
+        ste = sqrt(val)
+        inter[, 1] = as.matrix(output - 1.96 * ste)
+        inter[, 2] = as.matrix(output + 1.96 * ste)
+        zs = abs(output/ste)
+        pval = 1 - (pnorm(zs) - pnorm(-zs))
+        pval2 = pval[-((p + 1):(p + Knot))]
+        as = output[(p + 1):(p + Knot)]
+        # }
         y_est = X %*% output[1:p] + N %*% output[(p + 1):(p +
             Knot)]
-        ordresidual = eps(output[1:p], output[(p + 1):(p +
-            Knot)], output[p + Knot + 1])
+        ordresidual = eps(output[1:p], output[(p + 1):(p + Knot)],
+            output[p + Knot + 1])
         sgn = sign(Y[, 1] - y_est)
         outputp = lambda0
         dev = sgn * sqrt(2) * ((1 - delta) * ((1/outputp^2) *
@@ -644,15 +628,13 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
         output = list(formula = formula, npc = npc, size = n,
             per.cens = per.censo, mu = output[1:(p + Knot)],
             sigma = output[p + Knot + 1], lambda = lambda0,
-            alpha = output1, edf = df, d.f.npc = d.f.npc,
-            y = Y[, 1], delta = delta, X = X, N = N, p = p,
-            Knot = Knot, y_est = y_est, rord = ordresidual,
-            rdev = dev, scores = scores, deviance = devian,
-            goodnessoffit = good_fit, llglg = llglg, AIC = aic,
-            BIC = bic, scovar = scovar,
-            p.values = pval2, convergence = output3$Conv,
-            condition = output3$cond, Iterations = output3$iter,
-            semi = TRUE, censored = TRUE)
+            alpha = output1, edf = df, d.f.npc = d.f.npc, y = Y[,
+                1], delta = delta, X = X, N = N, p = p, Knot = Knot,
+            y_est = y_est, rord = ordresidual, rdev = dev, scores = scores,
+            deviance = devian, goodnessoffit = good_fit, llglg = llglg,
+            AIC = aic, BIC = bic, scovar = scovar, st_error = ste,
+            p.values = pval2, convergence = output3$Conv, condition = output3$cond,
+            Iterations = output3$iter, semi = TRUE, censored = TRUE)
         return(output)
     }
     output = total_optimum(alpha0)
@@ -660,6 +642,5 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter,
     return(output)
 }
 
-#, st_error = ste
-#  z_values = zs,
+# , st_error = ste z_values = zs,
 #' interval = inter

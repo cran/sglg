@@ -9,13 +9,12 @@
 #' @param ... other arguments.
 
 # @references Carlos A. Cardozo, G. Paula and L. Vanegas.
-# Semi-parametric generalized log-gamma regression
-# models. In preparation.  @references Carlos A.
-# Cardozo, G. Paula and L. Vanegas.  Semi-parametric
-# accelerated failure time models with generalized
-# log-gamma erros: Censored case. In preparation.
-# @author Carlos Alberto Cardozo Delgado
-# <cardozorpackages@gmail.com>, G. Paula and L.  Vanegas.
+# Semi-parametric generalized log-gamma regression models.
+# In preparation.  @references Carlos A.  Cardozo, G. Paula
+# and L.  Vanegas.  Semi-parametric accelerated failure time
+# models with generalized log-gamma erros: Censored case. In
+# preparation.  @author Carlos Alberto Cardozo Delgado
+# <cardozorpackages@gmail.com>, G.  Paula and L.  Vanegas.
 #' @export
 plot.sglg <- function(x, ...) {
     par(mfrow = c(1, 2))
@@ -55,13 +54,12 @@ plot.sglg <- function(x, ...) {
         abline(h = -C, col = 2)
         
         ekm <- survfit(Surv(exp(rord), 1 - delta) ~ 1)
-        # ftimes <-
-        # as.numeric(unlist(as.vector(summary(ekm)[2])))
+        # ftimes <- as.numeric(unlist(as.vector(summary(ekm)[2])))
         surv <- as.numeric(unlist(as.vector(summary(ekm)[6])))
         Fkm <- 1 - surv
-        # plot(ftimes, surv, xlab = 'Multiplicative error', ylab
-        # = 'Survival values', main = 'Survival function', type =
-        # 'l', pch = 20)
+        # plot(ftimes, surv, xlab = 'Multiplicative error', ylab =
+        # 'Survival values', main = 'Survival function', type = 'l',
+        # pch = 20)
         
         res <- sort((rord * (1 - delta))[delta == 0])
         Fs <- ploggamma(res, lambda = lambda)

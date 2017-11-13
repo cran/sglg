@@ -26,7 +26,7 @@ Tool that supports the estimation of the shape parameter in semi-parametric or m
 under the presence of censored data. The estimation is based on the profiled likelihood function for the shape parameter of the model.
 }
 \examples{
-rows  <- 240
+rows  <- 200
 columns <- 2
 t_beta  <- c(0.5, 2)
 t_sigma <- 1
@@ -40,15 +40,19 @@ s         <- t_sigma^2
 a         <- 1/s
 t_ini1    <- exp(X \%*\% t_beta) * rgamma(rows, scale = s, shape = a)
 cens.time <- rweibull(rows, 0.3, 14)
-delta1     <- ifelse(t_ini1 > cens.time, 1, 0)
+delta     <- ifelse(t_ini1 > cens.time, 1, 0)
 obst1 = t_ini1
 for (i in 1:rows) {
-if (delta1[i] == 1) {
+if (delta[i] == 1) {
    obst1[i] = cens.time[i]
   }
 }
-data.example <- data.frame(obst1,delta1,X)
-lambda <- shape(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example)
+example <- data.frame(obst1,delta,X)
+lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example)
+lambda
+# To change interval or step or both options
+lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example, interval=c(0.95,1.3), step=0.05)
+lambda
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.

@@ -39,17 +39,13 @@ In this setup, the location parameter of the response variable is explicitly mod
 natural cubic splines or cubic P-splines.
 }
 \examples{
-rows <- 240 # Number of observations
+rows <- 210 # Number of observations
 columns <- 2 # Number of parametric components
+library(ssym)
 t_beta  <- c(0.5, 2)
 t_sigma <- 1
 t_lambda <- 1
-set.seed(8142031)
-library(ssym)
-x1 <- rbinom(rows, 1, 0.5)
-x2 <- runif(columns, 0, 1)
-X <- cbind(x1,x2)
-t_knot1 <- 6
+t_knot1 <- 9
 ts1 <- seq(0, 1, length = t_knot1)
 t_g1 <- 0.4 * sin(pi * ts1)
 
@@ -66,10 +62,15 @@ BasisN <- function(n, knot) {
 s_N1 <- BasisN(rows, length(ts1))
 x3 <- s_N1 \%*\% ts1
 colnames(x3) <- 'x3'
-error <- robustloggamma::rloggamma(rows, 0, 1, t_lambda)
-y2 <- X \%*\%t_beta + + s_N1 \%*\% t_g1 + t_sigma * error
-data.example <- data.frame(y2,X,x3)
-fit2 <- sglg(y2 ~ x1 + x2, npc=x3, data=data.example)
+set.seed(8142031)
+x1 <- rbinom(rows, 1, 0.5)
+x2 <- runif(columns, 0, 1)
+X <- cbind(x1,x2)
+error <- rglg(rows, 0, 1, t_lambda)
+y1 <- X \%*\%t_beta + + s_N1 \%*\% t_g1 + t_sigma * error
+data.example <- data.frame(y1,X,x3)
+fit1 <- sglg(y1 ~ x1 + x2 - 1, npc=x3, data=data.example)
+
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric generalized log-gamma regression models. In preparation.
