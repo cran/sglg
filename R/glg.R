@@ -124,10 +124,9 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
     
     K_1 <- function(lambd) {
         invlamb2 <- 1/lambd^2
-        part1 <- 4 * (1 + digamma(1 + invlamb2) - digamma(invlamb2) - 
-            invlamb2 * trigamma(invlamb2))
-        part2 <- trigamma(1 + invlamb2) + (digamma(invlamb2 + 
-            1) - log(invlamb2))^2
+        part1 <- 4 * (1 + digamma(1 + invlamb2) - digamma(invlamb2) - invlamb2 * 
+            trigamma(invlamb2))
+        part2 <- trigamma(1 + invlamb2) + (digamma(invlamb2 + 1) - log(invlamb2))^2
         output <- 1 - invlamb2 * (part1 - part2)
         return(output)
     }
@@ -136,8 +135,7 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         invlamb <- 1/lambd
         invlamb2 <- invlamb^2
         output <- invlamb * ((digamma(1 + invlamb2) - digamma(invlamb2)) - 
-            trigamma(1 + invlamb2) - (digamma(1 + invlamb2) - 
-            log(invlamb2))^2)
+            trigamma(1 + invlamb2) - (digamma(1 + invlamb2) - log(invlamb2))^2)
         return(output)
     }
     
@@ -149,14 +147,12 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
     }
     
     I_12 <- function(sigm, lambd) {
-        output <- (1/(sigm^2)) * u_lambda(lambd) * t(X) %*% 
-            One
+        output <- (1/(sigm^2)) * u_lambda(lambd) * t(X) %*% One
         return(output)
     }
     
     I_13 <- function(sigm, lambd) {
-        output <- (-1/(sigm * lambd)) * u_lambda(lambd) * t(X) %*% 
-            One
+        output <- (-1/(sigm * lambd)) * u_lambda(lambd) * t(X) %*% One
         return(output)
     }
     
@@ -225,14 +221,14 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
     ## Final step: Score functions
     
     U_beta <- function(bet, sigm, lambd) {
-        output <- (-1/(lambd * sigm)) * t(X) %*% W(bet, sigm, 
-            lambd) %*% One
+        output <- (-1/(lambd * sigm)) * t(X) %*% W(bet, sigm, lambd) %*% 
+            One
         return(output)
     }
     
     U_sigma <- function(bet, sigm, lambd) {
-        output <- -(1/sigm) * n - (1/(lambd * sigm)) * t(One) %*% 
-            W(bet, sigm, lambd) %*% eps(bet, sigm)
+        output <- -(1/sigm) * n - (1/(lambd * sigm)) * t(One) %*% W(bet, 
+            sigm, lambd) %*% eps(bet, sigm)
         return(output)
     }
     
@@ -242,9 +238,9 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
             2 * log(abs(lambd)) - 1))
         Ds <- D(eps(bet, sigm), lambd)
         epsilons <- eps(bet, sigm)
-        output <- n * eta_lambd - (invlamb^2) * t(One) %*% epsilons + 
-            (2 * invlamb^3) * t(One) %*% Ds %*% One - (invlamb^2) * 
-            t(One) %*% Ds %*% epsilons
+        output <- n * eta_lambd - (invlamb^2) * t(One) %*% epsilons + (2 * 
+            invlamb^3) * t(One) %*% Ds %*% One - (invlamb^2) * t(One) %*% 
+            Ds %*% epsilons
         return(output)
     }
     
@@ -275,9 +271,8 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
     
     loglikglg <- function(bet, sigm, lambd) {
         epsilon <- eps(bet, sigm)
-        output <- n * log(c_l(lambd)/sigm) + (1/lambd) * t(One) %*% 
-            epsilon - (1/lambd^2) * t(One) %*% D(epsilon, lambd) %*% 
-            One
+        output <- n * log(c_l(lambd)/sigm) + (1/lambd) * t(One) %*% epsilon - 
+            (1/lambd^2) * t(One) %*% D(epsilon, lambd) %*% One
         return(output)
     }
     
@@ -289,30 +284,26 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         output[p + 1, 1] <- sigm
         output[p + 2, 1] <- lambd
         new <- output[, 1]
-        # print(loglikglg(output[1:p,1],output[p+1,1],output[p+2,1]))
-        output[, 2] <- output[, 1] + solve(I_theta(sigm, lambd)) %*% 
-            U_theta(bet, sigm, lambd)
+        output[, 2] <- output[, 1] + solve(I_theta(sigm, lambd)) %*% U_theta(bet, 
+            sigm, lambd)
         M = 2
         while (output[p + 1, 2] < 0 & M < Maxiter) {
-            output[, 2] = 0.99 * output[, 2] + 0.01 * output[, 
-                1]
+            output[, 2] = 0.99 * output[, 2] + 0.01 * output[, 1]
             M = M + 1
         }
-        llglg = loglikglg(output[1:p, 2], output[p + 1, 2], 
-            output[p + 2, 2])
-        # print(llglg)
-        condition = llglg - loglikglg(output[1:p, 1], output[p + 
-            1, 1], output[p + 2, 1])
+        llglg = loglikglg(output[1:p, 2], output[p + 1, 2], output[p + 2, 
+            2])
+        condition = llglg - loglikglg(output[1:p, 1], output[p + 1, 1], output[p + 
+            2, 1])
         if (condition > 0) {
             new = output[, 2]
         }
         M = 2
         while (condition < 0 & M < Maxiter) {
-            output[, 2] = 0.99 * output[, 2] + 0.01 * output[, 
-                1]
-            condition = loglikglg(output[1:p, 2], output[p + 
-                1, 2], output[p + 2, 2]) - loglikglg(output[1:p, 
-                1], output[p + 1, 1], output[p + 2, 1])
+            output[, 2] = 0.99 * output[, 2] + 0.01 * output[, 1]
+            condition = loglikglg(output[1:p, 2], output[p + 1, 2], output[p + 
+                2, 2]) - loglikglg(output[1:p, 1], output[p + 1, 1], output[p + 
+                2, 1])
             if (condition > 0) {
                 new = output[, 2]
             }
@@ -320,14 +311,6 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         }
         return(new)
     }
-    
-    # gfit = function(resid, lambd) { Fs =
-    # robustloggamma::ploggamma(resid, lambda = lambd)
-    # Emp_quantil = qnorm(Fs) diff <- qqnorm(Emp_quantil, main =
-    # 'Overall goodness-of-fit statistic', cex = 0.3, lwd = 3,
-    # xlab = 'Quantiles of N(0,1)', ylab = 'Overall residuals')
-    # abline(0, 1, col = 2) output = mean(abs(diff$x - diff$y))
-    # return(output) }
     
     gfit <- function(resid, lambd) {
         Fs <- ploggamma(resid, lambda = lambd)
@@ -348,32 +331,29 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         new = matrix(0, p + 2, Maxiter)
         new[, 1] = newpar(bet, sigm, lambd)
         ouput = new[, 1]
-        new[, 2] = newpar(new[1:p, 1], new[(p + 1), 1], new[(p + 
-            2), 1])
+        new[, 2] = newpar(new[1:p, 1], new[(p + 1), 1], new[(p + 2), 1])
         l = 2
-        llglg = loglikglg(new[1:p, l], new[(p + 1), l], new[(p + 
-            2), l])
-        condition = llglg - loglikglg(new[1:p, 1], new[p + 1, 
-            1], new[p + 2, 1])
+        llglg = loglikglg(new[1:p, l], new[(p + 1), l], new[(p + 2), l])
+        condition = llglg - loglikglg(new[1:p, 1], new[p + 1, 1], new[p + 
+            2, 1])
         if (condition > 0) {
             output = new[, l]
         }
         while (condition > Tolerance & l < Maxiter) {
             l = l + 1
-            new[, l] = newpar(new[1:p, (l - 1)], new[(p + 1), 
-                (l - 1)], new[(p + 2), (l - 1)])
-            llglg = loglikglg(new[1:p, l], new[(p + 1), l], 
-                new[(p + 2), l])
-            condition = llglg - loglikglg(output[1:p], output[(p + 
-                1)], output[(p + 2)])
+            new[, l] = newpar(new[1:p, (l - 1)], new[(p + 1), (l - 1)], new[(p + 
+                2), (l - 1)])
+            llglg = loglikglg(new[1:p, l], new[(p + 1), l], new[(p + 2), 
+                l])
+            condition = llglg - loglikglg(output[1:p], output[(p + 1)], output[(p + 
+                2)])
             
             if (condition > 0) {
                 output = new[, l]
             }
         }
         if (condition < Tolerance & l < Maxiter) {
-            return(list(est = output, cond = condition, conv = TRUE, 
-                iter = l))
+            return(list(est = output, cond = condition, conv = TRUE, iter = l))
         }
         if (l >= Maxiter | scores > 0.05) {
             conv = FALSE
@@ -393,8 +373,7 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         iter <- output$iter
         condition <- output$cond
         output <- output$est
-        llglg <- loglikglg(output[1:p], output[(p + 1)], output[(p + 
-            2)])
+        llglg <- loglikglg(output[1:p], output[(p + 1)], output[(p + 2)])
         aic <- -2 * llglg + 2 * (p + 2)
         bic <- -2 * llglg + log(n) * (p + 2)
         aic2 <- aic + 2 * sum(y)
@@ -406,28 +385,25 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         y_est <- X %*% output[1:p]
         ordresidual <- eps(output[1:p], output[p + 1])
         sgn <- sign(y - y_est)
-        dev <- sgn * sqrt(2) * ((1/output[p + 2]^2) * exp(output[p + 
-            2] * ordresidual) - (1/output[p + 2]) * ordresidual - 
-            (1/output[p + 2])^2)^(0.5)
+        dev <- sgn * sqrt(2) * ((1/output[p + 2]^2) * exp(output[p + 2] * 
+            ordresidual) - (1/output[p + 2]) * ordresidual - (1/output[p + 
+            2])^2)^(0.5)
         devian <- sum(dev^2)
         part2 <- ((output[p + 1])/(output[p + 2])) * (digamma((1/output[p + 
             2])^2) - log((1/output[p + 2])^2))
         y_est <- y_est + part2
-        scores <- U_theta(output[1:p], output[p + 1], output[p + 
-            2])
+        scores <- U_theta(output[1:p], output[p + 1], output[p + 2])
         inter <- matrix(0, p + 2, 2)
         inter[, 1] <- as.matrix(output - 1.96 * ste)
         inter[, 2] <- as.matrix(output + 1.96 * ste)
         good_fit <- gfit(ordresidual, output[p + 2])
-        output <- list(formula = formula, size = n, mu = output[1:p], 
-            sigma = output[p + 1], lambda = output[p + 2], y = y, 
-            p = p, X = X, Knot = 0, llglg = llglg, scores = scores, 
-            AIC = aic, BIC = bic, AIC2 = aic2, deviance = devian, 
-            rdev = dev, Itheta = covar, st_error = ste, z_values = zs, 
-            p.values = pval, interval = inter, goodnessoffit = good_fit, 
-            convergence = conv, condition = condition, iterations = iter, 
-            y_est = y_est, rord = ordresidual, semi = FALSE, 
-            censored = FALSE)
+        output <- list(formula = formula, size = n, mu = output[1:p], sigma = output[p + 
+            1], lambda = output[p + 2], y = y, p = p, X = X, Knot = 0, llglg = llglg, 
+            scores = scores, AIC = aic, BIC = bic, AIC2 = aic2, deviance = devian, 
+            rdev = dev, Itheta = covar, st_error = ste, z_values = zs, p.values = pval, 
+            interval = inter, goodnessoffit = good_fit, convergence = conv, 
+            condition = condition, iterations = iter, y_est = y_est, rord = ordresidual, 
+            semi = FALSE, censored = FALSE)
         class(output) = "sglg"
         return(output)
     }

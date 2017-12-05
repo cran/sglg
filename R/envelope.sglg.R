@@ -30,12 +30,12 @@
 #' @export envelope.sglg
 #'
 envelope.sglg <- function(fit, Rep) {
-
+    
     if (fit$censored == FALSE) {
-
-        if (missingArg(Rep))
+        
+        if (missingArg(Rep)) 
             Rep <- 30
-
+        
         formula <- paste("~", as.character(fit$formula)[3])
         formula <- as.formula(paste("y", formula))
         X <- fit$X
@@ -46,17 +46,16 @@ envelope.sglg <- function(fit, Rep) {
         rord <- fit$rord
         systematic_part <- rord * sigma
         e <- matrix(0, n, Rep)
-
+        
         j <- 1
-
+        
         if (fit$Knot >= 3) {
             npc <- fit$npc
             while (j <= Rep) {
                 error <- rglg(n, shape = lambda)
                 y <- systematic_part + sigma * error
                 data <- data.frame(y, X)
-                newfit <- try(sglg(formula, npc = npc, data = data),
-                  silent = TRUE)
+                newfit <- try(sglg(formula, npc = npc, data = data), silent = TRUE)
                 if (is.list(newfit)) {
                   if (newfit$convergence == TRUE) {
                     print(j)
@@ -83,30 +82,30 @@ envelope.sglg <- function(fit, Rep) {
         }
         e1 <- numeric(n)
         e2 <- numeric(n)
-
+        
         for (i in 1:n) {
             eo <- sort(e[i, ])
             e1[i] <- (eo[1] + eo[2])/2
             e2[i] <- (eo[Rep - 1] + eo[Rep])/2
         }
-
+        
         med <- apply(e, 1, mean)
         faixa <- range(rdev, e1, e2)
         par(mfrow = c(1, 1))
         par(pty = "s")
-        qqnorm(rdev, xlab = "Quantiles of N(0,1)", ylab = "Desviance-type residuals",
+        qqnorm(rdev, xlab = "Quantiles of N(0,1)", ylab = "Desviance-type residuals", 
             ylim = faixa, pch = 20, main = "")
         par(new = T)
-        qqnorm(e1, axes = F, xlab = "", ylab = "", type = "l",
-            ylim = faixa, lty = 1, col = 2, main = "")
+        qqnorm(e1, axes = F, xlab = "", ylab = "", type = "l", ylim = faixa, 
+            lty = 1, col = 2, main = "")
         par(new = T)
-        qqnorm(e2, axes = F, xlab = "", ylab = "", type = "l",
-            ylim = faixa, col = 2, lty = 1, main = "")
+        qqnorm(e2, axes = F, xlab = "", ylab = "", type = "l", ylim = faixa, 
+            col = 2, lty = 1, main = "")
         par(new = T)
-        qqnorm(med, axes = F, xlab = "", ylab = "", type = "l",
-            ylim = faixa, lty = 2, main = "")
+        qqnorm(med, axes = F, xlab = "", ylab = "", type = "l", ylim = faixa, 
+            lty = 2, main = "")
     }
-
+    
     if (fit$censored == TRUE) {
         print("Sorry, for this kind of model it is not available this option.")
     }

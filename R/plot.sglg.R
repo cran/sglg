@@ -9,12 +9,12 @@
 #' @param ... other arguments.
 
 # @references Carlos A. Cardozo, G. Paula and L. Vanegas.
-# Semi-parametric generalized log-gamma regression models.
-# In preparation.  @references Carlos A.  Cardozo, G. Paula
-# and L.  Vanegas.  Semi-parametric accelerated failure time
-# models with generalized log-gamma erros: Censored case. In
-# preparation.  @author Carlos Alberto Cardozo Delgado
-# <cardozorpackages@gmail.com>, G.  Paula and L.  Vanegas.
+# Semi-parametric generalized log-gamma regression models.  In
+# preparation.  @references Carlos A.  Cardozo, G. Paula and L.  Vanegas.
+# Semi-parametric accelerated failure time models with generalized
+# log-gamma erros: Censored case. In preparation.  @author Carlos Alberto
+# Cardozo Delgado <cardozorpackages@gmail.com>, G.  Paula and L.
+# Vanegas.
 #' @export
 plot.sglg <- function(x, ...) {
     par(mfrow = c(1, 2))
@@ -28,15 +28,13 @@ plot.sglg <- function(x, ...) {
         
         Fs <- ploggamma(rord, lambda = lambda)
         equantil <- qnorm(Fs)
-        diff <- qqnorm(equantil, main = "Overall goodness-of-fit", 
-            cex = 0.3, lwd = 3, xlab = "Quantiles of N(0,1)", 
-            ylab = "Overall residuals")
+        diff <- qqnorm(equantil, main = "Overall goodness-of-fit", cex = 0.3, 
+            lwd = 3, xlab = "Quantiles of N(0,1)", ylab = "Overall residuals")
         abline(0, 1, col = 2)
         
         C <- rep(3, length(y_est))
-        graphics::plot(y_est, rdev, main = "Deviance residuals", 
-            xlab = "Fitted values", ylab = "Deviance-type residuals", 
-            ylim = c(-3.2, 3.2), pch = 20)
+        graphics::plot(y_est, rdev, main = "Deviance residuals", xlab = "Fitted values", 
+            ylab = "Deviance-type residuals", ylim = c(-3.2, 3.2), pch = 20)
         abline(h = C, col = 2)
         abline(h = -C, col = 2)
     }
@@ -48,8 +46,7 @@ plot.sglg <- function(x, ...) {
         
         C <- rep(3, length(y_est))
         plot(y_est, rdev, main = "Deviance residuals", xlab = "Fitted values", 
-            ylab = "Deviance-type residuals", ylim = c(-3.2, 
-                3.2), pch = 20)
+            ylab = "Deviance-type residuals", ylim = c(-3.2, 3.2), pch = 20)
         abline(h = C, col = 2)
         abline(h = -C, col = 2)
         
@@ -57,9 +54,8 @@ plot.sglg <- function(x, ...) {
         # ftimes <- as.numeric(unlist(as.vector(summary(ekm)[2])))
         surv <- as.numeric(unlist(as.vector(summary(ekm)[6])))
         Fkm <- 1 - surv
-        # plot(ftimes, surv, xlab = 'Multiplicative error', ylab =
-        # 'Survival values', main = 'Survival function', type = 'l',
-        # pch = 20)
+        # plot(ftimes, surv, xlab = 'Multiplicative error', ylab = 'Survival
+        # values', main = 'Survival function', type = 'l', pch = 20)
         
         res <- sort((rord * (1 - delta))[delta == 0])
         Fs <- ploggamma(res, lambda = lambda)

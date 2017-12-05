@@ -24,13 +24,11 @@ lss = function(mu, sigma, lambda) {
     
     mean <- round(mu + sigma * (digamma(1/lambda^2) - log(1/lambda^2))/(lambda), 
         digits = 4)
-    variance <- round((sigma^2) * (trigamma(1/lambda^2))/(lambda^2), 
-        digits = 4)
+    variance <- round((sigma^2) * (trigamma(1/lambda^2))/(lambda^2), digits = 4)
     skewness <- sign(lambda) * round(psigamma(1/lambda^2, deriv = 2)/(trigamma(1/lambda^2)^(3/2)), 
         digits = 4)
     kurtosis <- round((psigamma(1/lambda^2, deriv = 3)/((trigamma(1/lambda^2))^2)) + 
         3, digits = 4)
     
-    return(list(mean = mean, variance = variance, skewness = skewness, 
-        kurtosis = kurtosis))
+    return(list(mean = mean, variance = variance, skewness = skewness, kurtosis = kurtosis))
 }

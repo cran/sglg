@@ -68,8 +68,8 @@ shape = function(formula, npc, data, interval, semi, step) {
     }
     if (semi == TRUE) {
         for (j in 1:length(sh)) {
-            out <- try(ssurvglg(formula, data = data, npc = npc, 
-                shape = sh[j])$llglg, silent = TRUE)
+            out <- try(ssurvglg(formula, data = data, npc = npc, shape = sh[j])$llglg, 
+                silent = TRUE)
             if (is.matrix(out) == FALSE) {
                 out <- NA
             }

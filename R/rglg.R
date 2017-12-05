@@ -22,8 +22,7 @@ rglg = function(n, location, scale, shape) {
     pQ <- matrix(0, n, 1)
     
     for (i in 1:n) {
-        pQ[i] <- (1/shape) * log((0.5 * shape^2) * qchisq(quantiles[i], 
-            2/shape^2))
+        pQ[i] <- (1/shape) * log((0.5 * shape^2) * qchisq(quantiles[i], 2/shape^2))
         pQ[i] <- location + scale * pQ[i]
     }
     return(pQ)

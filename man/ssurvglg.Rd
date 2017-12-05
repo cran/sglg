@@ -44,7 +44,7 @@ columns <- 2
 t_beta  <- c(0.5, 2)
 t_sigma <- 0.75
 t_lambda <- 1
-set.seed(8142031)
+set.seed(8142030)
 library(ssym)
 x1 <- rbinom(rows, 1, 0.5)
 x2 <- runif(rows, 0, 1)
@@ -67,7 +67,7 @@ x3 <- s_N1 \%*\% ts1
 colnames(x3) <- 'x3'
 sys       <- X \%*\% t_beta + s_N1\%*\%t_g1
 t_ini1    <- exp(sys) * rweibull(rows,1/t_sigma,1)
-cens.time <- rweibull(rows, 1.1, 14)
+cens.time <- rweibull(rows, 1.5, 14)
 delta     <- ifelse(t_ini1 > cens.time, 1, 0)
 obst1 = t_ini1
 for(i in 1:rows) {
@@ -76,7 +76,7 @@ for(i in 1:rows) {
       }
 }
 data.example <- data.frame(obst1, delta, X, x3)
-fit4  <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1, npc=x3, data=data.example, shape=0.6)
+fit4  <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1, npc=x3, data=data.example, shape=0.8)
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros: Censored case. In preparation.

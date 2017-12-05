@@ -37,28 +37,25 @@ plot.npc <- function(fit) {
     quantil <- abs(qnorm(percentil))
     upper_g_t <- g_t + quantil * nste
     lower_g_t <- g_t - quantil * nste
-
+    
     cloud <- y - X %*% betas
     xrange <- range(t_npc)
     yrange <- range(c(lower_g_t, upper_g_t))
-    plot(as.matrix(npc), cloud, ylim = yrange, col = 3, pch = 20,
-        xlab = colnames(npc), ylab = "g(x)", main = "Simultaneous 95% confidence intervals")
-
+    plot(as.matrix(npc), cloud, ylim = yrange, col = 3, pch = 20, xlab = colnames(npc), 
+        ylab = "g(x)", main = "Simultaneous 95% confidence intervals")
+    
     f <- splinefun(t_npc, g_t, method = "natural")
     ls(envir = environment(f))
     splinecoef <- get("z", envir = environment(f))
-    values <- curve(f, min(t_npc), max(t_npc), col = "black",
-        add = TRUE)
-
+    values <- curve(f, min(t_npc), max(t_npc), col = "black", add = TRUE)
+    
     uf <- splinefun(t_npc, upper_g_t, method = "natural")
     ls(envir <- environment(uf))
     splinecoef <- get("z", envir = environment(uf))
-    values <- curve(uf, min(t_npc), max(t_npc), col = "red",
-        add = TRUE)
-
+    values <- curve(uf, min(t_npc), max(t_npc), col = "red", add = TRUE)
+    
     lf <- splinefun(t_npc, lower_g_t, method = "natural")
     ls(envir <- environment(lf))
     splinecoef <- get("z", envir = environment(lf))
-    values <- curve(lf, min(t_npc), max(t_npc), col = "red",
-        add = TRUE)
+    values <- curve(lf, min(t_npc), max(t_npc), col = "red", add = TRUE)
 }

@@ -38,7 +38,7 @@
 #'   }
 #' }
 #' data.example <- data.frame(obst1,delta1,X)
-#' fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example)
+#' fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example,shape=0.9)
 #' summary(fit3)
 #' plot(fit3)
 #' @import Formula
@@ -53,22 +53,22 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
     if (missingArg(data)) {
         stop("The data argument is missing.")
     }
-    
-    if (missingArg(Tolerance)) 
+
+    if (missingArg(Tolerance))
         Tolerance <- 1e-04
-    if (missingArg(Maxiter)) 
+    if (missingArg(Maxiter))
         Maxiter <- 1000
-    if (missingArg(shape)) 
+    if (missingArg(shape))
         shape <- 1
-    
-    if (class(data) == "list") 
+
+    if (class(data) == "list")
         data <- as.data.frame(data)
-    
+
     data <- model.frame(formula, data = data)
-    
+
     X <- model.matrix(formula, data = data)
     p <- ncol(X)
-    
+
     Y <- cbind(data[, 1][, 1], data[, 1][, 2])
     Delta <- as.factor(Y[, 2])
     y <- Y[, 1][Delta == 0]
@@ -76,131 +76,127 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
     Delta <- as.numeric(as.vector(Delta))
     per.censo <- 100 * mean(Delta)
     datus <- data.frame(y, XX)
-    
+
     formula2 <- formula
     formula2 <- Formula(formula2)
     formula2 <- formula(formula2, lhs = 0)
     formula2 <- update(formula2, y ~ .)
-    
-    ################################################################################################################################################# 
-    
-    ############################################################################################################################################################ 
-    
+
+    #################################################################################################################################################
+
+    ############################################################################################################################################################
+
     fit0 <- glg(formula2, data = datus)
     beta0 <- fit0$mu
     sigma0 <- fit0$sigma
     lambda0 <- shape
-    
+
     n <- nrow(X)
-    
+
     # Some fixed matrizes
-    
+
     I_n <- diag(1, n)
-    
+
     # Defining mu function
-    
+
     mu <- function(bet) {
         output <- X %*% bet
         return(output)
     }
-    
+
     ### First step: The residuals
-    
+
     eps <- function(bet, sigm) {
         epsilon <- (Y[, 1] - mu(bet))/sigm
         return(epsilon)
     }
-    
+
     ### Second step: The matrix D
-    
+
     S <- function(y, lambd) {
-        s <- pgamma((1/lambd^2) * exp(lambd * y), 1/lambd^2, 
-            lower.tail = FALSE)
+        s <- pgamma((1/lambd^2) * exp(lambd * y), 1/lambd^2, lower.tail = FALSE)
         return(s)
     }
-    
+
     ### Third step: The matrix Wd
-    
+
     aa <- function(bet, sigm, lambd) {
         epsilon <- eps(bet, sigm)
         output <- (1/lambd^2) * exp(lambd * epsilon)
         return(output)
     }
-    
+
     ## Final step: Score functions
-    
+
     U_beta <- function(bet, sigm, lambd) {
         epsil <- eps(bet, sigm)
         aaa <- aa(bet, sigm, lambd)
-        bb <- (aaa^(1/lambd^2) * exp(-aaa))/(gamma(1/lambd^2) * 
-            S(epsil, lambd))
+        bb <- (aaa^(1/lambd^2) * exp(-aaa))/(gamma(1/lambd^2) * S(epsil,
+            lambd))
         output <- matrix(0, p, 1)
         for (j in 1:p) {
-            output[j] <- sum(X[, j] * ((1 - Delta) * (1/(lambd * 
-                sigm)) * (exp(lambd * epsil) - 1) + Delta * 
-                (lambd/sigm) * bb))
+            output[j] <- sum(X[, j] * ((1 - Delta) * (1/(lambd * sigm)) *
+                (exp(lambd * epsil) - 1) + Delta * (lambd/sigm) * bb))
         }
         return(output)
     }
-    
+
     U_sigma <- function(bet, sigm, lambd) {
         epsil <- eps(bet, sigm)
         aaa <- aa(bet, sigm, lambd)
-        bb <- (aaa^(1/lambd^2) * exp(-aaa))/(gamma(1/lambd^2) * 
-            S(epsil, lambd))
-        part1 <- (1/sigm) * (-1 - (1/lambd) * (epsil - epsil * 
-            exp(lambd * epsil)))
+        bb <- (aaa^(1/lambd^2) * exp(-aaa))/(gamma(1/lambd^2) * S(epsil,
+            lambd))
+        part1 <- (1/sigm) * (-1 - (1/lambd) * (epsil - epsil * exp(lambd *
+            epsil)))
         part2 <- (lambd/sigm) * epsil * bb
         output <- sum((1 - Delta) * part1 + Delta * part2)
         return(output)
     }
-    
+
     U_theta <- function(bet, sigm, lambd) {
         output <- matrix(1, p + 1, 1)
         output[1:p] <- U_beta(bet, sigm, lambd)
         output[p + 1] <- U_sigma(bet, sigm, lambd)
         return(output)
     }
-    
+
     # Observational Fisher Matrix
-    
+
     I_beta <- function(bet, sigm, lambd) {
         epsil <- eps(bet, sigm)
         aaa <- aa(bet, sigm, lambd)
-        bb <- (aaa^(1/lambd^2) * exp(-aaa))/(gamma(1/lambd^2) * 
-            S(epsil, lambd))
+        bb <- (aaa^(1/lambd^2) * exp(-aaa))/(gamma(1/lambd^2) * S(epsil,
+            lambd))
         output <- matrix(0, p, p)
         for (l in 1:p) {
             for (j in 1:p) {
-                output[l, j] <- sum(X[, l] * X[, j] * ((1 - 
-                  Delta) * (-1/sigm^2) * exp(lambd * epsil) + 
-                  Delta * ((lambd/sigm)^2) * bb * (aaa - 1/lambd^2 - 
-                    bb)))
+                output[l, j] <- sum(X[, l] * X[, j] * ((1 - Delta) * (-1/sigm^2) *
+                  exp(lambd * epsil) + Delta * ((lambd/sigm)^2) * bb * (aaa -
+                  1/lambd^2 - bb)))
             }
         }
         return(output)
     }
-    
+
     I_sigma <- function(bet, sigm, lambd) {
         epsil <- eps(bet, sigm)
-        part1 <- (1/sigm^2) * (1 + (2/lambd) * epsil * (1 - 
-            exp(lambd * epsil)) - (epsil^2) * exp(lambd * epsil))
+        part1 <- (1/sigm^2) * (1 + (2/lambd) * epsil * (1 - exp(lambd * epsil)) -
+            (epsil^2) * exp(lambd * epsil))
         aaa <- aa(bet, sigm, lambd)
         bb <- (aaa^(1/lambd^2) * exp(-aaa))/S(epsil, lambd)
         b <- aaa - (1/lambd^2) - bb/gamma(1/lambd^2)
-        part2 <- ((lambd * epsil * bb)/(sigm^2)) * (epsil * 
-            b - 2/lambd)
+        part2 <- ((lambd * epsil * bb)/(sigm^2)) * (epsil * b - 2/lambd)
         output <- sum((1 - Delta) * part1 + Delta * part2)
         return(output)
     }
-    
+
     I_sigbet <- function(bet, sigm, lambd) {
         epsil <- eps(bet, sigm)
         expep <- exp(lambd * epsil)
         H <- matrix(0, p, 1)
         for (k in 1:p) {
-            H[k] <- sum((1 - Delta) * X[, k] * (1 - expep - 
-                lambd * epsil * expep))
+            H[k] <- sum((1 - Delta) * X[, k] * (1 - expep - lambd * epsil *
+                expep))
         }
         part1 <- (1/(lambd * (sigm^2))) * H
         part2 <- 0 * H
@@ -209,14 +205,14 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
         deno <- gamma(1/lambd^2) * S(epsil, lambd)
         part21 <- -1/lambd + epsil * (aaa - (1/lambd^2) - bb/deno)
         for (k in 1:p) {
-            H[k] <- sum(Delta * X[, k] * ((((lambd/sigm)^2) * 
-                bb/deno) * part21))
+            H[k] <- sum(Delta * X[, k] * ((((lambd/sigm)^2) * bb/deno) *
+                part21))
         }
         part2 <- H
         output <- part1 + part2
         return(output)
     }
-    
+
     I_tetha <- function(bet, sigm, lambd) {
         output <- matrix(0, p + 1, p + 1)
         output[1:p, 1:p] <- I_beta(bet, sigm, lambd)
@@ -225,133 +221,122 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
         output[(p + 1), 1:p] <- t(output[1:p, (p + 1)])
         return(output)
     }
-    
+
     ## LOG-LIKELIHOOD
-    
+
     c_l <- function(lambd) {
         invlambdos <- 1/lambd^2
         c <- abs(lambd)/gamma(invlambdos)
         output <- c * (invlambdos^invlambdos)
         return(output)
     }
-    
+
     loglikglg <- function(bet, sigm, lambd) {
         epsil <- eps(bet, sigm)
-        output <- sum(Delta * log(S(epsil, lambd)) + (1 - Delta) * 
-            (log(c_l(lambd)/sigm) + (1/lambd) * epsil - (1/lambd^2) * 
-                exp(lambd * epsil)))
+        output <- sum(Delta * log(S(epsil, lambd)) + (1 - Delta) * (log(c_l(lambd)/sigm) +
+            (1/lambd) * epsil - (1/lambd^2) * exp(lambd * epsil)))
         return(output)
     }
-    
+
     newpar <- function(bet, sigm, lambd) {
         output <- matrix(0, p + 1, 2)
         output[, 1] <- c(bet, sigm)
         new <- output[, 1]
         l <- 2
-        output[, l] <- output[, (l - 1)] - solve(I_tetha(output[1:p, 
-            (l - 1)], output[(p + 1), (l - 1)], lambd)) %*% 
-            U_theta(output[1:p, (l - 1)], output[(p + 1), (l - 
-                1)], lambd)
-        llglg <- loglikglg(output[1:p, 2], output[p + 1, 2], 
-            lambd)
-        condition <- llglg - loglikglg(new[1:p], new[p + 1], 
-            lambd)
-        
+        output[, l] <- output[, (l - 1)] - solve(I_tetha(output[1:p, (l -
+            1)], output[(p + 1), (l - 1)], lambd)) %*% U_theta(output[1:p,
+            (l - 1)], output[(p + 1), (l - 1)], lambd)
+        llglg <- loglikglg(output[1:p, 2], output[p + 1, 2], lambd)
+        condition <- llglg - loglikglg(new[1:p], new[p + 1], lambd)
+
         M <- 2
         while (condition < 0 & M < Maxiter) {
-            output[, 2] <- 0.99 * output[, 2] + 0.01 * output[, 
-                1]
-            llglg <- loglikglg(output[1:p, 2], output[p + 1, 
-                2], output[p + 2, 2])
-            condition <- llglg - loglikglg(new[1:p], new[p + 
-                1], new[p + 2])
+            output[, 2] <- 0.99 * output[, 2] + 0.01 * output[, 1]
+            llglg <- loglikglg(output[1:p, 2], output[p + 1, 2], output[p +
+                2, 2])
+            condition <- llglg - loglikglg(new[1:p], new[p + 1], new[p +
+                2])
             M <- M + 1
         }
         if (condition < 0) {
             return(new)
         }
-        
-        llglg <- loglikglg(output[1:p, 2], output[p + 1, 2], 
-            lambd)
-        condition <- llglg - loglikglg(new[1:p], new[p + 1], 
-            lambd)
+
+        llglg <- loglikglg(output[1:p, 2], output[p + 1, 2], lambd)
+        condition <- llglg - loglikglg(new[1:p], new[p + 1], lambd)
         if (condition > 0) {
             new <- output[, 2]
         }
-        
+
         return(new)
     }
-    
+
     gfit <- function(resid, lambd) {
-        ekm <- survival::survfit(Surv(exp(resid), 1 - Delta) ~ 
-            1)
+        ekm <- survival::survfit(Surv(exp(resid), 1 - Delta) ~ 1)
         surv <- as.numeric(unlist(as.vector(summary(ekm)[6])))
         Fkm <- 1 - surv
-        
+
         res <- sort((resid * (1 - Delta))[Delta == 0])
         Fs <- robustloggamma::ploggamma(res, lambda = lambd)
         r_q <- qnorm(Fs)
-        
+
         diff <- abs(r_q - qnorm(Fkm))
         output <- mean(diff[-length(diff)])
-        return(output)
+        msurv <- 1 - Fs
+        return(list(stat = output, msurv = msurv))
     }
-    
+
     ## THE MAIN FUNCTION
-    
+
     conv <- FALSE
     condition <- 1
     iter <- 1
     l <- 1
-    
+
     optimum <- function(bet, sigm, lambd) {
         new <- matrix(0, p + 1, Maxiter)
         l <- 1
         new[, 1] <- c(beta0, sigma0)
         output <- new[, 1]
-        
+
         l <- 2
-        new[, l] <- newpar(new[1:p, (l - 1)], new[(p + 1), (l - 
-            1)], lambd)
-        
+        new[, l] <- newpar(new[1:p, (l - 1)], new[(p + 1), (l - 1)], lambd)
+
         llglg <- loglikglg(new[1:p, l], new[(p + 1), l], lambd)
-        condition <- llglg - loglikglg(output[1:p], output[p + 
-            1], lambd)
-        
+        condition <- llglg - loglikglg(output[1:p], output[p + 1], lambd)
+
         if (condition > 0) {
             output <- new[, l]
         }
         while (condition > Tolerance & l < Maxiter) {
             l <- l + 1
-            new[, l] <- newpar(new[1:p, (l - 1)], new[(p + 1), 
-                (l - 1)], lambd)
-            llglg <- loglikglg(new[1:p, l], new[(p + 1), l], 
+            new[, l] <- newpar(new[1:p, (l - 1)], new[(p + 1), (l - 1)],
                 lambd)
-            
-            condition <- llglg - loglikglg(output[1:p], output[(p + 
-                1)], lambd)
-            
+            llglg <- loglikglg(new[1:p, l], new[(p + 1), l], lambd)
+
+            condition <- llglg - loglikglg(output[1:p], output[(p + 1)],
+                lambd)
+
             if (condition > 0) {
                 output <- new[, l]
             }
         }
-        
+
         if (l <= Maxiter) {
-            return(list(est = output, cond = condition, conv = TRUE, 
-                iter = l))
+            return(list(est = output, cond = condition, conv = TRUE, iter = l))
         }
         if (l >= Maxiter) {
             stop("The convergence was not successful.")
         }
     }
-    
+
     output <- optimum(beta0, sigma0, lambda0)
     if (output$conv == TRUE) {
         conv <- output$conv
         iter <- output$iter
         condition <- output$cond
         output <- output$est
-        
+
         llglg <- loglikglg(output[1:p], output[(p + 1)], lambda0)
         aic <- -2 * llglg + 2 * (p + 1)
         bic <- -2 * llglg + log(n) * (p + 1)
@@ -372,33 +357,32 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
             zs <- abs(output/ste)
             pval <- 1 - (pnorm(zs) - pnorm(-zs))
         }
-        
+
         y_est <- X %*% output[1:p]
         ordresidual <- eps(output[1:p], output[p + 1])
         sgn <- sign(Y[, 1] - y_est)
         outputp <- lambda0
-        dev <- sgn * sqrt(2) * ((1 - Delta) * ((1/outputp^2) * 
-            exp(outputp * ordresidual) - (1/outputp) * ordresidual - 
-            (1/outputp)^2)^(0.5) + Delta * (-log(S(ordresidual, 
-            outputp))))
+        dev <- sgn * sqrt(2) * ((1 - Delta) * ((1/outputp^2) * exp(outputp *
+            ordresidual) - (1/outputp) * ordresidual - (1/outputp)^2)^(0.5) +
+            Delta * (-log(S(ordresidual, outputp))))
         devian <- sum(dev^2)
-        part2 <- ((output[p + 1])/outputp) * (digamma((1/outputp)^2) - 
-            log((1/outputp)^2))
+        part2 <- ((output[p + 1])/outputp) * (digamma((1/outputp)^2) - log((1/outputp)^2))
         y_est <- y_est + part2
         good_fit <- gfit(ordresidual, outputp)
-        output <- list(formula = formula, size = n, per.censo = per.censo, 
-            p = p, mu = output[1:p], sigma = output[p + 1], 
-            lambda = lambda0, y = Y[, 1], delta = Delta, X_bar = X, 
-            y_est = y_est, rord = ordresidual, rdev = dev, deviance = devian, 
-            Itheta = scovar, scores = scores, goodnessoffit = good_fit, 
-            llglg = llglg, AIC = aic, BIC = bic, AIC2 = aic2, 
-            st_error = ste, z_values = zs, p.values = pval, 
-            interval = inter, convergence = conv, condition = condition, 
+        msurv <- good_fit$msurv
+        good_fit <- good_fit$stat
+        output <- list(formula = formula, size = n, per.censo = per.censo,
+            p = p, mu = output[1:p], sigma = output[p + 1], lambda = lambda0,
+            y = Y[, 1], delta = Delta, X_bar = X, y_est = y_est, rord = ordresidual,
+            rdev = dev, deviance = devian, modelsurv=msurv, survItheta = scovar, scores = scores,
+            goodnessoffit = good_fit, llglg = llglg, AIC = aic, BIC = bic,
+            AIC2 = aic2, st_error = ste, z_values = zs, p.values = pval,
+            interval = inter, convergence = conv, condition = condition,
             Iterations = iter, semi = FALSE, censored = TRUE)
         class(output) = "sglg"
         return(output)
     }
-    
+
     if (output$conv == FALSE) {
         # print('The optimization was not successful.')
         return(0)
