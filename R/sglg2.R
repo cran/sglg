@@ -1,7 +1,7 @@
 #'Fitting semi-parametric generalized log-gamma regression models
 #'
-#'\code{sglg} is used to fit a semi-parametric regression model suitable for analysis of data sets in which the response variable is continuous, strictly positive, and asymmetric.
-#'In this setup, the location parameter of the response variable is explicitly modeled by semi-parametric functions, whose nonparametric components may be approximated by
+#'\code{sglg} may be used to fit a semi-parametric regression model suitable for analysis of data sets in which the response variable is continuous, strictly positive, and asymmetric.
+#'However, \code{sglg} may also be used to fit data for which the response is asymmetric in the real numbers. In this setup, the location parameter of the response variable is explicitly modeled by semi-parametric functions, whose nonparametric components may be approximated by
 #'natural cubic splines or cubic P-splines.
 #'
 #' @param formula a symbolic description of the systematic component of the model to be fitted. See details for further information.
@@ -22,6 +22,7 @@
 #' @return Deviance the deviance associated with the model.
 
 #' @references Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric generalized log-gamma regression models. In preparation.
+#' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
 #' rows <- 175 # Number of observations
@@ -56,6 +57,31 @@
 #' data.example <- data.frame(y1,X,x3)
 #' fit1 <- sglg(y1 ~ x1 + x2 - 1, npc=x3, method='FS',data=data.example)
 #' fit2 <- sglg(y1 ~ x1 + x2 - 1, npc=x3, method='GSFS',data=data.example)
+#' \dontrun{
+#'
+#' ###########################################
+#' #                                         #
+#' # Diagnostic related grouping system, DRG #
+#' #                                         #
+#' ###########################################
+#'
+#' library(robustloggamma)
+#' library(ssym)
+#' data(drg2000)
+#' attach(drg2000)
+#' LOS2 <-split(LOS,factor(MDC))
+#' MDC2 <-split(Cost,factor(MDC))
+#' y <-log(MDC2$'3')
+#' x <-as.matrix(LOS2$'3')
+#' colnames(x) <- 'LOS'
+#' Data <-data.frame(y,x)
+#' fit1 <-glg(y~LOS,data=Data)
+#' summary(fit1)
+#' fit2 <-sglg(y~1,npc=x,data=Data)
+#' summary(fit2)
+#' plot(fit2)
+#' }
+#'
 #' @import ssym
 #' @import robustloggamma
 #' @import methods
@@ -71,30 +97,30 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
     if (missingArg(data)) {
         stop("The data argument is missing.")
     }
-    
-    if (missingArg(method)) 
+
+    if (missingArg(method))
         method <- "FS"
-    if (missingArg(shape)) 
+    if (missingArg(shape))
         shape <- 1
-    if (missingArg(Tolerance)) 
+    if (missingArg(Tolerance))
         Tolerance <- 1e-04
-    if (missingArg(Maxiter)) 
+    if (missingArg(Maxiter))
         Maxiter <- 1000
-    
-    if (missingArg(basis)) 
+
+    if (missingArg(basis))
         basis <- rep("deBoor", dim(npc)[2])
-    
-    if (class(data) == "list") 
+
+    if (class(data) == "list")
         data <- as.data.frame(data)
-    
+
     data1 <- model.frame(formula, data = data)
     X <- model.matrix(formula, data = data1)
     y <- model.response(data1)
-    
+
     p <- ncol(X)
     n <- nrow(X)
     op1 <- floor(n^(1/3)) + 3
-    
+
     intknt <- function(x) {
         op2 <- length(as.numeric(levels(factor(x))))
         knt <- min(op1, op2)
@@ -103,20 +129,20 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
         }
         return(knt)
     }
-    
+
     k <- dim(npc)[2]
     XX <- cbind(X, npc)
-    
+
     Knot <- matrix(0, k, 1)
     for (i in 1:k) {
         Knot[i] <- intknt(XX[, (p + i)])
     }
-    
+
     Knot <- as.numeric(Knot)
     Tknot <- sum(Knot)
     N <- X
     K <- matrix(0, p + Tknot, p + Tknot)
-    
+
     for (j in 1:k) {
         output <- deBoor2(npc[, j], Knot[j])
         N <- cbind(N, output$N)
@@ -125,29 +151,29 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
         r <- p + sum(Knot[1:j])
         K[l:r, l:r] <- output$K
     }
-    
+
     g0 <- function(knot) {
         g <- rep(0, knot)
         return(g)
     }
-    
-    ############################################################################################################ 
+
+    ############################################################################################################
     formula2 <- formula
     for (j in 1:k) {
         formul <- paste(".~. + ", colnames(npc)[j])
         formul <- as.formula(formul)
         formula2 <- update(formula2, formul)
     }
-    ############################################################################################################################################################ 
-    
+    ############################################################################################################################################################
+
     # Initial values
-    
+
     fit0 <- glg(formula2, shape = shape, data = data)
     beta0 <- fit0$mu[1:p]
     g0s <- g0(Tknot)
     sigma0 <- fit0$sigma
     lambda0 <- fit0$lambda
-    
+
     formula3 <- formula
     formul <- paste("ncs(", colnames(npc), sep = "")
     formul <- paste(formul, ")", sep = "")
@@ -155,15 +181,15 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
     for (j in 1:k) {
         formula3 <- update(formula3, formul[j])
     }
-    
+
     fit00 <- ssym::ssym.l(formula3, data = data, family = "Normal")
     alpha0 <- fit00$lambdas.mu
-    
+
     Ident <- diag(1, n)
     Ones <- matrix(1, n, 1)
-    
+
     ## THE FISHER INFORMATION MATRIX
-    
+
     M_bar <- function(alph) {
         output <- rep(0, p)
         for (j in 1:k) {
@@ -173,31 +199,31 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
         output <- K %*% output
         return(output)
     }
-    
+
     I_gammas <- function(sigm, alph) {
         output <- (1/(sigm^2)) * t(N) %*% N
         output <- output + M_bar(alph)
         return(output)
     }
-    
+
     u_lambda <- function(lambd) {
         invlamb <- 1/lambd^2
         output <- (1/lambd) * (digamma(1 + invlamb) - log(invlamb))
         return(output)
     }
-    
+
     I_gammassigma <- function(sigm, lambd) {
         output <- (1/sigm^2) * u_lambda(lambd) * t(N) %*% Ones
         return(output)
     }
-    
+
     I_gammaslambda <- function(sigm, lambd) {
         output <- -(sigm/lambd) * I_gammassigma(sigm, lambd)
         return(output)
     }
-    
+
     ### Defining mu function
-    
+
     mu <- function(bet, g) {
         bet <- as.matrix(bet)
         g <- as.matrix(g)
@@ -205,118 +231,118 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
         output <- N %*% g_bar
         return(output)
     }
-    
+
     ### First step: The residuals
-    
+
     eps <- function(bet, g, sigm) {
         epsilon <- (y - mu(bet, g))/sigm
         return(epsilon)
     }
-    
+
     ### Second step: The matrix D
-    
+
     D <- function(epsil, lambd) {
         w <- as.vector(exp(lambd * epsil))
         D_s <- diag(w, n, n)
         return(D_s)
     }
-    
+
     ### Third step: The matrix W
-    
+
     W <- function(bet, g, sigm, lambd) {
         output <- Ident - D(eps(bet, g, sigm), lambd)
         return(output)
     }
-    
+
     ## The score functions
-    
+
     U_sigma <- function(bet, g, sigm, lambd) {
-        output <- -(1/sigm) * n - (1/(lambd * sigm)) * t(Ones) %*% W(bet, 
+        output <- -(1/sigm) * n - (1/(lambd * sigm)) * t(Ones) %*% W(bet,
             g, sigm, lambd) %*% eps(bet, g, sigm)
         return(output)
     }
-    
+
     U_lambda <- function(bet, g, sigm, lambd) {
         invlamb <- 1/lambd
-        eta_lambd <- (invlamb) * (1 + 2 * (invlamb^2) * (digamma(invlamb^2) + 
+        eta_lambd <- (invlamb) * (1 + 2 * (invlamb^2) * (digamma(invlamb^2) +
             2 * log(abs(lambd)) - 1))
         Ds <- D(eps(bet, g, sigm), lambd)
         epsilons <- eps(bet, g, sigm)
-        output <- n * eta_lambd - (invlamb^2) * t(Ones) %*% epsilons + (2 * 
-            invlamb^3) * t(Ones) %*% Ds %*% Ones - (invlamb^2) * t(Ones) %*% 
+        output <- n * eta_lambd - (invlamb^2) * t(Ones) %*% epsilons + (2 *
+            invlamb^3) * t(Ones) %*% Ds %*% Ones - (invlamb^2) * t(Ones) %*%
             Ds %*% epsilons
         return(output)
     }
-    
+
     U_sl <- function(bet, g, sigm, lambd) {
-        output <- c(U_sigma(bet, g, sigm, lambd), U_lambda(bet, g, sigm, 
+        output <- c(U_sigma(bet, g, sigm, lambd), U_lambda(bet, g, sigm,
             lambd))
         return(output)
     }
-    
+
     U_gammas <- function(bet, g, sigm, lambd, alph) {
-        output <- (-1/(sigm * lambd)) * t(N) %*% W(bet, g, sigm, lambd) %*% 
+        output <- (-1/(sigm * lambd)) * t(N) %*% W(bet, g, sigm, lambd) %*%
             Ones - M_bar(alph) %*% c(bet, g)
         return(output)
     }
-    
+
     U_theta <- function(bet, g, sigm, lambd, alph) {
         output <- U_gammas(bet, g, sigm, lambd, alph)
         output <- c(output, U_sl(bet, g, sigm, lambd))
         return(output)
     }
-    
+
     ## Estimating sigma and lambda
-    
+
     v_lambda <- function(lambd) {
         invlamb <- 1/lambd^2
         output <- invlamb * trigamma(1 + invlamb) + u_lambda(lambd)^2
         return(output)
     }
-    
+
     # K_1_lambda and K_2_lambda functions
-    
+
     K_1 <- function(lambda) {
         invlamb2 <- 1/lambda^2
-        part1 <- 4 * (1 + digamma(1 + invlamb2) - digamma(invlamb2) - invlamb2 * 
+        part1 <- 4 * (1 + digamma(1 + invlamb2) - digamma(invlamb2) - invlamb2 *
             trigamma(invlamb2))
         part2 <- trigamma(1 + invlamb2) + (digamma(1 + invlamb2) - log(invlamb2))^2
         output <- 1 - invlamb2 * (part1 - part2)
         return(output)
     }
-    
+
     K_2 <- function(lambda) {
         invlamb <- 1/lambda
         invlamb2 <- invlamb^2
-        output <- invlamb * ((digamma(1 + invlamb2) - digamma(invlamb2)) - 
+        output <- invlamb * ((digamma(1 + invlamb2) - digamma(invlamb2)) -
             trigamma(1 + invlamb2) - (digamma(1 + invlamb2) - log(invlamb2))^2)
         return(output)
     }
-    
+
     ## Defining the components of the FIM
-    
+
     I_22 <- function(sigm, lambd) {
         output <- (n/(sigm^2)) * (1 + v_lambda(lambd))
         return(output)
     }
-    
+
     I_23 <- function(sigm, lambd) {
         output <- (n/(sigm * lambd^2)) * K_2(lambd)
         return(output)
     }
-    
+
     I_33 <- function(sigm, lambd) {
         output <- (n/(lambd^2)) * K_1(lambd)
         return(output)
     }
-    
+
     I_sl <- function(sigm, lambd) {
-        output <- matrix(c(I_22(sigm, lambd), I_23(sigm, lambd), I_23(sigm, 
+        output <- matrix(c(I_22(sigm, lambd), I_23(sigm, lambd), I_23(sigm,
             lambd), I_33(sigm, lambd)), 2, 2)
         return(output)
     }
-    
-    
+
+
     I_theta <- function(sigm, lambd, alph) {
         I_gs <- I_gammassigma(sigm, lambd)
         I_gl <- I_gammaslambda(sigm, lambd)
@@ -326,37 +352,37 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
         output <- rbind(output, output1)
         return(output)
     }
-    
+
     ## LOG-LIKELIHOOD
-    
+
     c_l <- function(lambd) {
         invlambdos <- 1/lambd^2
         c <- abs(lambd)/gamma(invlambdos)
         output <- c * (invlambdos^invlambdos)
         return(output)
     }
-    
+
     loglikglg <- function(bet, g, sigm, lambd, alph) {
         epsilon <- eps(bet, g, sigm)
-        part1 <- n * log(c_l(lambd)/sigm) + (1/lambd) * t(Ones) %*% epsilon - 
+        part1 <- n * log(c_l(lambd)/sigm) + (1/lambd) * t(Ones) %*% epsilon -
             (1/lambd^2) * t(Ones) %*% D(epsilon, lambd) %*% Ones
         part2 <- -0.5 * t(c(bet, g)) %*% M_bar(alph) %*% c(bet, g)
         output <- part1 + part2
         return(output)
     }
-    
+
     newpar <- function(bet, g, sigm, lambd, alph) {
         output <- matrix(0, p + Tknot + 2, Maxiter)
         output[, 1] <- c(bet, g, sigm, lambd)
         new <- output[, 1]
-        llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)], new[p + Tknot + 
+        llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)], new[p + Tknot +
             1], new[p + Tknot + 2], alph)
-        
+
         if (method == "FS") {
-            output[, 2] <- output[, 1] + solve(I_theta(sigm, lambd, alph)) %*% 
+            output[, 2] <- output[, 1] + solve(I_theta(sigm, lambd, alph)) %*%
                 U_theta(bet, g, sigm, lambd, alph)
-            condition <- loglikglg(output[1:p, 2], output[(p + 1):(p + Tknot), 
-                2], output[p + Tknot + 1, 2], output[p + Tknot + 2, 2], alph) - 
+            condition <- loglikglg(output[1:p, 2], output[(p + 1):(p + Tknot),
+                2], output[p + Tknot + 1, 2], output[p + Tknot + 2, 2], alph) -
                 llglg
             if (condition > 0) {
                 new <- output[, 2]
@@ -365,32 +391,32 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
             l <- 2
             while (condition > Tolerance & l < Maxiter) {
                 l <- l + 1
-                output[, l] <- output[, (l - 1)] + solve(I_theta(output[(p + 
-                  Tknot + 1), (l - 1)], output[(p + Tknot + 2), (l - 1)], 
-                  alph)) %*% U_theta(output[1:p, (l - 1)], output[(p + 1):(p + 
-                  Tknot), (l - 1)], output[(p + Tknot + 1), (l - 1)], output[(p + 
+                output[, l] <- output[, (l - 1)] + solve(I_theta(output[(p +
+                  Tknot + 1), (l - 1)], output[(p + Tknot + 2), (l - 1)],
+                  alph)) %*% U_theta(output[1:p, (l - 1)], output[(p + 1):(p +
+                  Tknot), (l - 1)], output[(p + Tknot + 1), (l - 1)], output[(p +
                   Tknot + 2), (l - 1)], alph)
-                llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)], new[p + 
+                llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)], new[p +
                   Tknot + 1], new[p + Tknot + 2], alph)
-                condition <- loglikglg(output[1:p, l], output[(p + 1):(p + 
-                  Tknot), l], output[p + Tknot + 1, l], output[p + Tknot + 
+                condition <- loglikglg(output[1:p, l], output[(p + 1):(p +
+                  Tknot), l], output[p + Tknot + 1, l], output[p + Tknot +
                   2, l], alph) - llglg
                 if (condition > 0) {
                   new <- output[, l]
-                  llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)], 
+                  llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)],
                     new[p + Tknot + 1], new[p + Tknot + 2], alph)
                 }
             }
         }
-        
+
         if (method == "GSFS") {
             ps <- c(p, Knot, 2)
-            b <- I_theta(sigm, lambd, alph) %*% output[, 1] + U_theta(bet, 
+            b <- I_theta(sigm, lambd, alph) %*% output[, 1] + U_theta(bet,
                 g, sigm, lambd, alph)
-            output[, 2] <- blockgs(I_theta(sigm, lambd, alph), b, output[, 
+            output[, 2] <- blockgs(I_theta(sigm, lambd, alph), b, output[,
                 1], ps)$x
-            condition <- loglikglg(output[1:p, 2], output[(p + 1):(p + Tknot), 
-                2], output[p + Tknot + 1, 2], output[p + Tknot + 2, 2], alph) - 
+            condition <- loglikglg(output[1:p, 2], output[(p + 1):(p + Tknot),
+                2], output[p + Tknot + 1, 2], output[p + Tknot + 2, 2], alph) -
                 llglg
             if (condition > 0) {
                 new <- output[, 2]
@@ -399,51 +425,51 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
             l <- 2
             while (condition > Tolerance & l < Maxiter) {
                 l <- l + 1
-                b <- I_theta(output[(p + Tknot + 1), (l - 1)], output[(p + 
-                  Tknot + 2), (l - 1)], alph) %*% output[, (l - 1)] + U_theta(output[1:p, 
-                  (l - 1)], output[(p + 1):(p + Tknot), (l - 1)], output[(p + 
-                  Tknot + 1), (l - 1)], output[(p + Tknot + 2), (l - 1)], 
+                b <- I_theta(output[(p + Tknot + 1), (l - 1)], output[(p +
+                  Tknot + 2), (l - 1)], alph) %*% output[, (l - 1)] + U_theta(output[1:p,
+                  (l - 1)], output[(p + 1):(p + Tknot), (l - 1)], output[(p +
+                  Tknot + 1), (l - 1)], output[(p + Tknot + 2), (l - 1)],
                   alph)
-                output[, l] <- blockgs(I_theta(output[(p + Tknot + 1), (l - 
-                  1)], output[(p + Tknot + 2), (l - 1)], alph), b, output[, 
+                output[, l] <- blockgs(I_theta(output[(p + Tknot + 1), (l -
+                  1)], output[(p + Tknot + 2), (l - 1)], alph), b, output[,
                   (l - 1)], ps)$x
                 # output[, l] <- output[, (l - 1)] + solve(I_theta(output[(p + Tknot +
                 # 1), (l - 1)], output[(p + Tknot + 2), (l - 1)], alph)) %*%
                 # U_theta(output[1:p, (l - 1)], output[(p + 1):(p + Tknot), (l - 1)],
                 # output[(p + Tknot + 1), (l - 1)], output[(p + Tknot + 2), (l - 1)],
                 # alph)
-                llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)], new[p + 
+                llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)], new[p +
                   Tknot + 1], new[p + Tknot + 2], alph)
-                condition <- loglikglg(output[1:p, l], output[(p + 1):(p + 
-                  Tknot), l], output[p + Tknot + 1, l], output[p + Tknot + 
+                condition <- loglikglg(output[1:p, l], output[(p + 1):(p +
+                  Tknot), l], output[p + Tknot + 1, l], output[p + Tknot +
                   2, l], alph) - llglg
                 if (condition > 0) {
                   new <- output[, l]
-                  llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)], 
+                  llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)],
                     new[p + Tknot + 1], new[p + Tknot + 2], alph)
                 }
             }
         }
         return(list(est = new, ll = llglg, cond = condition, iter = l))
     }
-    
+
     ## Effective degree freedom - EDF
-    
+
     inv_root_A <- function(A) {
         e <- eigen(A)
         V <- e$vectors
         output <- solve(V %*% sqrt(diag(e$values)) %*% t(V))
         return(output)
     }
-    
+
     edf <- function(sigm, alph) {
         inv_root_tNN <- inv_root_A(t(N) %*% N)
-        output <- diag(1, p + sum(Knot)) + (sigm^2) * inv_root_tNN %*% M_bar(alph) %*% 
+        output <- diag(1, p + sum(Knot)) + (sigm^2) * inv_root_tNN %*% M_bar(alph) %*%
             inv_root_tNN
         output <- sum(diag(solve(output)))
         return(output)
     }
-    
+
     Conv <- FALSE
     num.iter <- 1
     masterf <- function(alph) {
@@ -457,22 +483,22 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
         df <- edf(news$est[(p + Tknot + 1)], alph)
         aic <- -2 * llglg + 2 * (df + 2)
         bic <- -2 * llglg + log(n) * (df + 2)
-        
-        return(list(est = news$est, df = df, llglg = llglg, AIC = aic, BIC = bic, 
+
+        return(list(est = news$est, df = df, llglg = llglg, AIC = aic, BIC = bic,
             Conv = Conv, iter = num.iter, cond = cond))
     }
-    
+
     AIC_p <- function(alph) {
         output <- masterf(alph)$AIC
         output <- round(output, digits = 4)
         return(output)
     }
-    
+
     opt_alph <- function(alph) {
         out <- optimize(AIC_p, c(0, alph + 2), tol = 0.001)
         return(c(out$minimum, out$objective))
     }
-    
+
     gfit <- function(resid, lambd) {
         Fs <- ploggamma(resid, lambda = lambd)
         equantil <- qnorm(Fs)
@@ -480,7 +506,7 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
         output <- mean(abs(diff$x - diff$y))
         return(output)
     }
-    
+
     total_optimum <- function(start) {
         output0 <- opt_alph(start)
         output1 <- output0[1:k]
@@ -492,7 +518,7 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
         llglg <- output3$llglg
         aic <- output3$AIC
         bic <- output3$BIC
-        scores <- U_theta(output[1:p], output[(p + 1):(p + Tknot)], output[p + 
+        scores <- U_theta(output[1:p], output[(p + 1):(p + Tknot)], output[p +
             sum(Knot) + 1], output[p + Tknot + 2], output1)
         covar <- I_theta(output[p + Tknot + 1], output[p + Tknot + 2], output1)
         inter <- matrix(0, p + Tknot + 2, 2)
@@ -507,29 +533,29 @@ sglg = function(formula, npc, basis, data, shape, method, Tolerance, Maxiter) {
             pval2 <- pval[-((p + 1):(p + Tknot))]
             as <- output[(p + 1):(p + Tknot)]
         }
-        
+
         y_est <- N %*% output[1:(p + Tknot)]
-        ordresidual <- eps(output[1:p], output[(p + 1):(p + Tknot)], output[p + 
+        ordresidual <- eps(output[1:p], output[(p + 1):(p + Tknot)], output[p +
             Tknot + 1])
         sgn <- sign(y - y_est)
-        dev <- sgn * sqrt(2) * ((1/output[p + Tknot + 2]^2) * exp(output[p + 
-            Tknot + 2] * ordresidual) - (1/output[p + Tknot + 2]) * ordresidual - 
+        dev <- sgn * sqrt(2) * ((1/output[p + Tknot + 2]^2) * exp(output[p +
+            Tknot + 2] * ordresidual) - (1/output[p + Tknot + 2]) * ordresidual -
             (1/output[p + Tknot + 2])^2)^(0.5)
         Devian <- sum(dev^2)
-        
+
         good_fit <- gfit(ordresidual, output[p + Tknot + 2])
-        part2 <- ((output[p + Tknot + 1])/(output[p + Tknot + 2])) * (digamma((1/output[p + 
+        part2 <- ((output[p + Tknot + 1])/(output[p + Tknot + 2])) * (digamma((1/output[p +
             Tknot + 2])^2) - log((1/output[p + Tknot + 2])^2))
         y_est2 <- y_est + part2
-        
-        return(list(formula = formula, npc = npc, size = n, mu = output[1:(p + 
-            Tknot)], sigma = output[p + Tknot + 1], lambda = output[p + Tknot + 
-            2], y = y, X = X, p = p, N = N, Knot = Knot, rord = ordresidual, 
-            rdev = dev, interval = inter, llglg = llglg, AIC = output2, BIC = output3$BIC, 
-            scores = scores, Itheta = covar, scovar = scovar, st_error = ste, 
-            Z_values = zs, p.values = pval, alpha = output1, d.f.model = df, 
-            d.f.npc = dfnpc, deviance = Devian, goodnessoffit = good_fit, 
-            convergence = output3$Conv, condition = output3$cond, iterations = output3$iter, 
+
+        return(list(formula = formula, npc = npc, size = n, mu = output[1:(p +
+            Tknot)], sigma = output[p + Tknot + 1], lambda = output[p + Tknot +
+            2], y = y, X = X, p = p, N = N, Knot = Knot, rord = ordresidual,
+            rdev = dev, interval = inter, llglg = llglg, AIC = output2, BIC = output3$BIC,
+            scores = scores, Itheta = covar, scovar = scovar, st_error = ste,
+            Z_values = zs, p.values = pval, alpha = output1, d.f.model = df,
+            d.f.npc = dfnpc, deviance = Devian, goodnessoffit = good_fit,
+            convergence = output3$Conv, condition = output3$cond, iterations = output3$iter,
             semi = TRUE, censored = FALSE, y_est2 = y_est))
     }
     output <- total_optimum(alpha0)

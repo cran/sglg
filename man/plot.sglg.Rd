@@ -17,3 +17,11 @@ Also produces a graph of the deviance-type residuals versus the fitted values fo
 Under the presence of a right-censored sample,
 the function plot() produces a graph of the survival function of the error distribution.
 }
+\references{
+Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric generalized log-gamma regression models. In preparation.
+
+Carlos A.  Cardozo, G. Paula and L.  Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros: Censored case. In preparation.
+}
+\author{
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G.  Paula and L. Vanegas.
+}
