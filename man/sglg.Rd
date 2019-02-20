@@ -37,8 +37,8 @@ interval estimate of a 95\% confidence interval for each estimate parameters ass
 Deviance the deviance associated with the model.
 }
 \description{
-\code{sglg} may be used to fit a semi-parametric regression model suitable for analysis of data sets in which the response variable is continuous, strictly positive, and asymmetric.
-However, \code{sglg} may also be used to fit data for which the response is asymmetric in the real numbers. In this setup, the location parameter of the response variable is explicitly modeled by semi-parametric functions, whose nonparametric components may be approximated by
+\code{sglg} is used to fit a semi-parametric regression model suitable for analysis of data sets in which the response variable is continuous, strictly positive, and asymmetric.
+In this setup, the location parameter of the response variable is explicitly modeled by semi-parametric functions, whose nonparametric components may be approximated by
 natural cubic splines or cubic P-splines.
 }
 \examples{
@@ -74,36 +74,9 @@ y1 <- X \%*\%t_beta + + s_N1 \%*\% t_g1 + t_sigma * error
 data.example <- data.frame(y1,X,x3)
 fit1 <- sglg(y1 ~ x1 + x2 - 1, npc=x3, method='FS',data=data.example)
 fit2 <- sglg(y1 ~ x1 + x2 - 1, npc=x3, method='GSFS',data=data.example)
-\dontrun{
-
-###########################################
-#                                         #
-# Diagnostic related grouping system, DRG #
-#                                         #
-###########################################
-
-library(robustloggamma)
-library(ssym)
-data(drg2000)
-attach(drg2000)
-LOS2 <-split(LOS,factor(MDC))
-MDC2 <-split(Cost,factor(MDC))
-y <-log(MDC2$'3')
-x <-as.matrix(LOS2$'3')
-colnames(x) <- 'LOS'
-Data <-data.frame(y,x)
-fit1 <-glg(y~LOS,data=Data)
-summary(fit1)
-fit2 <-sglg(y~1,npc=x,data=Data)
-summary(fit2)
-plot(fit2)
-}
-
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric generalized log-gamma regression models. In preparation.
-
-Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 }
 \author{
 Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.

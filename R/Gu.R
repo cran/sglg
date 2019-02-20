@@ -12,7 +12,7 @@
 #' @return K penalty matrix.
 
 #' @references Wood, S. (2006) Generalized additive models: An R introduction. Chapman and Hall.
-#' @references Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
+#' @references Carlos Alberto Cardozo Delgado. Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
 #' t <- runif(120)
@@ -21,11 +21,11 @@
 #' @export Gu
 Gu <- function(t, knot) {
     r3 <- function(t, z) {
-        output <- ((z - 0.5)^2 - 1/12) * ((t - 0.5)^2 - 1/12)/4 - ((abs(t - 
+        output <- ((z - 0.5)^2 - 1/12) * ((t - 0.5)^2 - 1/12)/4 - ((abs(t -
             z) - 0.5)^4 - 0.5 * (abs(t - z) - 0.5)^2 + 7/240)/24
         return(output)
     }
-    
+
     spl.N <- function(t, tk) {
         q <- length(tk) + 1
         n <- length(t)
@@ -34,14 +34,14 @@ Gu <- function(t, knot) {
         N[, 2:q] <- outer(t, tk, FUN = r3)
         return(N)
     }
-    
+
     spl.S <- function(tk) {
         q <- length(tk) + 1
         S <- matrix(0, q, q)
         S[2:q, 2:q] <- outer(tk, tk, FUN = r3)
         return(S)
     }
-    
+
     tks <- function(t, knot) {
         ts <- t - min(t)
         ts <- ts/max(ts)

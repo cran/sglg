@@ -34,19 +34,19 @@ In this setup, the location parameter of the logarithm of the response variable 
 }
 \examples{
 rows  <- 240
-columns <- 3
-t_beta  <- c(0.7, 0.5, 2)
-t_sigma <- 1.5
-t_lambda <- sigma
+columns <- 2
+t_beta  <- c(0.5, 2)
+t_sigma <- 1
+t_lambda <- 1
 set.seed(8142031)
 library(ssym)
-x2 <- rbinom(rows, 1, 0.5)
-x3 <- runif(rows, 0, 1)
-X <- cbind(1,x2,x3)
+x1 <- rbinom(rows, 1, 0.5)
+x2 <- runif(columns, 0, 1)
+X <- cbind(x1,x2)
 s         <- t_sigma^2
 a         <- 1/s
 t_ini1    <- exp(X \%*\% t_beta) * rgamma(rows, scale = s, shape = a)
-cens.time <- rweibull(rows, 0.4, 14)
+cens.time <- rweibull(rows, 0.3, 14)
 delta1     <- ifelse(t_ini1 > cens.time, 1, 0)
 obst1 <- t_ini1
 for (i in 1:rows) {
@@ -55,14 +55,12 @@ if (delta1[i] == 1) {
   }
 }
 data.example <- data.frame(obst1,delta1,X)
-fit3 <- survglg(Surv(log(obst1),delta1) ~ x2 + x3 , data=data.example,shape=1)
+fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example,shape=0.9)
 summary(fit3)
 plot(fit3)
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros. In preparation.
-
-Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 }
 \author{
 Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.

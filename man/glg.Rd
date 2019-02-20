@@ -29,8 +29,8 @@ interval estimate of a 95\% confidence interval for each estimate parameters ass
 Deviance the deviance associated with the model.
 }
 \description{
-\code{glg} may be used to fit a multiple linear regression model suitable for analysis of data sets in which the response variable is continuous, strictly positive, and asymmetric.
-However, \code{glg} may also used to fit data for which the response is asymmetric in the real numbers. In this setup, the location parameter of the response variable is explicitly modeled by a linear function of the parameters.
+\code{glg} is used to fit a multiple linear regression model suitable for analysis of data sets in which the response variable is continuous, strictly positive, and asymmetric.
+In this setup, the location parameter of the response variable is explicitly modeled by a linear function of the parameters.
 }
 \examples{
 rows <- 200
@@ -82,7 +82,6 @@ fit2 <- lm(y1 ~ x1 + x2 - 1,data=data.example)
 logLik(fit2)
 AIC(fit2)
 coefficients(fit2)
-
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.

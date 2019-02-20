@@ -32,7 +32,7 @@ Gu(t,knot)
 \references{
 Wood, S. (2006) Generalized additive models: An R introduction. Chapman and Hall.
 
-Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
+Carlos Alberto Cardozo Delgado. Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 }
 \author{
 Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
