@@ -1,95 +1,87 @@
 #'Plotting a natural cubic splines or P-splines.
 #'
-#'\code{plot.npc} displays a graph of a fitted nonparametric effect, either natural cubic spline or P-spline, from an object of class sglg.
+#'\code{plotnpc} displays a graph of a fitted nonparametric effect, either natural cubic spline or P-spline, from an object of class sglg.
 #'
 #' @param fit an object of the class sglg. This object is returned from the call to glg(), sglg(), survglg() or ssurvglg().
-
+#' @param conf_lev is the confidence level of the asymptotic confidence band. Default value is 0.05.
 #' @references Eilers P.H.C. and Marx B.D. (1996). Flexible smoothing with B-splines and penalties. Statistical Science. 11, 89-121.
 #' @references Wood, S. (2006). Additive generalized models: An R introduction. Chapman and Hall.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @import graphics
+#' @import ggplot2
 #' @examples
-#' rows <- 175 # Number of observations
-#' columns <- 2 # Number of parametric components
+#' library(sglg)
 #' library(ssym)
-#' t_beta  <- c(0.5, 2)
-#' t_sigma <- 1
-#' t_lambda <- 1
-#' t_knot1 <- 7
-#' ts1 <- seq(0, 1, length = t_knot1)
-#' t_g1 <- 0.4 * sin(pi * ts1)
-#'
-#' BasisN <- function(n, knot) {
-#'           N <- matrix(0, n, knot)
-#'           m <- n/knot
-#'           block <- matrix(1, m, 1)
-#'           for (i in 1:knot) {
-#'           l <- (i - 1) * m + 1
-#'           r <- i * m
-#'           N[l:r, i] <- block }
-#'           return(N)
-#'           }
-#' s_N1 <- BasisN(rows, length(ts1))
-#' x3 <- s_N1 %*% ts1
-#' colnames(x3) <- 'x3'
-#' set.seed(8142031)
-#' x1 <- rbinom(rows, 1, 0.5)
-#' x2 <- runif(rows, 0, 1)
-#' X <- cbind(x1,x2)
-#' error <- rglg(rows, 0, 1, t_lambda)
-#' y1 <- X %*%t_beta + + s_N1 %*% t_g1 + t_sigma * error
-#' data.example <- data.frame(y1,X,x3)
-#' fit1 <- sglg(y1 ~ x1 + x2 - 1, npc=x3, method='FS',data=data.example)
-#' plotnpc(fit1)
+#' library(ggplot2)
+#' set.seed(1)
+#' n <- 200
+#' error <- rglg(n,0,1,1)
+#' t <- as.matrix((2*1:n - 1)/(2*n))
+#' colnames(t) <- "t"
+#' f_t <- cos(4*pi*t)
+#' y <- 0.5 + f_t + error
+#' colnames(y) <- "y"
+#' data <- as.data.frame(cbind(y,1,t))
+#' fit1 <- sglg(y ~ 1,npc=t,data=data,basis = "deBoor",alpha0=seq(0.001,0.005,by=0.001),nknts=5)
+#' quantile_residuals(fit1)
+#' # The adjusted (black) and true (red) non-linear component
+#' plotnpc(fit1) + geom_line(aes(t,f_t),colour="red")
+#' fit2 <- sglg(y ~ 1,npc=t,data=data,basis = "Gu",alpha0=seq(0.001,0.005,by=0.001),nknts=9)
+#' quantile_residuals(fit2)
+#' # The adjusted (black) and true (red) non-linear component
+#' plotnpc(fit2,conf_lev=0.01) + geom_line(aes(t,f_t),colour="red",size=1.2)
 #' @export plotnpc
 
-plotnpc <- function(fit) {
+plotnpc <- function(fit,conf_lev) {
     if (fit$semi == FALSE) {
         stop("Sorry, for this kind of model it is not available this option.")
     }
-    npc <- fit$npc
+    if(missingArg(conf_lev))
+       conf_lev <- 0.05
+
     y <- fit$y
-    X <- fit$X
+    N <- fit$N
+    npc <- fit$npc
+    add_comp <- paste("f(",colnames(npc),sep="")
+    add_comp <- paste(add_comp,")",sep="")
+    add_comp <- paste("Estimated Additive Component", add_comp,sep=" ")
     p <- fit$p
+    mu <- fit$mu
+    f_est <- N[,-(1:p)]%*%mu[-(1:p)]
+    if (fit$basis == "deBoor")
+       f_est <- f_est + mu[1]
+
     Knot <- fit$Knot
-    betas <- fit$mu[1:p]
-    as <- fit$mu[(p + 1):(p + Knot)]
-    lambda <- fit$lambda
-    rord <- fit$rord
-    rdev <- fit$rdev
-    y_est <- fit$y_est2
-    scovar <- fit$scovar
-    t_npc <- as.numeric(levels(factor(as.matrix(npc))))
-    N_t <- deBoor2(t_npc, Knot)$N
-    g_t <- N_t %*% as
-    scovarred <- scovar[(p + 1):(p + Knot), (p + 1):(p + Knot)]
-    Var <- N_t %*% (scovarred %*% t(N_t))
-    nval <- diag(Var)
-    nste <- sqrt(nval)
-    n1 <- length(nste)
-    percentil <- 0.025/n1
-    quantil <- abs(qnorm(percentil))
-    upper_g_t <- g_t + quantil * nste
-    lower_g_t <- g_t - quantil * nste
-
-    cloud <- y - X %*% betas
-    xrange <- range(t_npc)
-    yrange <- range(c(lower_g_t, upper_g_t))
-    plot(as.matrix(npc), cloud, ylim = yrange, col = 3, pch = 20, xlab = colnames(npc),
-        ylab = "g(x)", main = "Simultaneous 95% confidence intervals")
-
-    f <- splinefun(t_npc, g_t, method = "natural")
-    ls(envir = environment(f))
-    splinecoef <- get("z", envir = environment(f))
-    values <- curve(f, min(t_npc), max(t_npc), col = "black", add = TRUE)
-
-    uf <- splinefun(t_npc, upper_g_t, method = "natural")
-    ls(envir <- environment(uf))
-    splinecoef <- get("z", envir = environment(uf))
-    values <- curve(uf, min(t_npc), max(t_npc), col = "red", add = TRUE)
-
-    lf <- splinefun(t_npc, lower_g_t, method = "natural")
-    ls(envir <- environment(lf))
-    splinecoef <- get("z", envir = environment(lf))
-    values <- curve(lf, min(t_npc), max(t_npc), col = "red", add = TRUE)
+    var_gammas <- fit$scovar[(p+1):(p+Knot),(p+1):(p+Knot)]
+    var_f_est <- N[,-(1:p)]%*%var_gammas%*%t(N[,-(1:p)])
+    st_error_f_est <- sqrt(diag(var_f_est))
+    f_est_low <- f_est + qnorm(0.5*conf_lev)*st_error_f_est
+    f_est_up <- f_est + qnorm(1 - 0.5*conf_lev)*st_error_f_est
+    df <- as.data.frame(cbind(y,npc,N,f_est))
+    plot <- ggplot(data=df,aes(npc,y))+
+    geom_point(colour="blue",alpha=0.4)+
+    geom_line(aes(npc,f_est_up),colour = "orange",size=1.2) +
+    geom_line(aes(npc,f_est),size=1.2) +
+    geom_line(aes(npc,f_est_low),colour = "orange",size=1.2) +
+    xlab(colnames(npc))+
+    ggtitle(add_comp)
+    return(plot)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -57,7 +57,6 @@ if (delta1[i] == 1) {
 data.example <- data.frame(obst1,delta1,X)
 fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example,shape=0.9)
 summary(fit3)
-plot(fit3)
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros. In preparation.

@@ -1,7 +1,7 @@
 Package: sglg
 Type: Package
 Title: Fitting Semi-Parametric Generalized log-Gamma Regression Models
-Version: 0.1.4
+Version: 0.1.5
 Author: Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com> and G. Paula and L. Vanegas 
 Maintainer: Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 Description: Set of tools to fit a linear multiple or semi-parametric regression
@@ -13,11 +13,11 @@ Depends: R (>= 3.1.0)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Suggests: testthat
 Imports: ssym, robustloggamma, Formula, survival, methods, graphics,
-        stats, AdequacyModel
+        stats, AdequacyModel, ggplot2, moments, gridExtra
 NeedsCompilation: no
-Packaged: 2019-02-20 20:09:36 UTC; Carlos
+Packaged: 2019-07-18 23:07:05 UTC; Carlos
 Repository: CRAN
-Date/Publication: 2019-02-20 20:40:03 UTC
+Date/Publication: 2019-07-19 04:30:02 UTC

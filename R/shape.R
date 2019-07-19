@@ -42,23 +42,23 @@
 #' lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example, interval=c(0.95,1.3), step=0.05)
 #' lambda
 #' @export shape
-#'
-shape = function(formula, npc, data, interval, semi, step) {
-    if (missingArg(interval)) 
+
+shape = function(formula, npc, data, interval, semi, step){
+    if (missingArg(interval))
         interval <- c(0.1, 1.5)
-    if (missingArg(step)) 
+    if (missingArg(step))
         step <- 0.1
-    if (missingArg(semi)) 
+    if (missingArg(semi))
         semi = FALSE
-    if (semi == TRUE & missingArg(npc)) 
+    if (semi == TRUE & missingArg(npc))
         stop("If the model is semiparametric you need to enter the non-parametric variable in the argument npc!")
-    
+
     sh <- seq(interval[1], interval[2], by = step)
     output <- 0 * sh
-    
+
     if (semi == FALSE) {
         for (j in 1:length(sh)) {
-            out <- try(survglg(formula, data = data, shape = sh[j])$llglg, 
+            out <- try(survglg(formula, data = data, shape = sh[j])$llglg,
                 silent = TRUE)
             if (is.numeric(out) == FALSE) {
                 out <- NA
@@ -68,7 +68,7 @@ shape = function(formula, npc, data, interval, semi, step) {
     }
     if (semi == TRUE) {
         for (j in 1:length(sh)) {
-            out <- try(ssurvglg(formula, data = data, npc = npc, shape = sh[j])$llglg, 
+            out <- try(ssurvglg(formula, data = data, npc = npc, shape = sh[j])$llglg,
                 silent = TRUE)
             if (is.matrix(out) == FALSE) {
                 out <- NA
@@ -76,9 +76,14 @@ shape = function(formula, npc, data, interval, semi, step) {
             output[j] <- out
         }
     }
-    plot(sh, output, pch = 20, xlab = "shape parameter", ylab = "log-likehood", 
-        main = "Profile log-likelihood")
     index <- which.max(output)
-    points(sh[index], output[index], pch = 20, col = 2)
+    plot1 <- ggplot(data=as.data.frame(cbind(sh,output)), aes(sh,output)) +
+    geom_point(colour="orange",alpha=1,size=1.25) +
+    xlim(range(sh)) +
+    geom_point(data=as.data.frame(cbind(sh[index],output[index])),aes(sh[index],output[index]), colour="blue", alpha=0.3, size=3) +
+    labs(x = "Shape parameter", y = "Log-lik") +
+    ggtitle("Profile Log-likelihood")
+    suppressWarnings(grid.arrange(plot1,ncol=1))
     return(sh[index])
 }
+

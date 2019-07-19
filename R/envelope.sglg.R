@@ -11,10 +11,10 @@
 
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
-#' rows <- 80
+#' rows <- 120
 #' columns <- 2
 #' t_beta  <- c(0.5, 2)
-#' t_sigma <- 1
+#' t_sigma <- 0.5
 #' t_lambda <- 1
 #' set.seed(8142031)
 #' x1 <- rbinom(rows, 1, 0.5)
@@ -23,19 +23,19 @@
 #' error <- rglg(rows, 0, 1, t_lambda)
 #' y1 <- X %*%t_beta + t_sigma * error
 #' data.example <- data.frame(y1,X)
-#' fit1 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-#' envelope.sglg(fit1)
+#' fit <- glg(y1 ~ x1 + x2 - 1,data=data.example)
+#' envelope.sglg(fit,Rep=50)
 #' @import stats
 #' @import graphics
 #' @export envelope.sglg
 #'
 envelope.sglg <- function(fit, Rep) {
-    
+
     if (fit$censored == FALSE) {
-        
-        if (missingArg(Rep)) 
+
+        if (missingArg(Rep))
             Rep <- 30
-        
+
         formula <- paste("~", as.character(fit$formula)[3])
         formula <- as.formula(paste("y", formula))
         X <- fit$X
@@ -46,9 +46,9 @@ envelope.sglg <- function(fit, Rep) {
         rord <- fit$rord
         systematic_part <- rord * sigma
         e <- matrix(0, n, Rep)
-        
+
         j <- 1
-        
+
         if (fit$Knot >= 3) {
             npc <- fit$npc
             while (j <= Rep) {
@@ -82,30 +82,26 @@ envelope.sglg <- function(fit, Rep) {
         }
         e1 <- numeric(n)
         e2 <- numeric(n)
-        
+
         for (i in 1:n) {
             eo <- sort(e[i, ])
             e1[i] <- (eo[1] + eo[2])/2
             e2[i] <- (eo[Rep - 1] + eo[Rep])/2
         }
-        
+
         med <- apply(e, 1, mean)
         faixa <- range(rdev, e1, e2)
-        par(mfrow = c(1, 1))
-        par(pty = "s")
-        qqnorm(rdev, xlab = "Quantiles of N(0,1)", ylab = "Desviance-type residuals", 
-            ylim = faixa, pch = 20, main = "")
-        par(new = T)
-        qqnorm(e1, axes = F, xlab = "", ylab = "", type = "l", ylim = faixa, 
-            lty = 1, col = 2, main = "")
-        par(new = T)
-        qqnorm(e2, axes = F, xlab = "", ylab = "", type = "l", ylim = faixa, 
-            col = 2, lty = 1, main = "")
-        par(new = T)
-        qqnorm(med, axes = F, xlab = "", ylab = "", type = "l", ylim = faixa, 
-            lty = 2, main = "")
+        plot1 <- ggplot(data=as.data.frame(cbind(rdev,e1,e2,med)),aes(sample=rdev))+
+        ggtitle("Envelope") +
+        stat_qq(colour="blue",alpha=0.5) +
+        xlab("Theoretical Quantiles") +
+        ylab("Desviance-type residuals") +
+        stat_qq(aes(sample=e1),colour="black",alpha=0.5,geom="line") +
+        stat_qq(aes(sample=e2),colour="black",alpha=0.5,geom="line") +
+        stat_qq(aes(sample=med),colour="black",alpha=0.5,geom="line")
+        grid.arrange(plot1, ncol=1)
     }
-    
+
     if (fit$censored == TRUE) {
         print("Sorry, for this kind of model it is not available this option.")
     }

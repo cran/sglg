@@ -4,47 +4,37 @@
 \alias{plotnpc}
 \title{Plotting a natural cubic splines or P-splines.}
 \usage{
-plotnpc(fit)
+plotnpc(fit, conf_lev)
 }
 \arguments{
 \item{fit}{an object of the class sglg. This object is returned from the call to glg(), sglg(), survglg() or ssurvglg().}
+
+\item{conf_lev}{is the confidence level of the asymptotic confidence band. Default value is 0.05.}
 }
 \description{
-\code{plot.npc} displays a graph of a fitted nonparametric effect, either natural cubic spline or P-spline, from an object of class sglg.
+\code{plotnpc} displays a graph of a fitted nonparametric effect, either natural cubic spline or P-spline, from an object of class sglg.
 }
 \examples{
-rows <- 175 # Number of observations
-columns <- 2 # Number of parametric components
+library(sglg)
 library(ssym)
-t_beta  <- c(0.5, 2)
-t_sigma <- 1
-t_lambda <- 1
-t_knot1 <- 7
-ts1 <- seq(0, 1, length = t_knot1)
-t_g1 <- 0.4 * sin(pi * ts1)
-
-BasisN <- function(n, knot) {
-          N <- matrix(0, n, knot)
-          m <- n/knot
-          block <- matrix(1, m, 1)
-          for (i in 1:knot) {
-          l <- (i - 1) * m + 1
-          r <- i * m
-          N[l:r, i] <- block }
-          return(N)
-          }
-s_N1 <- BasisN(rows, length(ts1))
-x3 <- s_N1 \%*\% ts1
-colnames(x3) <- 'x3'
-set.seed(8142031)
-x1 <- rbinom(rows, 1, 0.5)
-x2 <- runif(rows, 0, 1)
-X <- cbind(x1,x2)
-error <- rglg(rows, 0, 1, t_lambda)
-y1 <- X \%*\%t_beta + + s_N1 \%*\% t_g1 + t_sigma * error
-data.example <- data.frame(y1,X,x3)
-fit1 <- sglg(y1 ~ x1 + x2 - 1, npc=x3, method='FS',data=data.example)
-plotnpc(fit1)
+library(ggplot2)
+set.seed(1)
+n <- 200
+error <- rglg(n,0,1,1)
+t <- as.matrix((2*1:n - 1)/(2*n))
+colnames(t) <- "t"
+f_t <- cos(4*pi*t)
+y <- 0.5 + f_t + error
+colnames(y) <- "y"
+data <- as.data.frame(cbind(y,1,t))
+fit1 <- sglg(y ~ 1,npc=t,data=data,basis = "deBoor",alpha0=seq(0.001,0.005,by=0.001),nknts=5)
+quantile_residuals(fit1)
+# The adjusted (black) and true (red) non-linear component
+plotnpc(fit1) + geom_line(aes(t,f_t),colour="red")
+fit2 <- sglg(y ~ 1,npc=t,data=data,basis = "Gu",alpha0=seq(0.001,0.005,by=0.001),nknts=9)
+quantile_residuals(fit2)
+# The adjusted (black) and true (red) non-linear component
+plotnpc(fit2,conf_lev=0.01) + geom_line(aes(t,f_t),colour="red",size=1.2)
 }
 \references{
 Eilers P.H.C. and Marx B.D. (1996). Flexible smoothing with B-splines and penalties. Statistical Science. 11, 89-121.

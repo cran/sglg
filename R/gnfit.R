@@ -7,9 +7,12 @@
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
-#' set.seed(1)
-#' sample <- rglg(16,location=0.7,scale=0.5,shape=1.2)
-#' gnfit(c(0.55,0.6,1),sample)
+#' \dontrun{
+#' set.seed(12)
+#' sample <- rglg(100,location=0,scale=0.5,shape=0.75)
+#' result <- gnfit(starts=c(0.1,0.75,1),data=sample)
+#' result
+#' }
 #' @importFrom AdequacyModel goodness.fit
 #' @export gnfit
 
@@ -26,10 +29,21 @@ gnfit <- function(starts,data){
                     c <- par[3]
                     ploggamma(x, mu = a, sigma = b, lambda = c)
          }
-         output <- suppressWarnings(goodness.fit(pdf = pdf_glg, cdf = cdf_glg, starts = c(0,1,1), data = data,
+         sample <- data
+         output <- suppressWarnings(goodness.fit(pdf = pdf_glg, cdf = cdf_glg, starts = starts, data = sample,
                         method = "PSO", lim_inf = c(-20,0,-5), lim_sup = c(20,10,5),mle = NULL,domain=c(-Inf,Inf)))
-         x = seq(floor(min(data)),ceiling(max(data)), length.out = 500)
-         hist(data, probability = TRUE,main="")
-         lines(x, pdf_glg(par = output$mle, x), col = "red")
+         x = seq(floor(min(sample)) - 0.5, ceiling(max(sample)) + 0.5, length.out = 500)
+
+         f_x <- pdf_glg(par = output$mle, x)
+         fit <- as.data.frame(cbind(x,f_x))
+         plot1 <- ggplot(data=as.data.frame(sample), aes(sample)) +
+         geom_density(colour="orange",fill="orange",alpha=0.4,size=0.7) +
+         xlim(range(x)) +
+         geom_line(data=fit,aes(x,f_x),colour="blue",alpha=0.5,size=0.7) +
+         labs(x = "The Parametric Estimated Density, PED, is the blue curve and the Non-Parametric Estimated Density, Non-PED, is the orange curve.", y = "Density", colour = "Parametric Est. Den") +
+         theme(legend.position="top")+
+         ggtitle("PED vs Non-PED")
+         grid.arrange(plot1,ncol=1)
+
          return(list(CM=output$W,AD=output$A,KS=output$KS,HQIC=output$HQIC,BIC=output$BIC,AIC=output$AIC,MLE=output$mle))
 }

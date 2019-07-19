@@ -15,9 +15,12 @@ gnfit(starts, data)
 This function provides some useful statistics to assess the quality of fit of generalized log-gamma probabilistic model, including the statistics Cramer-von Mises and Anderson-Darling. It can also calculate other goodness of fit such as Hannan-Quin Information Criterion and Kolmogorov-Smirnov test.
 }
 \examples{
-set.seed(1)
-sample <- rglg(16,location=0.7,scale=0.5,shape=1.2)
-gnfit(c(0.55,0.6,1),sample)
+\dontrun{
+set.seed(12)
+sample <- rglg(100,location=0,scale=0.5,shape=0.75)
+result <- gnfit(starts=c(0.1,0.75,1),data=sample)
+result
+}
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.

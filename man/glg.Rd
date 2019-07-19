@@ -54,7 +54,7 @@ y1 <- X \%*\%t_beta + t_sigma * error
 data.example <- data.frame(y1,X)
 fit1 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
 summary(fit1)
-plot(fit1)
+deviance_residuals(fit1)
 
 ###############
 #             #

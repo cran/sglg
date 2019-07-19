@@ -10,9 +10,34 @@
 #' @references Gentle, J, Computational Statistics, First Edition. Springer - Verlag, 2009.
 #' @references Naradajah, S. and Rocha, R. (2016) Newdistns: An R Package for New Families of Distributions, Journal of Statiscal Software.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>.
-#' @examples{
+#' @examples
 #' # A random sample of size 10 of order statistics from a Extreme Value Distribution.
-#' order_glg(10,0,1,1,1,50)}
+#' order_glg(10,0,1,1,1,50)
+#' \dontrun{ # A small comparison between two random sampling methods of order statistics
+#' # Method 1
+#' m <- 10
+#' output <- rep(0,m)
+#' order_sample <- function(m,n,k){
+#' for(i in 1:m){
+#' sample <- rglg(n)
+#' order_sample <- sort(sample)
+#' output[i] <- order_sample[k]
+#' }
+#' return(output)
+#' }
+#' N <- 10000
+#' n <- 200
+#' k <- 100
+#' system.time(order_sample(N,n,k))
+#' sample_1 <- order_sample(N,n,k)
+#' hist(sample_1)
+#' summary(sample_1)
+#' # Method 2
+#' system.time(order_glg(N,0,1,1,k,n))
+#' sample_2 <- order_glg(N,0,1,1,k,n)$sample
+#' hist(sample_2)
+#' summary(sample_2)
+#' }
 #' @importFrom stats rbeta
 #' @export order_glg
 
