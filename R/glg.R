@@ -68,7 +68,6 @@
 #' AIC(fit2)
 #' coefficients(fit2)
 #' @import ssym
-#' @import robustloggamma
 #' @import methods
 #' @export glg
 
@@ -312,8 +311,8 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         return(new)
     }
 
-    gfit <- function(resid, lambd) {
-        Fs <- ploggamma(resid, lambda = lambd)
+    gfit <- function(resid, lambd){
+        Fs <- pglg(resid, shape = lambd)
         equantil <- qnorm(Fs)
         diff <- qqnorm(equantil, plot.it = FALSE)
         output <- mean(abs(diff$x - diff$y))

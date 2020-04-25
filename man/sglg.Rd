@@ -4,8 +4,18 @@
 \alias{sglg}
 \title{Fitting semi-parametric generalized log-gamma regression models}
 \usage{
-sglg(formula, npc, basis, data, shape, method, alpha0, nknts, Tolerance,
-  Maxiter)
+sglg(
+  formula,
+  npc,
+  basis,
+  data,
+  shape,
+  method,
+  alpha0,
+  nknts,
+  Tolerance,
+  Maxiter
+)
 }
 \arguments{
 \item{formula}{a symbolic description of the systematic component of the model to be fitted. See details for further information.}

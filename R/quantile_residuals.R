@@ -23,7 +23,8 @@
 #'@import gridExtra
 #'@export quantile_residuals
 quantile_residuals <- function(fit){
-r_quantile <- as.numeric(qnorm( ploggamma(fit$y,mu=fit$mu_est,sigma=fit$sigma,lambda=fit$lambda)))
+#r_quantile <- as.numeric(qnorm( ploggamma(fit$y,mu=fit$mu_est,sigma=fit$sigma,lambda=fit$lambda)))
+r_quantile <- as.numeric(qnorm( pglg(fit$y,location=fit$mu_est,scale=fit$sigma,shape=fit$lambda)))
 ext <- max(abs(r_quantile)) + 0.5
 plot1 <- ggplot(data=as.data.frame(r_quantile),aes(r_quantile)) +  ggtitle("Density Quantile Residuals") + geom_density(colour="orange",fill="orange",alpha=0.3) + xlab("Sample Quantiles") + ylab("Density") + xlim(c(-ext,ext)) + geom_hline(yintercept=0)
 plot2 <- ggplot(data=as.data.frame(r_quantile),aes(sample=r_quantile)) + ggtitle("Normal Q-Q Plot") + stat_qq(colour="blue",alpha=0.5) + stat_qq_line() + xlab("Theoretical Quantiles") + ylab("Sample Quantiles")

@@ -66,7 +66,6 @@
 #' data.example <- data.frame(obst1, delta, X, x3)
 #' fit4  <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1, npc=x3, data=data.example, shape=0.8)
 #' @import ssym
-#' @import robustloggamma
 #' @import methods
 #' @export ssurvglg
 #'
@@ -448,7 +447,7 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter, Tolerance) {
         Fkm = 1 - surv
 
         res = sort((resid * (1 - delta))[delta == 0])
-        Fs = robustloggamma::ploggamma(res, lambda = lambd)
+        Fs = pglg(res, shape = lambd)
         r_q = qnorm(Fs)
 
         diff = abs(r_q - qnorm(Fkm))

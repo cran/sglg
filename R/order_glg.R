@@ -43,7 +43,8 @@
 
 order_glg <- function(size,mu,sigma,lambda,k,n){
   initial <- rbeta(size, k, n + 1 - k)
-  sample  <- qloggamma(initial,mu,sigma,lambda)
-  pdf     <- factorial(size)*cumprod(dloggamma(sample,mu,sigma,lambda))[size]
+  sample  <- qglg(initial,mu,sigma,lambda)
+  #pdf    <- factorial(size)*cumprod(dloggamma(sample,mu,sigma,lambda))[size]
+  pdf    <- factorial(size)*cumprod(dglg(sample,mu,sigma,lambda))[size]
   return(list(sample=sample,pdf=pdf))
 }

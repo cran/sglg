@@ -54,7 +54,8 @@ deviance_residuals <- function(object, ...) {
     # values', main = 'Survival function', type = 'l', pch = 20)
 
     res <- sort((rord * (1 - delta))[delta == 0])
-    Fs <- ploggamma(res, lambda = lambda)
+    #Fs <- ploggamma(res, lambda = lambda)
+    Fs <- pglg(res, shape = lambda)
     r_q <- qnorm(Fs)
     diff <- abs(r_q - qnorm(Fkm))
     output <- mean(diff[-length(diff)])

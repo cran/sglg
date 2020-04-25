@@ -276,7 +276,7 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
         Fkm <- 1 - surv
 
         res <- sort((resid * (1 - Delta))[Delta == 0])
-        Fs <- robustloggamma::ploggamma(res, lambda = lambd)
+        Fs <- pglg(res, shape = lambd)
         r_q <- qnorm(Fs)
 
         diff <- abs(r_q - qnorm(Fkm))

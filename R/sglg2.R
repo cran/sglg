@@ -42,7 +42,6 @@
 #' fit1 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "deBoor")
 #' fit2 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "Gu",alpha0=c(0.05,0.1),nknts=7)
 #' @import ssym
-#' @import robustloggamma
 #' @import methods
 #' @export sglg
 
@@ -470,7 +469,6 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
     }
 
     opt_alph <- function(alph){
-      #alphas <- as.matrix(seq(0.1,alph,by=0.1))
       alphas <- as.matrix(alph)
       values <- apply(X=alphas,1,FUN=AIC_p)
       index_min <- which.min(values)
@@ -480,7 +478,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
     }
 
     gfit <- function(resid, lambd) {
-        Fs <- ploggamma(resid, lambda = lambd)
+        Fs <- pglg(resid, shape = lambd)
         equantil <- qnorm(Fs)
         diff <- qqnorm(equantil, plot.it = FALSE)
         output <- mean(abs(diff$x - diff$y))

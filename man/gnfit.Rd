@@ -12,12 +12,17 @@ gnfit(starts, data)
 \item{data}{numeric vector. A sample of a generalized log-gamma distribution.}
 }
 \description{
-This function provides some useful statistics to assess the quality of fit of generalized log-gamma probabilistic model, including the statistics Cramer-von Mises and Anderson-Darling. It can also calculate other goodness of fit such as Hannan-Quin Information Criterion and Kolmogorov-Smirnov test.
+This function provides some useful statistics to assess the quality of fit of generalized log-gamma probabilistic model,
+including the statistics Cramer-von Mises and Anderson-Darling. It can also calculate other goodness of fit such as Hannan-Quin Information Criterion
+and Kolmogorov-Smirnov test.
 }
 \examples{
 \dontrun{
-set.seed(12)
-sample <- rglg(100,location=0,scale=0.5,shape=0.75)
+set.seed(1)
+# The size of the sample must be median or large to obtain a good estimates
+n <- 100
+sample <- rglg(n,location=0,scale=0.5,shape=0.75)
+# This step takes a few minutes.
 result <- gnfit(starts=c(0.1,0.75,1),data=sample)
 result
 }
