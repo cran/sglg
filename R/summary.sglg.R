@@ -13,7 +13,7 @@ summary.sglg <- function(object, ...) {
         cat(" Censored: ")
         print(object$censored)
         cat("\n ------------------------ Location model ---------------------- \n\n")
-        
+
         cat(" ---------- Parametric component ----------\n\n")
         p <- object$p
         Estimate <- object$mu
@@ -23,7 +23,7 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames(object$X)
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat("\n -------------------- Scale parameter -------------------- \n\n")
         Estimate <- object$sigma
@@ -33,7 +33,7 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("sigma")
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat("\n -------------------- Shape parameter -------------------- \n\n")
         Estimate <- object$lambda
@@ -43,12 +43,12 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("lambda")
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = TRUE, tst.ind = c(2, 3))
         cat(" ------------------------------------------------------------\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
         cat(" ------ Goodness-of-fit ------\n\n")
-        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3), 
+        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),
             "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
@@ -67,7 +67,7 @@ summary.sglg <- function(object, ...) {
         cat(" Percentage of censored observations: ")
         print(object$per.censo)
         cat("\n ------------------------ Location model ---------------------- \n\n")
-        
+
         cat(" ---------- Parametric component ----------\n\n")
         p <- object$p
         Estimate <- object$mu
@@ -77,7 +77,7 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames(object$X)
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat("\n -------------------- Scale parameter -------------------- \n\n")
         Estimate <- object$sigma
@@ -87,13 +87,13 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("sigma")
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat(" ------------------------------------------------------------\n\n")
         cat(" Shape: ", round(object$lambda, digits = 2), "\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
         cat(" ------ Goodness-of-fit ------\n\n")
-        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3), 
+        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),
             "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
@@ -110,7 +110,7 @@ summary.sglg <- function(object, ...) {
         cat(" Censored: ")
         print(object$censored)
         cat("\n ------------------------ Location model ---------------------- \n\n")
-        
+
         cat(" ---------- Parametric component ----------\n\n")
         p <- object$p
         Estimate <- object$mu[1:p]
@@ -120,14 +120,15 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames(object$X)
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
-        cat(" ---------- Non-parametric component ----------\n\n")
+        cat("\n ---------- Non-parametric component ----------\n\n")
         Knot <- object$Knot
         Smoothp <- object$alpha
         d.f <- object$d.f.npc
         BasisD <- Knot
         table <- cbind(Smoothp, BasisD, d.f)
+        cat(" Type of basis: ", as.character(object$basis),"\n\n")
         colnames(table) <- c("Smooth parameter", "Basis dimension", "d.f")
         rownames(table) <- colnames(object$npc)
         printCoefmat(table)
@@ -139,7 +140,7 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("sigma")
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat("\n -------------------- Shape parameter -------------------- \n\n")
         Estimate <- object$lambda
@@ -149,12 +150,12 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("lambda")
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = TRUE, tst.ind = c(2, 3))
         cat(" ------------------------------------------------------------\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
         cat(" ------ Goodness-of-fit ------\n\n")
-        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3), 
+        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),
             "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
@@ -171,7 +172,7 @@ summary.sglg <- function(object, ...) {
         cat(" Censored: ")
         print(object$censored)
         cat("\n ------------------------ Location model ---------------------- \n\n")
-        
+
         cat(" ---------- Parametric component ----------\n\n")
         p <- object$p
         Estimate <- object$mu[1:p]
@@ -181,7 +182,7 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames(object$X)
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat(" ---------- Non-parametric component ----------\n\n")
         Knot <- object$Knot
@@ -200,13 +201,13 @@ summary.sglg <- function(object, ...) {
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("sigma")
-        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5, 
+        printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat(" ------------------------------------------------------------\n\n")
         cat(" Shape: ", round(object$lambda, digits = 2), "\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
         cat(" ------ Goodness-of-fit ------\n\n")
-        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3), 
+        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),
             "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
@@ -215,5 +216,5 @@ summary.sglg <- function(object, ...) {
         cat(" BIC: ", round(object$BIC, digits = 2), "\n\n")
         cat(" --------------------------------------------------------------\n")
     }
-    
+
 }

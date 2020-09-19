@@ -20,7 +20,6 @@
 #' t_sigma <- 1
 #' t_lambda <- 1
 #' set.seed(8142031)
-#' library(ssym)
 #' x1 <- rbinom(rows, 1, 0.5)
 #' x2 <- runif(columns, 0, 1)
 #' X <- cbind(x1,x2)

@@ -4,7 +4,7 @@
 \alias{ssurvglg}
 \title{Fitting semi-parametric generalized log-gamma regression models under the presence of right censored data.}
 \usage{
-ssurvglg(formula, npc, basis, data, shape, Maxiter, Tolerance)
+ssurvglg(formula, npc, basis, data, shape, alpha0, Maxiter, Tolerance)
 }
 \arguments{
 \item{formula}{a symbolic description of the systematic component of the model to be fitted. See details for further information.}
@@ -17,6 +17,8 @@ which are a B-spline basis and a natural cubic spline basis, respectively.}
 \item{data}{an optional data frame, list containing the variables in the model.}
 
 \item{shape}{an optional value for the shape parameter of the model.}
+
+\item{alpha0}{is a vector of initial values for the smoothing parameter alpha.}
 
 \item{Maxiter}{an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.}
 
@@ -39,13 +41,13 @@ In this setup, the location parameter of the logarithm of the variable is explic
 natural cubic splines or cubic P-splines.
 }
 \examples{
+require(survival)
 rows    <- 150
 columns <- 2
 t_beta  <- c(0.5, 2)
-t_sigma <- 0.75
+t_sigma <- 0.5
 t_lambda <- 1
 set.seed(8142030)
-library(ssym)
 x1 <- rbinom(rows, 1, 0.5)
 x2 <- runif(rows, 0, 1)
 X <- cbind(x1,x2)
@@ -75,8 +77,9 @@ for(i in 1:rows) {
        obst1[i] = cens.time[i]
       }
 }
-data.example <- data.frame(obst1, delta, X, x3)
-fit4  <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1, npc=x3, data=data.example, shape=0.8)
+d_example <- data.frame(obst1, delta, X, x3)
+ fit4 <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1,npc=x3,data = d_example,shape=0.9)
+summary(fit4)
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros: Censored case. In preparation.

@@ -13,13 +13,13 @@ plotsurv.sglg(fit)
 \code{plotsurv.sglg} is used to plot simultaneously the Kaplan-Meier and parametric estimators of the survival function.
 }
 \examples{
+require(survival)
 rows  <- 240
 columns <- 2
 t_beta  <- c(0.5, 2)
 t_sigma <- 1
 t_lambda <- 1
 set.seed(8142031)
-library(ssym)
 x1 <- rbinom(rows, 1, 0.5)
 x2 <- runif(columns, 0, 1)
 X <- cbind(x1,x2)

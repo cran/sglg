@@ -10,11 +10,8 @@
 #' @import graphics
 #' @import ggplot2
 #' @examples
-#' library(sglg)
-#' library(ssym)
-#' library(ggplot2)
 #' set.seed(1)
-#' n <- 200
+#' n <- 300
 #' error <- rglg(n,0,1,1)
 #' t <- as.matrix((2*1:n - 1)/(2*n))
 #' colnames(t) <- "t"
@@ -22,14 +19,10 @@
 #' y <- 0.5 + f_t + error
 #' colnames(y) <- "y"
 #' data <- as.data.frame(cbind(y,1,t))
-#' fit1 <- sglg(y ~ 1,npc=t,data=data,basis = "deBoor",alpha0=seq(0.001,0.005,by=0.001),nknts=5)
+#' fit1 <- sglg(y ~ 1,npc=t,data=data,basis = "Gu",alpha0=seq(0.001,0.005,by=0.001),nknts=9)
 #' quantile_residuals(fit1)
 #' # The adjusted (black) and true (red) non-linear component
-#' plotnpc(fit1) + geom_line(aes(t,f_t),colour="red")
-#' fit2 <- sglg(y ~ 1,npc=t,data=data,basis = "Gu",alpha0=seq(0.001,0.005,by=0.001),nknts=9)
-#' quantile_residuals(fit2)
-#' # The adjusted (black) and true (red) non-linear component
-#' plotnpc(fit2,conf_lev=0.01) + geom_line(aes(t,f_t),colour="red",size=1.2)
+#' plotnpc(fit1,conf_lev=0.02)
 #' @export plotnpc
 
 plotnpc <- function(fit,conf_lev) {
@@ -48,8 +41,24 @@ plotnpc <- function(fit,conf_lev) {
     p <- fit$p
     mu <- fit$mu
     f_est <- N[,-(1:p)]%*%mu[-(1:p)]
-    if (fit$basis == "deBoor")
-       f_est <- f_est + mu[1]
+    if (fit$basis == "deBoor"){
+        f_est <- f_est + mu[1]
+        #Knot <- fit$Knot
+        #var_gammas <- fit$scovar[(p+1):(p+Knot),(p+1):(p+Knot)]
+        #var_f_est <- N[,-(1:p)]%*%var_gammas%*%t(N[,-(1:p)])
+        #st_error_f_est <- sqrt(diag(var_f_est))
+        #f_est_low <- f_est + qnorm(0.5*conf_lev)*st_error_f_est
+        #f_est_up <- f_est + qnorm(1 - 0.5*conf_lev)*st_error_f_est
+        df <- as.data.frame(cbind(y,npc,N,f_est))
+        plot <- ggplot(data=df,aes(npc,y))+
+            #geom_point(colour="blue",alpha=0.4)+
+            #geom_line(aes(npc,f_est_up),colour = "orange",size=1.2) +
+            geom_line(aes(npc,f_est),size=1.2) +
+            #geom_line(aes(npc,f_est_low),colour = "orange",size=1.2) +
+            xlab(colnames(npc))+
+            ggtitle(add_comp)
+        return(plot)
+    }
 
     Knot <- fit$Knot
     var_gammas <- fit$scovar[(p+1):(p+Knot),(p+1):(p+Knot)]
@@ -59,7 +68,7 @@ plotnpc <- function(fit,conf_lev) {
     f_est_up <- f_est + qnorm(1 - 0.5*conf_lev)*st_error_f_est
     df <- as.data.frame(cbind(y,npc,N,f_est))
     plot <- ggplot(data=df,aes(npc,y))+
-    geom_point(colour="blue",alpha=0.4)+
+    #geom_point(colour="blue",alpha=0.4)+
     geom_line(aes(npc,f_est_up),colour = "orange",size=1.2) +
     geom_line(aes(npc,f_est),size=1.2) +
     geom_line(aes(npc,f_est_low),colour = "orange",size=1.2) +

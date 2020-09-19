@@ -57,7 +57,6 @@ In this setup, the location parameter of the response variable is explicitly mod
 natural cubic splines or cubic P-splines.
 }
 \examples{
-library(ssym)
 library(sglg)
 set.seed(1)
 n <- 200
@@ -71,7 +70,9 @@ y <- 2*x1 + 0.5*x2 + f_t + error
 colnames(y) <- "y"
 data <- as.data.frame(cbind(y,x1,x2,t))
 fit1 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "deBoor")
+logLik(fit1)
 fit2 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "Gu",alpha0=c(0.05,0.1),nknts=7)
+logLik(fit2)
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric generalized log-gamma regression models. In preparation.

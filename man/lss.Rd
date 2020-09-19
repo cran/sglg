@@ -7,11 +7,11 @@
 lss(mu, sigma, lambda)
 }
 \arguments{
-\item{mu}{numeric, represent the location parameter of a generalized log-gamma distribution. Default value is 0.}
+\item{mu}{numeric, represents the location parameter of a generalized log-gamma distribution. Default value is 0.}
 
-\item{sigma}{numeric, represent the scale parameter of a generalized log-gamma distribution. Default value is 1.}
+\item{sigma}{numeric, represents the scale parameter of a generalized log-gamma distribution. Default value is 1.}
 
-\item{lambda}{numeric, represent the shape parameter of a generalized log-gamma distribution. Default value is 1.}
+\item{lambda}{numeric, represents the shape parameter of a generalized log-gamma distribution. Default value is 1.}
 }
 \description{
 \code{lss} is used to obtain the mean, variance, skewness and kurtosis for a generalized log-gamma distribution.

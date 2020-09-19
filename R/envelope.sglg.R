@@ -92,13 +92,13 @@ envelope.sglg <- function(fit, Rep) {
         med <- apply(e, 1, mean)
         faixa <- range(rdev, e1, e2)
         plot1 <- ggplot(data=as.data.frame(cbind(rdev,e1,e2,med)),aes(sample=rdev))+
-        ggtitle("Envelope") +
-        stat_qq(colour="blue",alpha=0.5) +
-        xlab("Theoretical Quantiles") +
-        ylab("Desviance-type residuals") +
+        stat_qq(colour="orange",alpha=0.5) +
         stat_qq(aes(sample=e1),colour="black",alpha=0.5,geom="line") +
         stat_qq(aes(sample=e2),colour="black",alpha=0.5,geom="line") +
-        stat_qq(aes(sample=med),colour="black",alpha=0.5,geom="line")
+        stat_qq(aes(sample=med),colour="black",alpha=0.5,geom="line") +
+        ggtitle("Envelope") +
+        xlab("Theoretical Quantiles") +
+        ylab("Desviance-type residuals")
         grid.arrange(plot1, ncol=1)
     }
 

@@ -16,13 +16,13 @@
 #' @references Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros. In preparation.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
+#' require(survival)
 #' rows  <- 240
 #' columns <- 2
 #' t_beta  <- c(0.5, 2)
 #' t_sigma <- 1
 #' t_lambda <- 1
 #' set.seed(8142031)
-#' library(ssym)
 #' x1 <- rbinom(rows, 1, 0.5)
 #' x2 <- runif(columns, 0, 1)
 #' X <- cbind(x1,x2)
@@ -39,10 +39,10 @@
 #' }
 #' data.example <- data.frame(obst1,delta1,X)
 #' fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example,shape=0.9)
+#' logLik(fit3)
 #' summary(fit3)
 #' @import Formula
 #' @import survival
-#' @import ssym
 #' @import methods
 #' @export survglg
 survglg = function(formula, data, shape, Maxiter, Tolerance) {
@@ -361,9 +361,11 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
         ordresidual <- eps(output[1:p], output[p + 1])
         sgn <- sign(Y[, 1] - y_est)
         outputp <- lambda0
-        dev <- sgn * sqrt(2) * ((1 - Delta) * ((1/outputp^2) * exp(outputp *
-            ordresidual) - (1/outputp) * ordresidual - (1/outputp)^2)^(0.5) +
-            Delta * (-log(S(ordresidual, outputp))))
+        #######################################################################################
+
+        dev <- sgn * sqrt(2)*((1 - Delta)*sqrt((1/outputp^2) * exp(outputp*ordresidual) - (1/outputp) * ordresidual - (1/outputp)^2) + Delta*(-log(S(ordresidual, outputp))))
+
+        ######################################################################################
         devian <- sum(dev^2)
         part2 <- ((output[p + 1])/outputp) * (digamma((1/outputp)^2) - log((1/outputp)^2))
         y_est <- y_est + part2

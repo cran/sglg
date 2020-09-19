@@ -26,7 +26,6 @@
 #' @references Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric generalized log-gamma regression models. In preparation.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
-#' library(ssym)
 #' library(sglg)
 #' set.seed(1)
 #' n <- 200
@@ -40,8 +39,9 @@
 #' colnames(y) <- "y"
 #' data <- as.data.frame(cbind(y,x1,x2,t))
 #' fit1 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "deBoor")
+#' logLik(fit1)
 #' fit2 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "Gu",alpha0=c(0.05,0.1),nknts=7)
-#' @import ssym
+#' logLik(fit2)
 #' @import methods
 #' @export sglg
 
@@ -153,8 +153,8 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
         formula3 <- update(formula3, formul[j])
     }
 
-    fit00 <- ssym::ssym.l(formula3, data = data, family = "Normal")
-    #alpha0 <- fit00$lambdas.mu
+    #fit00 <- ssym::ssym.l(formula3, data = data, family = "Normal")
+    ##alpha0 <- fit00$lambdas.mu
 
     if(missingArg(alpha0)) {
       alpha0 <- seq(0.1,2,by=0.1)
@@ -516,9 +516,9 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
         ordresidual <- eps(output[1:p], output[(p + 1):(p + Tknot)], output[p +
             Tknot + 1])
         sgn <- sign(y - y_est)
-        dev <- sgn * sqrt(2) * ((1/output[p + Tknot + 2]^2) * exp(output[p +
+        dev <- sgn * sqrt(2) * sqrt((1/output[p + Tknot + 2]^2) * exp(output[p +
             Tknot + 2] * ordresidual) - (1/output[p + Tknot + 2]) * ordresidual -
-            (1/output[p + Tknot + 2])^2)^(0.5)
+            (1/output[p + Tknot + 2])^2)
         Devian <- sum(dev^2)
 
         good_fit <- gfit(ordresidual, output[p + Tknot + 2])
@@ -526,7 +526,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
             Tknot + 2])^2) - log((1/output[p + Tknot + 2])^2))
         y_est2 <- y_est + part2
 
-        return(list(formula = formula, npc = npc, size = n, mu = output[1:(p +
+        return(list(formula = formula, npc = npc, basis =basis, size = n, mu = output[1:(p +
             Tknot)], sigma = output[p + Tknot + 1], lambda = output[p + Tknot +
             2], y = y, X = X, p = p, N = N, Knot = Knot, rord = ordresidual,
             rdev = dev, interval = inter, llglg = llglg, AIC = output2, BIC = output3$BIC,

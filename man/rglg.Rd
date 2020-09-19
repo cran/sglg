@@ -9,11 +9,11 @@ rglg(n, location, scale, shape)
 \arguments{
 \item{n}{numeric, size of the random sample.}
 
-\item{location}{numeric, represent the location parameter of a generalized log-gamma distribution. Default value is 0.}
+\item{location}{numeric, represents the location parameter of a generalized log-gamma distribution. Default value is 0.}
 
-\item{scale}{numeric, represent the scale parameter of a generalized log-gamma distribution. Default value is 1.}
+\item{scale}{numeric, represents the scale parameter of a generalized log-gamma distribution. Default value is 1.}
 
-\item{shape}{numeric, represent the shape parameter of a generalized log-gamma distribution. Default value is 1.}
+\item{shape}{numeric, represents the shape parameter of a generalized log-gamma distribution. Default value is 1.}
 }
 \description{
 \code{rglg} is used to generate random numbers for a generalized log-gamma distribution.

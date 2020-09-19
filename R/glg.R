@@ -18,7 +18,7 @@
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
-#' rows <- 200
+#' rows <- 150 # 150 original
 #' columns <- 2
 #' x1 <- rbinom(rows, 1, 0.5)
 #' x2 <- runif(columns, 0, 1)
@@ -38,6 +38,7 @@
 #' y1 <- X %*%t_beta + t_sigma * error
 #' data.example <- data.frame(y1,X)
 #' fit1 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
+#' logLik(fit1)
 #' summary(fit1)
 #' deviance_residuals(fit1)
 #'
@@ -55,7 +56,7 @@
 #' fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
 #' logLik(fit0)
 #' fit0$AIC
-#' fit0$mu
+#'
 #'
 #' ############################################
 #' #                                          #
@@ -67,7 +68,6 @@
 #' logLik(fit2)
 #' AIC(fit2)
 #' coefficients(fit2)
-#' @import ssym
 #' @import methods
 #' @export glg
 
@@ -97,9 +97,12 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
 
     # Initial values
 
-    fit0 <- ssym::ssym.l(formula, data = data, family = "Normal")
-    beta0 <- coef(fit0)$mu[1:p]
-    sigma0 <- exp(coef(fit0)$phi)
+    #fit0 <- ssym::ssym.l(formula, data = data, family = "Normal")
+    #beta0 <- coef(fit0)$mu[1:p]
+    #sigma0 <- exp(coef(fit0)$phi)
+    fit0 <- lm(formula, data = data)
+    beta0 <- coefficients(fit0)
+    sigma0 <- sum(fit0$residuals^2)/fit0$df.residual
     lambda0 <- shape
 
     # Some fixed matrizes
@@ -384,9 +387,13 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         mu_est <- X %*% output[1:p]
         ordresidual <- eps(output[1:p], output[p + 1])
         sgn <- sign(y - mu_est)
-        dev <- sgn * sqrt(2) * ((1/output[p + 2]^2) * exp(output[p + 2] *
-            ordresidual) - (1/output[p + 2]) * ordresidual - (1/output[p +
-            2])^2)^(0.5)
+
+###########################################################################################
+
+        dev <- sgn * sqrt(2) * sqrt((1/output[p + 2]^2) * exp(output[p + 2] * ordresidual) - (1/output[p + 2]) * ordresidual - (1/output[p + 2])^2)
+
+#############################################################################################
+
         devian <- sum(dev^2)
         part2 <- ((output[p + 1])/(output[p + 2])) * (digamma((1/output[p +
             2])^2) - log((1/output[p + 2])^2))
@@ -412,4 +419,3 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
     }
 
 }
-

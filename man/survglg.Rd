@@ -33,13 +33,13 @@ Deviance the deviance associated with the model.
 In this setup, the location parameter of the logarithm of the response variable is modeled by a linear model of the parametes.
 }
 \examples{
+require(survival)
 rows  <- 240
 columns <- 2
 t_beta  <- c(0.5, 2)
 t_sigma <- 1
 t_lambda <- 1
 set.seed(8142031)
-library(ssym)
 x1 <- rbinom(rows, 1, 0.5)
 x2 <- runif(columns, 0, 1)
 X <- cbind(x1,x2)
@@ -56,6 +56,7 @@ if (delta1[i] == 1) {
 }
 data.example <- data.frame(obst1,delta1,X)
 fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example,shape=0.9)
+logLik(fit3)
 summary(fit3)
 }
 \references{

@@ -10,6 +10,7 @@
 #'  which are a B-spline basis and a natural cubic spline basis, respectively.
 #' @param data an optional data frame, list containing the variables in the model.
 #' @param shape an optional value for the shape parameter of the model.
+#' @param alpha0 is a vector of initial values for the smoothing parameter alpha.
 #' @param Tolerance an optional positive value, which represents the convergence criterion. Default value is 1e-04.
 #' @param Maxiter an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.
 
@@ -22,18 +23,16 @@
 #' @references Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros: Censored case. In preparation.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
+#' require(survival)
 #' rows    <- 150
 #' columns <- 2
-
 #' t_beta  <- c(0.5, 2)
-#' t_sigma <- 0.75
+#' t_sigma <- 0.5
 #' t_lambda <- 1
 #' set.seed(8142030)
-#' library(ssym)
 #' x1 <- rbinom(rows, 1, 0.5)
 #' x2 <- runif(rows, 0, 1)
 #' X <- cbind(x1,x2)
-
 #' t_knot1 <- 6
 #' ts1 <- seq(0, 1, length = t_knot1)
 #' t_g1 <- 0.4 * sin(pi * ts1)
@@ -63,13 +62,13 @@
 #'        obst1[i] = cens.time[i]
 #'       }
 #' }
-#' data.example <- data.frame(obst1, delta, X, x3)
-#' fit4  <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1, npc=x3, data=data.example, shape=0.8)
-#' @import ssym
+#' d_example <- data.frame(obst1, delta, X, x3)
+#'  fit4 <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1,npc=x3,data = d_example,shape=0.9)
+#' summary(fit4)
 #' @import methods
 #' @export ssurvglg
 #'
-ssurvglg = function(formula, npc, basis, data, shape, Maxiter, Tolerance) {
+ssurvglg = function(formula, npc, basis, data, shape, alpha0, Maxiter, Tolerance) {
     if (missingArg(formula)) {
         stop("The formula argument is missing.")
     }
@@ -78,12 +77,11 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter, Tolerance) {
     }
 
     if (missingArg(Tolerance))
-        Tolerance = 1e-04
+        Tolerance <- 1e-04
     if (missingArg(Maxiter))
-        Maxiter = 1000
+        Maxiter <- 1000
     if (missingArg(shape))
         shape <- 1
-
     if (missingArg(basis))
         basis = rep("deBoor", dim(npc)[2])
 
@@ -127,31 +125,44 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter, Tolerance) {
 
     ##################################################################################################################################################
 
+    formula3 <- as.character(formula)
+    formula3[2] <- sub("log"," ", formula3[2])
+    formula3[3] <- paste(formula3[3],paste("+",colnames(npc)))
+    formula3 <- formula(paste(paste(formula3[2],formula3[1]),formula3[3]))
+    fit02  <- survreg(formula3, data = data, dist = "weibull")
+    beta0  <- fit02$coefficients[1:p]
+    sigma0 <- fit02$scale
+
     # Initial values
-    formula2 <- formula
 
-    formula21 <- as.character(formula(Formula(formula2), rhs = 0))[2]
-    formula21 <- sub("delta", "1 - delta", formula21)
-    formula21 <- paste(formula21, "~ ")
+    #formula2 <- formula
+    #formula21 <- as.character(formula(Formula(formula2), rhs = 0))[2]
+    #formula21 <- sub("delta", "1 - delta", formula21)
+    #formula21 <- paste(formula21, "~ ")
 
-    formula22 <- paste(" ncs(", colnames(npc), sep = "")
-    formula22 <- paste(formula22, ")", sep = "")
+    #formula22 <- paste(" ncs(", colnames(npc), sep = "")
+    #formula22 <- paste(formula22, ")", sep = "")
 
-    formula2 <- paste(formula21, formula22)
+    #formula2 <- paste(formula21, formula22)
 
-    formula2 <- formula(formula2)
-    formula23 <- as.character(formula(Formula(formula), lhs = 0))[2]
-    formula23 <- paste(".~. + ", formula23)
-    formula23 <- formula(formula23)
+    #formula2 <- formula(formula2)
+    #formula23 <- as.character(formula(Formula(formula), lhs = 0))[2]
+    #formula23 <- paste(".~. + ", formula23)
+    #formula23 <- formula(formula23)
 
-    formula2 <- update(formula2, formula23)
+    #formula2 <- update(formula2, formula23)
 
-    fit0 = ssym.l2(formula2, data = data, family = "Normal")
-    beta0 = fit0$theta.mu[1:p]
-    g0s = g0(Knot)
-    sigma0 = exp(fit0$theta.phi)
-    lambda0 = shape
-    alpha0 = fit0$lambdas.mu
+    #fit0 = ssym.l2(formula2, data = data, family = "Normal")
+    #beta0 = fit0$theta.mu[1:p]
+    #sigma0 = exp(fit0$theta.phi)
+
+    lambda0 <- shape
+
+    if (missingArg(alpha0))
+        alpha0 <- 1
+       #alpha0 <- fit0$lambdas.mu
+
+    g0s <- g0(Knot)
 
     ###############################################################################################################################################################
 
@@ -389,15 +400,19 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter, Tolerance) {
     newpar = function(bet, g, sigm, lambd, alph) {
         output = matrix(0, p + Knot + 1, 2)
         output[, 1] = c(bet, g, sigm)
+
         new = output[, 1]
         l = 2
+
         output[, l] = output[, (l - 1)] - solve(I_tetha(output[1:p, (l -
             1)], output[(p + 1):(p + Knot), (l - 1)], output[(p + Knot +
             1), (l - 1)], lambd, alph)) %*% U_theta(output[1:p, (l - 1)],
             output[(p + 1):(p + Knot), (l - 1)], output[(p + Knot + 1), (l -
                 1)], lambd, alph)
+
         llglg = loglikglg(output[1:p, 2], output[(p + 1):(p + Knot), 2],
             output[p + Knot + 1, 2], lambd, alph)
+
         condition = llglg - loglikglg(new[1:p], new[(p + 1):(p + Knot)],
             new[p + Knot + 1], lambd, alph)
 
@@ -469,8 +484,7 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter, Tolerance) {
         output = new[, 1]
 
         l = 2
-        new[, l] = newpar(new[1:p, (l - 1)], new[(p + 1):(p + Knot), (l -
-            1)], new[(p + Knot + 1), (l - 1)], lambd, alph)
+        new[, l] = newpar(new[1:p, (l - 1)], new[(p + 1):(p + Knot), (l - 1)], new[(p + Knot + 1), (l - 1)], lambd, alph)
 
         llglg = loglikglg(new[1:p, l], new[(p + 1):(p + Knot), l], new[(p +
             Knot + 1), l], lambd, alph)
@@ -543,8 +557,17 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter, Tolerance) {
         return(output)
     }
 
-    opt_alph = function(alph) {
-        out = optimize(AIC_p, c(0, alph + 2), tol = 0.001)
+    #opt_alph = function(alph) {
+        #out = optimize(AIC_p, c(0, alph + 2), tol = 0.001)
+    #    return(c(out$minimum, out$objective))
+    #}
+
+    opt_alph <- function(alph){
+        alphas <- as.matrix(alph)
+        values <- apply(X=alphas,1,FUN=AIC_p)
+        index_min <- which.min(values)
+        min_val <- alphas[index_min]
+        out <- list(minimum=min_val,objective = values[index_min])
         return(c(out$minimum, out$objective))
     }
 
@@ -584,9 +607,9 @@ ssurvglg = function(formula, npc, basis, data, shape, Maxiter, Tolerance) {
             Knot + 1])
         sgn <- sign(Y[, 1] - y_est)
         outputp <- lambda0
-        dev <- sgn * sqrt(2) * ((1 - delta) * ((1/outputp^2) * exp(outputp *
-            ordresidual) - (1/outputp) * ordresidual - (1/outputp)^2)^(0.5) +
-            delta * (-log(S(ordresidual, outputp))))
+
+        dev <- sgn*sqrt(2)*((1 - delta)*sqrt((1/outputp^2)*exp(outputp*ordresidual) - (1/outputp) * ordresidual - (1/outputp)^2) + delta*(-log(S(ordresidual, outputp))))
+
         devian <- sum(dev^2)
         part2 <- ((output[p + 1])/outputp) * (digamma((1/outputp)^2) - log((1/outputp)^2))
         y_est <- y_est + part2
