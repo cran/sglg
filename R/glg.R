@@ -18,7 +18,7 @@
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
-#' rows <- 150 # 150 original
+#' rows <- 150
 #' columns <- 2
 #' x1 <- rbinom(rows, 1, 0.5)
 #' x2 <- runif(columns, 0, 1)
@@ -32,15 +32,15 @@
 #' #                    #
 #' ######################
 #'
-#' t_lambda <- 1
-#' set.seed(8142031)
+#' t_lambda <- -1
+#' set.seed(3)
 #' error <- rglg(rows, 0, 1, t_lambda)
 #' y1 <- X %*%t_beta + t_sigma * error
 #' data.example <- data.frame(y1,X)
-#' fit1 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-#' logLik(fit1)
-#' summary(fit1)
-#' deviance_residuals(fit1)
+#' fit <- glg(y1 ~ x1 + x2 - 1,data=data.example)
+#' logLik(fit)
+#' summary(fit)
+#' deviance_residuals(fit)
 #'
 #' ###############
 #' #             #
@@ -54,9 +54,9 @@
 #' y1 <- X %*%t_beta + t_sigma * error
 #' data.example <- data.frame(y1, X)
 #' fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
+#' summary(fit0)
 #' logLik(fit0)
 #' fit0$AIC
-#'
 #'
 #' ############################################
 #' #                                          #
@@ -97,49 +97,14 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
 
     # Initial values
 
-    #fit0 <- ssym::ssym.l(formula, data = data, family = "Normal")
-    #beta0 <- coef(fit0)$mu[1:p]
-    #sigma0 <- exp(coef(fit0)$phi)
     fit0 <- lm(formula, data = data)
     beta0 <- coefficients(fit0)
     sigma0 <- sum(fit0$residuals^2)/fit0$df.residual
     lambda0 <- shape
 
     # Some fixed matrizes
-
-    I <- diag(1, n)
     One <- matrix(1, n, 1)
-
-    u_lambda <- function(lambd) {
-        invlamb <- 1/lambd^2
-        output <- (1/lambd) * (digamma(1 + invlamb) - log(invlamb))
-        return(output)
-    }
-
-    v_lambda <- function(lambd) {
-        invlamb <- 1/lambd^2
-        output <- invlamb * trigamma(1 + invlamb) + u_lambda(lambd)^2
-        return(output)
-    }
-
-    # K_1_lambda and K_2_lambda functions
-
-    K_1 <- function(lambd) {
-        invlamb2 <- 1/lambd^2
-        part1 <- 4 * (1 + digamma(1 + invlamb2) - digamma(invlamb2) - invlamb2 *
-            trigamma(invlamb2))
-        part2 <- trigamma(1 + invlamb2) + (digamma(invlamb2 + 1) - log(invlamb2))^2
-        output <- 1 - invlamb2 * (part1 - part2)
-        return(output)
-    }
-
-    K_2 <- function(lambd) {
-        invlamb <- 1/lambd
-        invlamb2 <- invlamb^2
-        output <- invlamb * ((digamma(1 + invlamb2) - digamma(invlamb2)) -
-            trigamma(1 + invlamb2) - (digamma(1 + invlamb2) - log(invlamb2))^2)
-        return(output)
-    }
+    I <- diag(1, n)
 
     ## Defining the components of the FSIM
 
@@ -158,32 +123,22 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         return(output)
     }
 
-    I_22 <- function(sigm, lambd) {
-        output <- (n/(sigm^2)) * (1 + v_lambda(lambd))
-        return(output)
-    }
-
-    I_23 <- function(sigm, lambd) {
-        output <- (n/(sigm * lambd^2)) * K_2(lambd)
-        return(output)
-    }
-
     I_33 <- function(sigm, lambd) {
         output <- (n/(lambd^2)) * K_1(lambd)
         return(output)
     }
 
-    I_theta <- function(sigm, lambd) {
+    I_theta <- function(sigm,lambd) {
         output <- matrix(0, p + 2, p + 2)
         output[1:p, 1:p] = I_11(sigm)
-        output[1:p, (p + 1)] = I_12(sigm, lambd)
-        output[1:p, (p + 2)] = I_13(sigm, lambd)
+        output[1:p, (p + 1)] = I_12(sigm,lambd)
+        output[1:p, (p + 2)] = I_13(sigm,lambd)
         output[(p + 1), 1:p] = t(output[1:p, (p + 1)])
-        output[(p + 1), (p + 1)] = I_22(sigm, lambd)
-        output[(p + 1), (p + 2)] = I_23(sigm, lambd)
-        output[(p + 2), 1:p] = t(I_13(sigm, lambd))
-        output[(p + 2), (p + 1)] = t(I_23(sigm, lambd))
-        output[(p + 2), (p + 2)] = I_33(sigm, lambd)
+        output[(p + 1), (p + 1)] = I_22(n,sigm,lambd)
+        output[(p + 1), (p + 2)] = I_23(n,sigm,lambd)
+        output[(p + 2), 1:p] = t(I_13(sigm,lambd))
+        output[(p + 2), (p + 1)] = t(I_23(n,sigm,lambd))
+        output[(p + 2), (p + 2)] = I_33(sigm,lambd)
         return(output)
     }
 
@@ -255,21 +210,6 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
     }
 
     ## LOG-LIKELIHOOD
-
-    c_l <- function(lambd) {
-        if (abs(lambd) < 0.085) {
-            if (lambd > 0) {
-                lambd <- 0.085
-            }
-            if (lambd < 0) {
-                lambd <- -0.085
-            }
-        }
-        invlambdos <- 1/lambd^2
-        c <- abs(lambd)/gamma(invlambdos)
-        output <- c * (invlambdos^invlambdos)
-        return(output)
-    }
 
     loglikglg <- function(bet, sigm, lambd) {
         epsilon <- eps(bet, sigm)

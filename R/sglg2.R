@@ -28,7 +28,7 @@
 #' @examples
 #' library(sglg)
 #' set.seed(1)
-#' n <- 200
+#' n <- 300
 #' error <- rglg(n,0,1,1)
 #' x1 <- runif(n,-3,3)
 #' x2 <- rbinom(n,1,0.5)
@@ -153,14 +153,13 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
         formula3 <- update(formula3, formul[j])
     }
 
-    #fit00 <- ssym::ssym.l(formula3, data = data, family = "Normal")
-    ##alpha0 <- fit00$lambdas.mu
-
     if(missingArg(alpha0)) {
-      alpha0 <- seq(0.1,2,by=0.1)
+      alpha0 <- c(0.1,0.5,1,1.5)
     }
+
+    # Some fixed matrizes
+    One <- matrix(1, n, 1)
     Ident <- diag(1, n)
-    Ones <- matrix(1, n, 1)
 
     ## THE FISHER INFORMATION MATRIX
 
@@ -180,14 +179,8 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
         return(output)
     }
 
-    u_lambda <- function(lambd) {
-        invlamb <- 1/lambd^2
-        output <- (1/lambd) * (digamma(1 + invlamb) - log(invlamb))
-        return(output)
-    }
-
     I_gammassigma <- function(sigm, lambd) {
-        output <- (1/sigm^2) * u_lambda(lambd) * t(N) %*% Ones
+        output <- (1/sigm^2) * u_lambda(lambd) * t(N) %*% One
         return(output)
     }
 
@@ -231,7 +224,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
     ## The score functions
 
     U_sigma <- function(bet, g, sigm, lambd) {
-        output <- -(1/sigm) * n - (1/(lambd * sigm)) * t(Ones) %*% W(bet,
+        output <- -(1/sigm) * n - (1/(lambd * sigm)) * t(One) %*% W(bet,
             g, sigm, lambd) %*% eps(bet, g, sigm)
         return(output)
     }
@@ -242,8 +235,8 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
             2 * log(abs(lambd)) - 1))
         Ds <- D(eps(bet, g, sigm), lambd)
         epsilons <- eps(bet, g, sigm)
-        output <- n * eta_lambd - (invlamb^2) * t(Ones) %*% epsilons + (2 *
-            invlamb^3) * t(Ones) %*% Ds %*% Ones - (invlamb^2) * t(Ones) %*%
+        output <- n * eta_lambd - (invlamb^2) * t(One) %*% epsilons + (2 *
+            invlamb^3) * t(One) %*% Ds %*% One - (invlamb^2) * t(One) %*%
             Ds %*% epsilons
         return(output)
     }
@@ -256,7 +249,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
 
     U_gammas <- function(bet, g, sigm, lambd, alph) {
         output <- (-1/(sigm * lambd)) * t(N) %*% W(bet, g, sigm, lambd) %*%
-            Ones - M_bar(alph) %*% c(bet, g)
+            One - M_bar(alph) %*% c(bet, g)
         return(output)
     }
 
@@ -268,42 +261,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
 
     ## Estimating sigma and lambda
 
-    v_lambda <- function(lambd) {
-        invlamb <- 1/lambd^2
-        output <- invlamb * trigamma(1 + invlamb) + u_lambda(lambd)^2
-        return(output)
-    }
-
-    # K_1_lambda and K_2_lambda functions
-
-    K_1 <- function(lambda) {
-        invlamb2 <- 1/lambda^2
-        part1 <- 4 * (1 + digamma(1 + invlamb2) - digamma(invlamb2) - invlamb2 *
-            trigamma(invlamb2))
-        part2 <- trigamma(1 + invlamb2) + (digamma(1 + invlamb2) - log(invlamb2))^2
-        output <- 1 - invlamb2 * (part1 - part2)
-        return(output)
-    }
-
-    K_2 <- function(lambda) {
-        invlamb <- 1/lambda
-        invlamb2 <- invlamb^2
-        output <- invlamb * ((digamma(1 + invlamb2) - digamma(invlamb2)) -
-            trigamma(1 + invlamb2) - (digamma(1 + invlamb2) - log(invlamb2))^2)
-        return(output)
-    }
-
     ## Defining the components of the FIM
-
-    I_22 <- function(sigm, lambd) {
-        output <- (n/(sigm^2)) * (1 + v_lambda(lambd))
-        return(output)
-    }
-
-    I_23 <- function(sigm, lambd) {
-        output <- (n/(sigm * lambd^2)) * K_2(lambd)
-        return(output)
-    }
 
     I_33 <- function(sigm, lambd) {
         output <- (n/(lambd^2)) * K_1(lambd)
@@ -311,7 +269,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
     }
 
     I_sl <- function(sigm, lambd) {
-        output <- matrix(c(I_22(sigm, lambd), I_23(sigm, lambd), I_23(sigm,
+        output <- matrix(c(I_22(n,sigm, lambd), I_23(n,sigm, lambd), I_23(n,sigm,
             lambd), I_33(sigm, lambd)), 2, 2)
         return(output)
     }
@@ -329,17 +287,10 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
 
     ## LOG-LIKELIHOOD
 
-    c_l <- function(lambd) {
-        invlambdos <- 1/lambd^2
-        c <- abs(lambd)/gamma(invlambdos)
-        output <- c * (invlambdos^invlambdos)
-        return(output)
-    }
-
     loglikglg <- function(bet, g, sigm, lambd, alph) {
         epsilon <- eps(bet, g, sigm)
-        part1 <- n * log(c_l(lambd)/sigm) + (1/lambd) * t(Ones) %*% epsilon -
-            (1/lambd^2) * t(Ones) %*% D(epsilon, lambd) %*% Ones
+        part1 <- n * log(c_l(lambd)/sigm) + (1/lambd) * t(One) %*% epsilon -
+            (1/lambd^2) * t(One) %*% D(epsilon, lambd) %*% One
         part2 <- -0.5 * t(c(bet, g)) %*% M_bar(alph) %*% c(bet, g)
         output <- part1 + part2
         return(output)
@@ -463,9 +414,10 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
     }
 
     AIC_p <- function(alph) {
-        output <- masterf(alph)$AIC
-        output <- round(output, digits = 4)
-        return(output)
+        #output <- masterf(alph)$AIC
+        #output <- round(output, digits = 4)
+        #return(output)
+        return(masterf(alph)$AIC)
     }
 
     opt_alph <- function(alph){

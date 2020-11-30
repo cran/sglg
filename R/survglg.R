@@ -21,7 +21,6 @@
 #' columns <- 2
 #' t_beta  <- c(0.5, 2)
 #' t_sigma <- 1
-#' t_lambda <- 1
 #' set.seed(8142031)
 #' x1 <- rbinom(rows, 1, 0.5)
 #' x2 <- runif(columns, 0, 1)
@@ -222,13 +221,6 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
     }
 
     ## LOG-LIKELIHOOD
-
-    c_l <- function(lambd) {
-        invlambdos <- 1/lambd^2
-        c <- abs(lambd)/gamma(invlambdos)
-        output <- c * (invlambdos^invlambdos)
-        return(output)
-    }
 
     loglikglg <- function(bet, sigm, lambd) {
         epsil <- eps(bet, sigm)

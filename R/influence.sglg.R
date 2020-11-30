@@ -234,9 +234,5 @@ influence.sglg <- function(model, ...) {
                 main = "Response perturbation", pch = 20)
         }
 
-        #par(mfrow = c(2, 2))
-        #cweight(model)
-        #respert(model)
-
     }
 }

@@ -38,7 +38,6 @@ deviance_residuals <- function(object, ...) {
   if (object$censored == TRUE) {
 
     delta <- object$delta
-    # par(mfrow = c(1, 3))
 
     C <- rep(3, length(y_est))
     plot(y_est, rdev, main = "Deviance residuals", xlab = "Fitted values",
@@ -47,14 +46,12 @@ deviance_residuals <- function(object, ...) {
     abline(h = -C, col = 2)
 
     ekm <- survfit(Surv(exp(rord), 1 - delta) ~ 1)
-    # ftimes <- as.numeric(unlist(as.vector(summary(ekm)[2])))
     surv <- as.numeric(unlist(as.vector(summary(ekm)[6])))
     Fkm <- 1 - surv
     # plot(ftimes, surv, xlab = 'Multiplicative error', ylab = 'Survival
     # values', main = 'Survival function', type = 'l', pch = 20)
 
     res <- sort((rord * (1 - delta))[delta == 0])
-    #Fs <- ploggamma(res, lambda = lambda)
     Fs <- pglg(res, shape = lambda)
     r_q <- qnorm(Fs)
     diff <- abs(r_q - qnorm(Fkm))

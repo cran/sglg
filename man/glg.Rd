@@ -33,7 +33,7 @@ Deviance the deviance associated with the model.
 In this setup, the location parameter of the response variable is explicitly modeled by a linear function of the parameters.
 }
 \examples{
-rows <- 150 # 150 original
+rows <- 150
 columns <- 2
 x1 <- rbinom(rows, 1, 0.5)
 x2 <- runif(columns, 0, 1)
@@ -47,15 +47,15 @@ t_sigma <- 1
 #                    #
 ######################
 
-t_lambda <- 1
-set.seed(8142031)
+t_lambda <- -1
+set.seed(3)
 error <- rglg(rows, 0, 1, t_lambda)
 y1 <- X \%*\%t_beta + t_sigma * error
 data.example <- data.frame(y1,X)
-fit1 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-logLik(fit1)
-summary(fit1)
-deviance_residuals(fit1)
+fit <- glg(y1 ~ x1 + x2 - 1,data=data.example)
+logLik(fit)
+summary(fit)
+deviance_residuals(fit)
 
 ###############
 #             #
@@ -69,9 +69,9 @@ error <- rglg(rows, 0, 1, t_lambda)
 y1 <- X \%*\%t_beta + t_sigma * error
 data.example <- data.frame(y1, X)
 fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
+summary(fit0)
 logLik(fit0)
 fit0$AIC
-
 
 ############################################
 #                                          #

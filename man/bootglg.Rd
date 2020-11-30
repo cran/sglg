@@ -4,7 +4,7 @@
 \alias{bootglg}
 \title{Bootstrap inference for a generalized log-gamma distribution}
 \usage{
-bootglg(y, R, alpha, method)
+bootglg(y, R, alpha, method, type)
 }
 \arguments{
 \item{y}{vector, a numeric random sample.}
@@ -14,26 +14,37 @@ bootglg(y, R, alpha, method)
 \item{alpha}{numeric, represents a confidence level for the bootstrap intervals. Default value is 0.05.}
 
 \item{method}{character, indicates the type of bootstrap 'Nonparametric' or 'Parametric'. Default value is 'Parametric'.}
+
+\item{type}{character, indicates the type of confidence interval for the estimated parameters. The options are: 'normal', 't_student' or 'bootstrap_t'.
+The default value is 'normal'. Intervals used the bootstrap estimated standard error of the ML estimates of the parameters.}
 }
 \value{
-ml_estimates is a vector of maximum likelihood estimates asociated with the location,scale and shape parameters.
+\code{ml_estimates} is a vector of maximum likelihood estimates associated with the location, scale, and shape parameters.
 
-boot_mean_estimates is a vector of mean of the bootstrap estimates asociated with the location,scale and shape parameters.
+\code{boot_mean_estimates} is a vector of mean of the bootstrap estimates associated with the location, scale, and shape parameters.
 
-boot_sd_estimates is a vector of bootstrap standard errors of the estimates asociated with the location,scale and shape parameters.
+\code{boot_sd_estimates} is a vector of bootstrap standard errors of the estimates associated with the location, scale, and shape parameters.
+
+\code{type} indicates the type of confidence intervals.
+
+\code{intervals} array of the confidence intervals of the location,scale and shape.
 }
 \description{
-\code{bootglg} is used to generate bootstrap inference, such as, estimations, standard errors, intervals for the parameters of a generalized log-gamma distribution.
+\code{bootglg} is used to generate bootstrap inference, such as, estimated standard errors and approximate confidence intervals for the parameters of a generalized log-gamma distribution.
 }
 \examples{
 set.seed(1)
 y <- rglg(100,location=1,scale=0.5,shape=1)
 \dontrun{
-bootglg(y,R=300,method='Parametric')
+bootglg(y,R=300,method='Parametric',type='normal')
+bootglg(y,R=300,method='Nonparametric',type='t_student')
+bootglg(y,R=300,method='Parametric',type='bootstrap_t')
 }
 }
 \references{
-Cardozo C, Paula G and Vanegas L. sglg: An R package for fitting semi-parametric generalized log-gamma regression models. In preparation.
+Cardozo C, Paula G and Vanegas L. sglg: An R package to fit semi-parametric generalized log-gamma regression models. In preparation.
+
+Efron B and Tibshirani R (1993). An introduction to the Bootstrap. Chapman-Hall.
 }
 \author{
 Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.

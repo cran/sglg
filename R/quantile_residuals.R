@@ -24,6 +24,14 @@
 #'@export quantile_residuals
 quantile_residuals <- function(fit){
 r_quantile <- as.numeric(qnorm( pglg(fit$y,location=fit$mu_est,scale=fit$sigma,shape=fit$lambda)))
+cond_1 <- r_quantile == Inf
+if(length(cond_1) > 0)
+  r_quantile[r_quantile == Inf] <- max(r_quantile[r_quantile != Inf]) + 1e-03
+
+cond_2 <- r_quantile == -Inf
+if(length(cond_2) > 0)
+  r_quantile[r_quantile == -Inf] <- min(r_quantile[r_quantile != -Inf]) - 1e-03
+
 ext <- max(abs(r_quantile)) + 0.5
 plot1 <- ggplot(data=as.data.frame(r_quantile),aes(r_quantile)) +  ggtitle("Density Quantile Residuals") + geom_density(colour="orange",fill="orange",alpha=0.3) + xlab("Sample Quantiles") + ylab("Density") + xlim(c(-ext,ext)) + geom_hline(yintercept=0)
 plot2 <- ggplot(data=as.data.frame(r_quantile),aes(sample=r_quantile)) + ggtitle("Normal Q-Q Plot") + stat_qq(colour="blue",alpha=0.5) + stat_qq_line() + xlab("Theoretical Quantiles") + ylab("Sample Quantiles")

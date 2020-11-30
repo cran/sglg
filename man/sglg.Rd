@@ -59,7 +59,7 @@ natural cubic splines or cubic P-splines.
 \examples{
 library(sglg)
 set.seed(1)
-n <- 200
+n <- 300
 error <- rglg(n,0,1,1)
 x1 <- runif(n,-3,3)
 x2 <- rbinom(n,1,0.5)

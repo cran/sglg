@@ -380,13 +380,6 @@ ssurvglg = function(formula, npc, basis, data, shape, alpha0, Maxiter, Tolerance
 
     ## LOG-LIKELIHOOD
 
-    c_l = function(lambd) {
-        invlambdos = 1/lambd^2
-        c = abs(lambd)/gamma(invlambdos)
-        output = c * (invlambdos^invlambdos)
-        return(output)
-    }
-
     loglikglg = function(bet, g, sigm, lambd, alph) {
         epsil = eps(bet, g, sigm)
         S = S(epsil, lambd)
