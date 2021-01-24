@@ -4,7 +4,7 @@
 \alias{glg}
 \title{Fitting multiple linear Generalized Log-gamma Regression Models}
 \usage{
-glg(formula, data, shape, Tolerance, Maxiter)
+glg(formula, data, shape, Tolerance, Maxiter, format, envelope = FALSE)
 }
 \arguments{
 \item{formula}{a symbolic description of the systematic component of the model to be fitted. See details for further information.}
@@ -16,9 +16,13 @@ glg(formula, data, shape, Tolerance, Maxiter)
 \item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 1e-04.}
 
 \item{Maxiter}{an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.}
+
+\item{format}{an optional string value that indicates if you want a simple or a complete report of the estimating process. Default value is 'complete'.}
+
+\item{envelope}{an optional and internal logical value that indicates if the glg function will be employed for build an envelope plot. Default value is 'FALSE'.}
 }
 \value{
-mu a vector of parameter estimates asociated with the location parameter.
+mu a vector of parameter estimates associated with the location parameter.
 
 sigma estimate of the scale parameter associated with the model.
 
@@ -33,7 +37,8 @@ Deviance the deviance associated with the model.
 In this setup, the location parameter of the response variable is explicitly modeled by a linear function of the parameters.
 }
 \examples{
-rows <- 150
+set.seed(21)
+rows <- 200
 columns <- 2
 x1 <- rbinom(rows, 1, 0.5)
 x2 <- runif(columns, 0, 1)
@@ -47,8 +52,7 @@ t_sigma <- 1
 #                    #
 ######################
 
-t_lambda <- -1
-set.seed(3)
+t_lambda <- 1
 error <- rglg(rows, 0, 1, t_lambda)
 y1 <- X \%*\%t_beta + t_sigma * error
 data.example <- data.frame(y1,X)
@@ -56,12 +60,11 @@ fit <- glg(y1 ~ x1 + x2 - 1,data=data.example)
 logLik(fit)
 summary(fit)
 deviance_residuals(fit)
-
-###############
-#             #
-# Normal case #
-#             #
-###############
+#############################
+#                           #
+# Normal case: A limit case #
+#                           #
+#############################
 
 t_lambda <- 0.001
 set.seed(8142031)
@@ -69,9 +72,9 @@ error <- rglg(rows, 0, 1, t_lambda)
 y1 <- X \%*\%t_beta + t_sigma * error
 data.example <- data.frame(y1, X)
 fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-summary(fit0)
 logLik(fit0)
 fit0$AIC
+fit0$mu
 
 ############################################
 #                                          #

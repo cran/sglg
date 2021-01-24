@@ -15,8 +15,10 @@ bootglg(y, R, alpha, method, type)
 
 \item{method}{character, indicates the type of bootstrap 'Nonparametric' or 'Parametric'. Default value is 'Parametric'.}
 
-\item{type}{character, indicates the type of confidence interval for the estimated parameters. The options are: 'normal', 't_student' or 'bootstrap_t'.
-The default value is 'normal'. Intervals used the bootstrap estimated standard error of the ML estimates of the parameters.}
+\item{type}{character, indicates the type of bootstrap confidence interval for the estimated parameters. The options are:
+'normal', 't_student' or 'bootstrap_t'. These intervals used the bootstrap estimated standard error of the ML estimates of the parameters.
+Other kind of bootstrap intervals are the percentile-type intervals. We offer the option 'BCa'. It is a bias-corrected and accelerated percentile interval.
+ The default value for the 'type' argument is 'normal'.}
 }
 \value{
 \code{ml_estimates} is a vector of maximum likelihood estimates associated with the location, scale, and shape parameters.
@@ -34,11 +36,12 @@ The default value is 'normal'. Intervals used the bootstrap estimated standard e
 }
 \examples{
 set.seed(1)
-y <- rglg(100,location=1,scale=0.5,shape=1)
+y <- rglg(200,location=1,scale=0.5,shape=1)
 \dontrun{
 bootglg(y,R=300,method='Parametric',type='normal')
 bootglg(y,R=300,method='Nonparametric',type='t_student')
 bootglg(y,R=300,method='Parametric',type='bootstrap_t')
+bootglg(y,R=300,method='Nonparametric',type='BCa')
 }
 }
 \references{

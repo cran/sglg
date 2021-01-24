@@ -1,7 +1,7 @@
 #'Fitting linear generalized log-gamma regression models under the presence of right censored data.
 #'
 #'\code{survglg} is used to fit a multiple linear regression model in which the response variable is continuous, strictly positive, asymmetric and there are right censored observations.
-#'In this setup, the location parameter of the logarithm of the response variable is modeled by a linear model of the parametes.
+#'In this setup, the location parameter of the logarithm of the response variable is modeled by a linear model of the parameters.
 #'
 #' @param formula a symbolic description of the systematic component of the model to be fitted. See details for further information.
 #' @param data an optional data frame, list containing the variables in the model.
@@ -39,6 +39,7 @@
 #' data.example <- data.frame(obst1,delta1,X)
 #' fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example,shape=0.9)
 #' logLik(fit3)
+#' # 34.7 millisec if format ='complete', 29.5 millisec if format ='simple'
 #' summary(fit3)
 #' @import Formula
 #' @import survival
@@ -84,7 +85,7 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
 
     ############################################################################################################################################################
 
-    fit0 <- glg(formula2, data = datus)
+    fit0 <- glg(formula2, data = datus, format='simple')
     beta0 <- fit0$mu
     sigma0 <- fit0$sigma
     lambda0 <- shape

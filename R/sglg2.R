@@ -28,19 +28,24 @@
 #' @examples
 #' library(sglg)
 #' set.seed(1)
-#' n <- 300
-#' error <- rglg(n,0,1,1)
-#' x1 <- runif(n,-3,3)
-#' x2 <- rbinom(n,1,0.5)
-#' t <- as.matrix((2*1:n - 1)/(2*n))
+#' rows<- 120
+#' t_beta <- c(0.5,2)
+#' t_sigma <- 0.5
+#' t_lambda <- 1
+#' x1 <- runif(rows,-3,3)
+#' x2 <- rbinom(rows,1,0.5)
+#' X <- cbind(x1,x2)
+#' t <- as.matrix((2*1:rows - 1)/(2*rows))
 #' colnames(t) <- "t"
 #' f_t <- cos(4*pi*t)
-#' y <- 2*x1 + 0.5*x2 + f_t + error
+#' error <- rglg(rows,0,1,t_lambda)
+#' y <- X %*%t_beta + f_t + t_sigma*error
 #' colnames(y) <- "y"
-#' data <- as.data.frame(cbind(y,x1,x2,t))
+#' data <- data.frame(y,X,t)
 #' fit1 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "deBoor")
 #' logLik(fit1)
-#' fit2 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "Gu",alpha0=c(0.05,0.1),nknts=7)
+#' quantile_residuals(fit1)
+#' fit2 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "Gu",alpha0=c(0.05,0.1))
 #' logLik(fit2)
 #' @import methods
 #' @export sglg
@@ -139,7 +144,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
 
     # Initial values
 
-    fit0 <- glg(formula2, shape = shape, data = data)
+    fit0 <- glg(formula2, shape = shape, data = data, format='simple')
     beta0 <- fit0$mu[1:p]
     g0s <- g0(Tknot)
     sigma0 <- fit0$sigma
@@ -173,14 +178,15 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
         return(output)
     }
 
+    t_N <- t(N)
     I_gammas <- function(sigm, alph) {
-        output <- (1/(sigm^2)) * t(N) %*% N
+        output <- (1/(sigm^2)) * t_N %*% N
         output <- output + M_bar(alph)
         return(output)
     }
 
     I_gammassigma <- function(sigm, lambd) {
-        output <- (1/sigm^2) * u_lambda(lambd) * t(N) %*% One
+        output <- (1/sigm^2) * u_lambda(lambd) * t_N %*% One
         return(output)
     }
 
@@ -223,9 +229,9 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
 
     ## The score functions
 
+    t_One <- t(One)
     U_sigma <- function(bet, g, sigm, lambd) {
-        output <- -(1/sigm) * n - (1/(lambd * sigm)) * t(One) %*% W(bet,
-            g, sigm, lambd) %*% eps(bet, g, sigm)
+      output <- -(1/sigm) * n - (1/(lambd * sigm)) * t_One %*% W(bet,g, sigm, lambd) %*% eps(bet, g, sigm)
         return(output)
     }
 
@@ -235,9 +241,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
             2 * log(abs(lambd)) - 1))
         Ds <- D(eps(bet, g, sigm), lambd)
         epsilons <- eps(bet, g, sigm)
-        output <- n * eta_lambd - (invlamb^2) * t(One) %*% epsilons + (2 *
-            invlamb^3) * t(One) %*% Ds %*% One - (invlamb^2) * t(One) %*%
-            Ds %*% epsilons
+        output <- n * eta_lambd - (invlamb^2) * t_One %*% epsilons + (2 * invlamb^3) * t_One %*% Ds %*% One - (invlamb^2) * t_One %*% Ds %*% epsilons
         return(output)
     }
 
@@ -248,8 +252,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
     }
 
     U_gammas <- function(bet, g, sigm, lambd, alph) {
-        output <- (-1/(sigm * lambd)) * t(N) %*% W(bet, g, sigm, lambd) %*%
-            One - M_bar(alph) %*% c(bet, g)
+        output <- (-1/(sigm * lambd)) * t_N %*% W(bet, g, sigm, lambd) %*% One - M_bar(alph) %*% c(bet, g)
         return(output)
     }
 
@@ -289,8 +292,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
 
     loglikglg <- function(bet, g, sigm, lambd, alph) {
         epsilon <- eps(bet, g, sigm)
-        part1 <- n * log(c_l(lambd)/sigm) + (1/lambd) * t(One) %*% epsilon -
-            (1/lambd^2) * t(One) %*% D(epsilon, lambd) %*% One
+        part1 <- n * log(c_l(lambd)/sigm) + (1/lambd) * t_One %*% epsilon - (1/lambd^2) * t_One %*% D(epsilon, lambd) %*% One
         part2 <- -0.5 * t(c(bet, g)) %*% M_bar(alph) %*% c(bet, g)
         output <- part1 + part2
         return(output)
@@ -358,11 +360,6 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
                 output[, l] <- blockgs(I_theta(output[(p + Tknot + 1), (l -
                   1)], output[(p + Tknot + 2), (l - 1)], alph), b, output[,
                   (l - 1)], ps)$x
-                # output[, l] <- output[, (l - 1)] + solve(I_theta(output[(p + Tknot +
-                # 1), (l - 1)], output[(p + Tknot + 2), (l - 1)], alph)) %*%
-                # U_theta(output[1:p, (l - 1)], output[(p + 1):(p + Tknot), (l - 1)],
-                # output[(p + Tknot + 1), (l - 1)], output[(p + Tknot + 2), (l - 1)],
-                # alph)
                 llglg <- loglikglg(new[1:p], new[(p + 1):(p + Tknot)], new[p +
                   Tknot + 1], new[p + Tknot + 2], alph)
                 condition <- loglikglg(output[1:p, l], output[(p + 1):(p +
@@ -388,7 +385,7 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
     }
 
     edf <- function(sigm, alph) {
-        inv_root_tNN <- inv_root_A(t(N) %*% N)
+        inv_root_tNN <- inv_root_A(t_N %*% N)
         output <- diag(1, p + sum(Knot)) + (sigm^2) * inv_root_tNN %*% M_bar(alph) %*%
             inv_root_tNN
         output <- sum(diag(solve(output)))
@@ -414,9 +411,6 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
     }
 
     AIC_p <- function(alph) {
-        #output <- masterf(alph)$AIC
-        #output <- round(output, digits = 4)
-        #return(output)
         return(masterf(alph)$AIC)
     }
 
@@ -427,14 +421,6 @@ sglg = function(formula, npc, basis, data, shape, method, alpha0, nknts, Toleran
       min_val <- alphas[index_min]
       out <- list(minimum=min_val,objective = values[index_min])
       return(c(out$minimum, out$objective))
-    }
-
-    gfit <- function(resid, lambd) {
-        Fs <- pglg(resid, shape = lambd)
-        equantil <- qnorm(Fs)
-        diff <- qqnorm(equantil, plot.it = FALSE)
-        output <- mean(abs(diff$x - diff$y))
-        return(output)
     }
 
     total_optimum <- function(start) {

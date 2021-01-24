@@ -30,7 +30,7 @@ Deviance the deviance associated with the model.
 }
 \description{
 \code{survglg} is used to fit a multiple linear regression model in which the response variable is continuous, strictly positive, asymmetric and there are right censored observations.
-In this setup, the location parameter of the logarithm of the response variable is modeled by a linear model of the parametes.
+In this setup, the location parameter of the logarithm of the response variable is modeled by a linear model of the parameters.
 }
 \examples{
 require(survival)
@@ -56,6 +56,7 @@ if (delta1[i] == 1) {
 data.example <- data.frame(obst1,delta1,X)
 fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example,shape=0.9)
 logLik(fit3)
+# 34.7 millisec if format ='complete', 29.5 millisec if format ='simple'
 summary(fit3)
 }
 \references{

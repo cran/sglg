@@ -53,3 +53,13 @@ I_23 <- function(n,sigm,lambd) {
   output <- (n/(sigm * lambd^2)) * K_2(lambd)
   return(output)
 }
+
+#
+
+gfit <- function(resid, lambd) {
+  Fs <- pglg(resid, shape = lambd)
+  equantil <- qnorm(Fs)
+  diff <- qqnorm(equantil, plot.it = FALSE)
+  output <- mean(abs(diff$x - diff$y))
+  return(output)
+}

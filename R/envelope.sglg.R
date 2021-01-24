@@ -51,6 +51,7 @@ envelope.sglg <- function(fit, Rep) {
 
         if (fit$Knot >= 3) {
             npc <- fit$npc
+            colnames(npc) <- "npc"
             while (j <= Rep) {
                 error <- rglg(n, shape = lambda)
                 y <- systematic_part + sigma * error
@@ -58,7 +59,6 @@ envelope.sglg <- function(fit, Rep) {
                 newfit <- try(sglg(formula, npc = npc, data = data), silent = TRUE)
                 if (is.list(newfit)) {
                   if (newfit$convergence == TRUE) {
-                    print(j)
                     e[, j] <- sort(newfit$rdev)
                     j <- j + 1
                   }
@@ -70,9 +70,9 @@ envelope.sglg <- function(fit, Rep) {
                 error <- rglg(n, shape = lambda)
                 y <- systematic_part + sigma * error
                 data <- data.frame(y, X)
-                newfit <- try(glg(formula, data = data), silent = TRUE)
+                newfit <- try(glg(formula, data = data, format='simple', envelope=TRUE), silent = TRUE)
                 if (is.list(newfit)) {
-                  if (newfit$convergence == TRUE) {
+                  if (newfit$conv == TRUE) {
                     print(j)
                     e[, j] <- sort(newfit$rdev)
                     j <- j + 1

@@ -1,7 +1,6 @@
 #'Deviance Residuals for a Generalized Log-gamma Regression Model
 #'
 #'\code{deviance_residuals} is used to generate deviance residuals for a generalized log-gamma regression model.
-#'Also, under the presence of a right-censored sample. The function plot() produces a graph of the survival function of the error distribution.
 #'
 #' @param object an object of the class sglg. This object is returned from the call to glg(), sglg(), survglg() or ssurvglg().
 #' @param ... other arguments.

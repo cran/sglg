@@ -13,7 +13,6 @@ deviance_residuals(object, ...)
 }
 \description{
 \code{deviance_residuals} is used to generate deviance residuals for a generalized log-gamma regression model.
-Also, under the presence of a right-censored sample. The function plot() produces a graph of the survival function of the error distribution.
 }
 \examples{
 # Example 1

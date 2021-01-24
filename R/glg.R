@@ -8,8 +8,10 @@
 #' @param shape an optional value for the shape parameter of the error distribution of a generalized log-gamma distribution. Default value is 1.
 #' @param Tolerance an optional positive value, which represents the convergence criterion. Default value is 1e-04.
 #' @param Maxiter an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.
-
-#' @return mu a vector of parameter estimates asociated with the location parameter.
+#' @param format an optional string value that indicates if you want a simple or a complete report of the estimating process. Default value is 'complete'.
+#' @param envelope an optional and internal logical value that indicates if the glg function will be employed for build an envelope plot. Default value is 'FALSE'.
+#'
+#' @return mu a vector of parameter estimates associated with the location parameter.
 #' @return sigma estimate of the scale parameter associated with the model.
 #' @return lambda estimate of the shape parameter associated with the model.
 #' @return interval estimate of a 95\% confidence interval for each estimate parameters associated with the model.
@@ -18,7 +20,8 @@
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
 #' @examples
-#' rows <- 150
+#' set.seed(21)
+#' rows <- 200
 #' columns <- 2
 #' x1 <- rbinom(rows, 1, 0.5)
 #' x2 <- runif(columns, 0, 1)
@@ -32,8 +35,7 @@
 #' #                    #
 #' ######################
 #'
-#' t_lambda <- -1
-#' set.seed(3)
+#' t_lambda <- 1
 #' error <- rglg(rows, 0, 1, t_lambda)
 #' y1 <- X %*%t_beta + t_sigma * error
 #' data.example <- data.frame(y1,X)
@@ -41,12 +43,11 @@
 #' logLik(fit)
 #' summary(fit)
 #' deviance_residuals(fit)
-#'
-#' ###############
-#' #             #
-#' # Normal case #
-#' #             #
-#' ###############
+#' #############################
+#' #                           #
+#' # Normal case: A limit case #
+#' #                           #
+#' #############################
 #'
 #' t_lambda <- 0.001
 #' set.seed(8142031)
@@ -54,9 +55,9 @@
 #' y1 <- X %*%t_beta + t_sigma * error
 #' data.example <- data.frame(y1, X)
 #' fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-#' summary(fit0)
 #' logLik(fit0)
 #' fit0$AIC
+#' fit0$mu
 #'
 #' ############################################
 #' #                                          #
@@ -71,7 +72,7 @@
 #' @import methods
 #' @export glg
 
-glg = function(formula, data, shape, Tolerance, Maxiter) {
+glg = function(formula, data, shape, Tolerance, Maxiter, format, envelope= FALSE) {
     if (missingArg(formula)) {
         stop("The formula argument is missing.")
     }
@@ -85,6 +86,8 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         Maxiter <- 1000
     if (missingArg(shape))
         shape <- 1
+    if (missingArg(format))
+        format <- 'complete'
     if (class(data) == "list")
         data <- as.data.frame(data)
 
@@ -108,18 +111,20 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
 
     ## Defining the components of the FSIM
 
+    t_X <- t(X)
     I_11 <- function(sigm) {
-        output <- (1/(sigm^2)) * t(X) %*% X  # I_1
+        output <- (1/(sigm^2)) * t_X %*% X
         return(output)
     }
 
+    t_XOne <- t_X %*% One
     I_12 <- function(sigm, lambd) {
-        output <- (1/(sigm^2)) * u_lambda(lambd) * t(X) %*% One
+        output <- (1/(sigm^2)) * u_lambda(lambd) * t_XOne
         return(output)
     }
 
     I_13 <- function(sigm, lambd) {
-        output <- (-1/(sigm * lambd)) * u_lambda(lambd) * t(X) %*% One
+        output <- (-1/(sigm * lambd)) * u_lambda(lambd) * t_XOne
         return(output)
     }
 
@@ -163,8 +168,7 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
     ### Second step: The matrix D
 
     D <- function(epsilon, lambd) {
-        w <- as.vector(exp(lambd * epsilon))
-        D_eps <- diag(w)
+        D_eps <- diag(as.vector(exp(lambd * epsilon)))
         return(D_eps)
     }
 
@@ -178,26 +182,23 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
     ## Final step: Score functions
 
     U_beta <- function(bet, sigm, lambd) {
-        output <- (-1/(lambd * sigm)) * t(X) %*% W(bet, sigm, lambd) %*%
-            One
+        output <- (-1/(lambd * sigm)) * t_X %*% W(bet, sigm, lambd) %*%One
         return(output)
     }
 
+    t_One <- t(One)
     U_sigma <- function(bet, sigm, lambd) {
-        output <- -(1/sigm) * n - (1/(lambd * sigm)) * t(One) %*% W(bet,
-            sigm, lambd) %*% eps(bet, sigm)
+        output <- -(1/sigm) * n - (1/(lambd * sigm)) * t_One %*% W(bet,sigm, lambd) %*% eps(bet, sigm)
         return(output)
     }
 
     U_lambda <- function(bet, sigm, lambd) {
         invlamb <- 1/lambd
-        eta_lambd <- (invlamb) * (1 + 2 * (invlamb^2) * (digamma(invlamb^2) +
-            2 * log(abs(lambd)) - 1))
+        eta_lambd <- (invlamb) * (1 + 2 * (invlamb^2) * (digamma(invlamb^2) + 2 * log(abs(lambd)) - 1))
         Ds <- D(eps(bet, sigm), lambd)
         epsilons <- eps(bet, sigm)
-        output <- n * eta_lambd - (invlamb^2) * t(One) %*% epsilons + (2 *
-            invlamb^3) * t(One) %*% Ds %*% One - (invlamb^2) * t(One) %*%
-            Ds %*% epsilons
+        t_OneDs <- t_One %*% Ds
+        output <- n * eta_lambd - (invlamb^2) * t_One %*% epsilons + (2 * invlamb^3) * t_OneDs %*% One - (invlamb^2) * t_OneDs %*% epsilons
         return(output)
     }
 
@@ -213,8 +214,7 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
 
     loglikglg <- function(bet, sigm, lambd) {
         epsilon <- eps(bet, sigm)
-        output <- n * log(c_l(lambd)/sigm) + (1/lambd) * t(One) %*% epsilon -
-            (1/lambd^2) * t(One) %*% D(epsilon, lambd) %*% One
+        output <- n * log(c_l(lambd)/sigm) + (1/lambd) * t_One %*% epsilon - (1/lambd^2) * t_One %*% D(epsilon, lambd) %*% One
         return(output)
     }
 
@@ -253,15 +253,6 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         }
         return(new)
     }
-
-    gfit <- function(resid, lambd){
-        Fs <- pglg(resid, shape = lambd)
-        equantil <- qnorm(Fs)
-        diff <- qqnorm(equantil, plot.it = FALSE)
-        output <- mean(abs(diff$x - diff$y))
-        return(output)
-    }
-
 
     ## THE MAIN FUNCTION
 
@@ -310,6 +301,28 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         output <- optimum(beta0, sigma0, -lambda0)
     }
 
+    if (output$conv == FALSE) {
+        print("The optimization was not successful.")
+        return(0)
+    }
+
+    if (format == 'simple')
+       {
+        if(envelope==TRUE){
+           mu_est <- X %*% output$est[1:p]
+           sgn <- sign(y - mu_est)
+           ordresidual <- eps(output$est[1:p], output$est[p + 1])
+           dev <- sgn * sqrt(2) * sqrt((1/output$est[p + 2]^2) * exp(output$est[p + 2] * ordresidual) - (1/output$est[p + 2]) * ordresidual - (1/output$est[p + 2])^2)
+           output <- list(mu = output$est[1:p], sigma = output$est[p +1], lambda = output$est[p + 2], Knot = 0, rdev = dev, conv = output$conv, censored = FALSE)
+           class(output) = "sglg"
+           return(output)}
+        else{
+            mu_est <- X %*% output$est[1:p]
+            output <- list(mu = output$est[1:p], sigma = output$est[p +1], lambda = output$est[p + 2], conv = output$conv)
+            class(output) = "sglg"
+            return(output)}
+    }
+
     if (output$conv == TRUE) {
         conv <- output$conv
         iter <- output$iter
@@ -327,13 +340,7 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
         mu_est <- X %*% output[1:p]
         ordresidual <- eps(output[1:p], output[p + 1])
         sgn <- sign(y - mu_est)
-
-###########################################################################################
-
         dev <- sgn * sqrt(2) * sqrt((1/output[p + 2]^2) * exp(output[p + 2] * ordresidual) - (1/output[p + 2]) * ordresidual - (1/output[p + 2])^2)
-
-#############################################################################################
-
         devian <- sum(dev^2)
         part2 <- ((output[p + 1])/(output[p + 2])) * (digamma((1/output[p +
             2])^2) - log((1/output[p + 2])^2))
@@ -352,10 +359,6 @@ glg = function(formula, data, shape, Tolerance, Maxiter) {
             semi = FALSE, censored = FALSE)
         class(output) = "sglg"
         return(output)
-    }
-    if (output$conv == FALSE) {
-        print("The optimization was not successful.")
-        return(0)
     }
 
 }
