@@ -78,12 +78,12 @@ for(i in 1:rows) {
       }
 }
 d_example <- data.frame(obst1, delta, X, x3)
- fit4 <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1,npc=x3,data = d_example,shape=0.9)
+fit4 <- ssurvglg(Surv(log(obst1),delta)~ x1 + x2 - 1,npc=x3,data = d_example,shape=0.9)
 summary(fit4)
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros: Censored case. In preparation.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

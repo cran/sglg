@@ -47,9 +47,8 @@ summary.sglg <- function(object, ...) {
             signif.legend = TRUE, tst.ind = c(2, 3))
         cat(" ------------------------------------------------------------\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
-        cat(" ------ Goodness-of-fit ------\n\n")
-        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),
-            "\n\n")
+        #cat(" ------ Goodness-of-fit ------\n\n")
+        #cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),"\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
         cat(" ------ Information criterion ------\n\n")
@@ -92,9 +91,8 @@ summary.sglg <- function(object, ...) {
         cat(" ------------------------------------------------------------\n\n")
         cat(" Shape: ", round(object$lambda, digits = 2), "\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
-        cat(" ------ Goodness-of-fit ------\n\n")
-        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),
-            "\n\n")
+        #cat(" ------ Goodness-of-fit ------\n\n")
+        #cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),"\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
         cat(" ------ Information criterion ------\n\n")
@@ -125,18 +123,20 @@ summary.sglg <- function(object, ...) {
         cat("\n ---------- Non-parametric component ----------\n\n")
         Knot <- object$Knot
         Smoothp <- object$alpha
-        d.f <- object$d.f.npc
+        d.f <- round(object$d.f.npc,4)
         BasisD <- Knot
-        table <- cbind(Smoothp, BasisD, d.f)
+        table <- cbind(Smoothp, BasisD)
         cat(" Type of basis: ", as.character(object$basis),"\n\n")
-        colnames(table) <- c("Smooth parameter", "Basis dimension", "d.f")
+        cat(" Degrees of freedom: ", as.character(d.f),"\n\n")
+        colnames(table) <- c("Smooth parameter", "Basis dimension")
         rownames(table) <- colnames(object$npc)
         printCoefmat(table)
         cat("\n -------------------- Scale parameter -------------------- \n\n")
         Estimate <- object$sigma
-        StdErr <- object$st_error[p + Knot + 1]
+        Tknot <- sum(Knot)
+        StdErr <- object$st_error[p + Tknot + 1]
         tval <- Estimate/StdErr
-        p.value <- object$p.values[p + Knot + 1]
+        p.value <- object$p.values[p + Tknot + 1]
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("sigma")
@@ -144,9 +144,9 @@ summary.sglg <- function(object, ...) {
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat("\n -------------------- Shape parameter -------------------- \n\n")
         Estimate <- object$lambda
-        StdErr <- object$st_error[p + Knot + 2]
+        StdErr <- object$st_error[p + Tknot + 2]
         tval <- Estimate/StdErr
-        p.value <- object$p.values[p + Knot + 2]
+        p.value <- object$p.values[p + Tknot + 2]
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("lambda")
@@ -154,9 +154,8 @@ summary.sglg <- function(object, ...) {
             signif.legend = TRUE, tst.ind = c(2, 3))
         cat(" ------------------------------------------------------------\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
-        cat(" ------ Goodness-of-fit ------\n\n")
-        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),
-            "\n\n")
+        #cat(" ------ Goodness-of-fit ------\n\n")
+        #cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3), "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
         cat(" ------ Information criterion ------\n\n")
@@ -195,9 +194,10 @@ summary.sglg <- function(object, ...) {
         printCoefmat(table)
         cat("\n -------------------- Scale parameter -------------------- \n\n")
         Estimate <- object$sigma
-        StdErr <- object$st_error[p + Knot + 1]
+        Tknot <- sum(Knot)
+        StdErr <- object$st_error[p + Tknot + 1]
         tval <- Estimate/StdErr
-        p.value <- object$p.values[p + Knot + 1]
+        p.value <- object$p.values[p + Tknot + 1]
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("sigma")
@@ -206,9 +206,8 @@ summary.sglg <- function(object, ...) {
         cat(" ------------------------------------------------------------\n\n")
         cat(" Shape: ", round(object$lambda, digits = 2), "\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
-        cat(" ------ Goodness-of-fit ------\n\n")
-        cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3),
-            "\n\n")
+        #cat(" ------ Goodness-of-fit ------\n\n")
+        #cat(" Overall statistic: ", round(object$goodnessoffit, digits = 3), "\n\n")
         cat(" ------ Penalized Log-likelihood ------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
         cat(" ------ Information criterion ------\n\n")

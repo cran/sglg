@@ -37,5 +37,5 @@ Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression
 Ortega, E., Paula, G. A. and Bolfarine, H. (2008) Deviance residuals in generalized log-gamma regression models with censored observations. Journal of Statistical Computation and Simulation, 78, 747-764.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

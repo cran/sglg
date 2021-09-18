@@ -17,23 +17,23 @@ plotnpc(fit, conf_lev)
 \examples{
 set.seed(1)
 n <- 300
-error <- rglg(n,0,1,1)
+error <- rglg(n,0,0.5,1)
 t <- as.matrix((2*1:n - 1)/(2*n))
 colnames(t) <- "t"
 f_t <- cos(4*pi*t)
-y <- 0.5 + f_t + error
+y <- 0.8 + f_t + error
 colnames(y) <- "y"
 data <- as.data.frame(cbind(y,1,t))
-fit1 <- sglg(y ~ 1,npc=t,data=data,basis = "Gu",alpha0=seq(0.001,0.005,by=0.001),nknts=9)
-quantile_residuals(fit1)
-# The adjusted (black) and true (red) non-linear component
+fit1 <- sglg(y ~ 1,npc=t,data=data,basis = "deBoor",alpha0=0.0001)
+summary(fit1)
+# The adjusted (black) non-linear component
 plotnpc(fit1,conf_lev=0.02)
 }
 \references{
 Eilers P.H.C. and Marx B.D. (1996). Flexible smoothing with B-splines and penalties. Statistical Science. 11, 89-121.
 
-Wood, S. (2006). Additive generalized models: An R introduction. Chapman and Hall.
+Wood, S. (2017). Additive generalized models: An R introduction. Chapman and Hall.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

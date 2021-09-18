@@ -1,6 +1,6 @@
 #' shape
 #'
-#' Tool that supports the estimation of the shape parameter in semi-parametric or multiple linear accelerated failure time model with generalized log-gamma erros
+#' Tool that supports the estimation of the shape parameter in semi-parametric or multiple linear accelerated failure time model with generalized log-gamma errors
 #' under the presence of censored data. The estimation is based on the profiled likelihood function for the shape parameter of the model.
 
 #' @param formula a symbolic description of the systematic component of the model to be fitted.
@@ -12,7 +12,7 @@
 #' @param step an optional positive value. This parameter represents the length of the step of the partition of the interval parameter.
 #' By default is 0.1.
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
-#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' rows  <- 200
 #' columns <- 2
@@ -79,7 +79,7 @@ shape = function(formula, npc, data, interval, semi, step){
     plot1 <- ggplot(data=as.data.frame(cbind(sh,output)), aes(sh,output)) +
     geom_point(colour="orange",alpha=1,size=1.25) +
     xlim(range(sh)) +
-    geom_point(data=as.data.frame(cbind(sh[index],output[index])),aes(sh[index],output[index]), colour="blue", alpha=0.3, size=3) +
+    geom_point(data=as.data.frame(cbind(sh[index],output[index])),aes(sh[index],output[index]), colour="blue", alpha=0.3, size=3.5) +
     labs(x = "Shape parameter", y = "Log-lik") +
     ggtitle("Profile Log-likelihood")
     suppressWarnings(grid.arrange(plot1,ncol=1))

@@ -19,13 +19,13 @@ dglg(x, location, scale, shape)
 \code{dglg} is used to calculate the density distribution function of a generalized log-gamma variable at x.
 }
 \examples{
-x <- runif(60,-3,3)
-dglg(sort(x),location=0,scale=1,shape=1)
-plot(sort(x),dglg(sort(x),location=0.5,scale=1,shape=1),type="l",xlab="x",ylab="Density")
+x <- seq(-4,4,length=100)
+dglg(x,location=0,scale=1,shape=1)
+plot(x,dglg(x,location=0,scale=1,shape=1),type="l",xlab="x",ylab="Density")
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

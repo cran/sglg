@@ -25,13 +25,43 @@ K penalty matrix.
 cubic B-spline cubic.
 }
 \examples{
-t <- runif(120)
-knot <- 6
-deBoor2(t,knot)
+set.seed(1)
+t_1 <- runif(120)
+range(t_1)
+t_2 <- t_1 + 2  #runif(120,2,3)
+range(t_2)
+knot <- 10
+dB1 <- deBoor2(t_1,knot)
+dB2 <- deBoor2(t_2,knot)
+dB1$knots
+dB2$knots
+plot(0,0,xlim=c(-0.5,3.5))
+points(dB1$knots,rep(0,length(dB1$knots)),pch=20)
+delta <- dB2$knots[1] - dB1$knots[1]
+points(dB2$knots-delta,rep(0,length(dB2$knots)),pch=2,col= 'blue')
+dB1$K
+dB2$K
+zeros <- vector()
+plot(t_1,dB1$N[,1],pch=20)
+for(j in 1:knot){
+points(t_1,dB1$N[,j],pch=20,col=j)
+zeros[j] <- sum(dB1$N[,j]==0)
+}
+zeros/120
+cond_tNN <- vector()
+KnotS <- 3:50
+for(j in KnotS){
+dB1 <- deBoor2(t_1,j)
+print(dB1$knots[2]- dB1$knots[1])
+min_max <- range(eigen(t(dB1$N)\%*\%dB1$N)$values)
+cond_tNN[j-2] <- min_max[1]/min_max[2]
+}
+cond_tNN
+plot(KnotS,cond_tNN,pch=20,ylim=c(0,0.07))
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models.  Ph. D. thesis. Sao Paulo University.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

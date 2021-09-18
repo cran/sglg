@@ -7,7 +7,7 @@
 #' @param shape numeric, represent the shape parameter of a generalized log-gamma distribution. Default value is 1.
 
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
-#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' x <- runif(3,-1,1)
 #' pglg(sort(x),location=0.5,scale=1,shape=1)
@@ -30,6 +30,6 @@ pglg = function(x, location, scale, shape) {
                     rownames(out)[3] <- NA
                     return(out[3])
        }
-       v_pglg <- Vectorize(base_pglg)
+       v_pglg <- Vectorize(base_pglg,vectorize.args = c("x","location"))
        return(v_pglg(x, location, scale, shape))
 }

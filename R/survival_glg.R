@@ -8,10 +8,10 @@
 
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @references Jerald F. Lawless (2003). Statistical Models and Methods for Lifetime Data. Second Edition. John-Wiley & Sons
-#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' survival_gg(0.0001,0,1,-1) # Extreme value type I distribution, maximum case.
-#'  times <- seq(0.05,7,by=0.05)
+#' times <- seq(0.05,7,by=0.05)
 #' plot(times, survival_gg(times,0,1,-1)$survival_value,type='l')
 #' plot(times, survival_gg(times,0,1,-1)$hazard_value,type='l')
 #' plot(times, survival_gg(times,0,1,-1)$cumulative_hazard_value,type='l')

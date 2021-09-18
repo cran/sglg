@@ -7,7 +7,7 @@
 qglg(x, location, scale, shape)
 }
 \arguments{
-\item{x}{numeric, a real number.}
+\item{x}{numeric, a real number between 0 and 1.}
 
 \item{location}{numeric, represent the location parameter of a generalized log-gamma distribution. Default value is 0.}
 
@@ -26,5 +26,5 @@ qglg(sort(x),location=0,scale=1,shape=1)
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

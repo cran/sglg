@@ -14,22 +14,33 @@ quantile_residuals(fit)
 }
 \examples{
 # Example 1
-n <- 300
-error <- rglg(n,0,1,1)
-y <- 0.5 + error
-fit <- glg(y~1,data=as.data.frame(y))
-quantile_residuals(fit)
+n <- 400
+set.seed(4)
+error <- rglg(n,0,0.5,1)
+y <- as.data.frame(0.5 + error)
+names(y) <- "y"
+fit_0 <- glg(y~1,data=y)
+fit_0$mu
+fit_0$sigma
+fit_0$lambda
+quantile_residuals(fit_0)
 # Example 2
-n <- 300
-error <- rglg(n,0,1,1)
-x <- runif(n,-3,3)
-y <- 0.5 +  2*x + error
-fit <- glg(y~x,data=as.data.frame(y,x))
-quantile_residuals(fit)
+n <- 500
+set.seed(6)
+error <- rglg(n,0,0.5,1)
+x1 <- runif(n,-2,2)
+beta <- c(0.5,2)
+y <- cbind(1,x1)\%*\%beta + error
+data <- data.frame(y=y,x1=x1)
+fit_1 <- glg(y~x1,data=data)
+fit_1$mu
+fit_1$sigma
+fit_1$lambda
+quantile_residuals(fit_1)
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

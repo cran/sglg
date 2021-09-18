@@ -7,7 +7,7 @@
 #' @param shape numeric, represents the shape parameter of a generalized log-gamma distribution. Default value is 1.
 
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
-#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' rglg(10,location=-1,scale=0.5,shape=1)
 #' @export rglg

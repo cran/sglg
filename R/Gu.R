@@ -13,11 +13,11 @@
 
 #' @references Wood, S. (2006) Generalized additive models: An R introduction. Chapman and Hall.
 #' @references Carlos Alberto Cardozo Delgado. Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
-#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
-#' t <- runif(120)
+#' t <- runif(1000)
 #' knot <- 6
-#' Gu(t,knot)
+#' N_gu <- Gu(t,knot)
 #' @export Gu
 Gu <- function(t, knot) {
     r3 <- function(t, z) {
@@ -27,16 +27,17 @@ Gu <- function(t, knot) {
     }
 
     spl.N <- function(t, tk) {
-        q <- length(tk) + 1
-        n <- length(t)
-        N <- matrix(1, n, q)
-        N[, 1] <- t
-        N[, 2:q] <- outer(t, tk, FUN = r3)
+        #q <- length(tk) + 1
+        #n <- length(t)
+        #N <- matrix(1, n, q)
+        #N[, 1] <- t
+        #N[, 2:q] <- outer(t, tk, FUN = r3)
+        N <- cbind(t,outer(t, tk, FUN = r3))
         return(N)
     }
 
     spl.S <- function(tk) {
-        q <- length(tk) + 1
+        #q <- length(tk) + 1
         S <- matrix(0, q, q)
         S[2:q, 2:q] <- outer(tk, tk, FUN = r3)
         return(S)
@@ -51,7 +52,9 @@ Gu <- function(t, knot) {
         output <- ts[1:knt]
         return(output)
     }
+
     knots <- tks(t, knot)
+    q <- length(knots) + 1
     N <- spl.N(t, knots)
     K <- spl.S(knots)
     return(list(nknot = knot, knots = knots, N = N, K = K))

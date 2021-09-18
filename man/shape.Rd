@@ -22,7 +22,7 @@ By default is [0.1,1.5].}
 By default is 0.1.}
 }
 \description{
-Tool that supports the estimation of the shape parameter in semi-parametric or multiple linear accelerated failure time model with generalized log-gamma erros
+Tool that supports the estimation of the shape parameter in semi-parametric or multiple linear accelerated failure time model with generalized log-gamma errors
 under the presence of censored data. The estimation is based on the profiled likelihood function for the shape parameter of the model.
 }
 \examples{
@@ -57,5 +57,5 @@ lambda
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

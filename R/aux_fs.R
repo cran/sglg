@@ -1,8 +1,8 @@
 # Normalizing function LL
 c_l <- function(lambd){
-       if (abs(lambd) < 0.1){
-           if (lambd > 0) lambd <- 0.1
-           else lambd <- -0.1
+       if (abs(lambd) < 0.12){
+           if (lambd > 0) lambd <- 0.12
+           else lambd <- -0.12
     }
   invlambdos <- 1/lambd^2
   c <- abs(lambd)/gamma(invlambdos)
@@ -61,5 +61,10 @@ gfit <- function(resid, lambd) {
   equantil <- qnorm(Fs)
   diff <- qqnorm(equantil, plot.it = FALSE)
   output <- mean(abs(diff$x - diff$y))
+  return(output)
+}
+
+interval_median <- function(size,sample,alpha){
+  output <- sort(sample)[qbinom(c(alpha/2,1-alpha/2),size,0.5)]
   return(output)
 }

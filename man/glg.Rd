@@ -4,14 +4,22 @@
 \alias{glg}
 \title{Fitting multiple linear Generalized Log-gamma Regression Models}
 \usage{
-glg(formula, data, shape, Tolerance, Maxiter, format, envelope = FALSE)
+glg(
+  formula,
+  data,
+  shape = 0.2,
+  Tolerance = 5e-05,
+  Maxiter = 1000,
+  format,
+  envelope = FALSE
+)
 }
 \arguments{
 \item{formula}{a symbolic description of the systematic component of the model to be fitted. See details for further information.}
 
 \item{data}{an optional data frame, list containing the variables in the model.}
 
-\item{shape}{an optional value for the shape parameter of the error distribution of a generalized log-gamma distribution. Default value is 1.}
+\item{shape}{an optional value for the shape parameter of the error distribution of a generalized log-gamma distribution. Default value is 0.2.}
 
 \item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 1e-04.}
 
@@ -38,10 +46,9 @@ In this setup, the location parameter of the response variable is explicitly mod
 }
 \examples{
 set.seed(21)
-rows <- 200
-columns <- 2
+rows <- 120
 x1 <- rbinom(rows, 1, 0.5)
-x2 <- runif(columns, 0, 1)
+x2 <- runif(rows, 0, 1)
 X <- cbind(x1,x2)
 t_beta  <- c(0.5, 2)
 t_sigma <- 1
@@ -52,12 +59,12 @@ t_sigma <- 1
 #                    #
 ######################
 
-t_lambda <- 1
+t_lambda <- 1 # 1 -0.9
 error <- rglg(rows, 0, 1, t_lambda)
 y1 <- X \%*\%t_beta + t_sigma * error
 data.example <- data.frame(y1,X)
-fit <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-logLik(fit)
+fit <- glg(y1 ~ x1 + x2 - 1,data=data.example) # (-0.9,6.1) and (1,5.6)
+logLik(fit) # -180.598 and -183.907
 summary(fit)
 deviance_residuals(fit)
 #############################
@@ -65,10 +72,11 @@ deviance_residuals(fit)
 # Normal case: A limit case #
 #                           #
 #############################
-
+# When the parameter lambda goes to zero the GLG tends to a standard normal distribution.
 t_lambda <- 0.001
 set.seed(8142031)
 error <- rglg(rows, 0, 1, t_lambda)
+hist(error)
 y1 <- X \%*\%t_beta + t_sigma * error
 data.example <- data.frame(y1, X)
 fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
@@ -91,5 +99,5 @@ coefficients(fit2)
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

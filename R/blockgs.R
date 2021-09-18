@@ -1,40 +1,12 @@
 
-#set.seed(8142031)
-#n1 <- 2
-#n2 <- 10
-#n3 <- 2
-#n <- n1 + n2 + n3
-
-#sqrtA <- matrix(runif(n * n), n, n)
-#A <- t(sqrtA) %*% sqrtA
-#b <- runif(n)
-#true <- solve(A) %*% b
-#x0 <- true + runif(n, -1.5, 1.5)
-#ps <- c(n1, n2, n3)
-#app_sol <- blockgs(A, b, x0, ps)
-#(app_sol$x - true)/true
-
-# Algunas simulaciones
-
-#R <- 1000
-#results<- rep(0,R)
-
-#for(i in 1:R){
-#   x0 <- true + runif(n, -1.5, 1.5)
-#   results[i] <- blockgs(A, b, x0, ps)$iter
-#}
-
-#results
-#summary(results)
-#hist(results)
-#quantile(results,0.99)
-# > 4000
+# @importFrom Rcpp sourceCpp
+# sourceCpp('src/cpp_code.cpp')
 
 blockgs <- function(A, b, x0, ps, iter, tol) {
     if (missingArg(iter))
         iter <- 5000
     if (missingArg(tol))
-        tol <- 0.0001
+        tol <- 0.01
 
     k <- length(ps)
     cond <- 1
@@ -47,7 +19,6 @@ blockgs <- function(A, b, x0, ps, iter, tol) {
         x <- backsolve(R, x)
         return(x)
     }
-
 
     while (m <= iter & cond > tol) {
         aps <- c(0, ps)
@@ -65,5 +36,5 @@ blockgs <- function(A, b, x0, ps, iter, tol) {
     if (m > iter) {
         stop("Sorry, convergence was not successful.")
     }
-    return(list(x = x, iter = m, cond = round(cond, 5)))
+    return(list(x = x, iter = m, cond = cond))
 }

@@ -2,9 +2,9 @@
 % Please edit documentation in R/order_glg.R
 \name{order_glg}
 \alias{order_glg}
-\title{Random Sampling of Order Statistics from a Generalized Log-gamma Distribution}
+\title{Random Sampling of K-th Order Statistics from a Generalized Log-gamma Distribution}
 \usage{
-order_glg(size, mu, sigma, lambda, k, n)
+order_glg(size, mu, sigma, lambda, k, n, alpha = 0.05)
 }
 \arguments{
 \item{size}{numeric, represents the size of the sample.}
@@ -15,12 +15,18 @@ order_glg(size, mu, sigma, lambda, k, n)
 
 \item{lambda}{numeric, represents the shape parameter. Default value is 1.}
 
-\item{k}{numeric, represents the Kth smallest value from a sample.}
+\item{k}{numeric, represents the K-th smallest value from a sample.}
 
 \item{n}{numeric, represents the size of the sample to compute the order statistic from.}
+
+\item{alpha}{numeric, (1 - alpha) represents the confidence of an interval for the population median of the distribution of the k-th order statistic. Default value is 0.05.}
+}
+\value{
+A list with a random sample of order statistics from a generalized log-gamma distribution, the value of its join probability density function evaluated in the random sample and
+a (1 - alpha) confidence interval for the population median of the distribution of the k-th order statistic.
 }
 \description{
-\code{order_glg} is used to obtain a random sample of order statistics from a Generalized Log-gamma Distribution.
+\code{order_glg} is used to obtain a random sample of the K-th order statistics from a generalized log-gamma distribution.
 }
 \examples{
 # A random sample of size 10 of order statistics from a Extreme Value Distribution.
@@ -54,7 +60,7 @@ summary(sample_2)
 \references{
 Gentle, J, Computational Statistics, First Edition. Springer - Verlag, 2009.
 
-Naradajah, S. and Rocha, R. (2016) Newdistns: An R Package for New Families of Distributions, Journal of Statiscal Software.
+Naradajah, S. and Rocha, R. (2016) Newdistns: An R Package for New Families of Distributions, Journal of Statistical Software.
 }
 \author{
 Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>.

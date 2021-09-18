@@ -5,7 +5,7 @@
 #' @param model an object of the class sglg. This object is returned from the call to glg(), sglg(), survglg() or ssurvglg().
 #' @param ... other arguments.
 #' @references  Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
-#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' rows <- 100
 #' columns <- 2
@@ -135,7 +135,6 @@ influence.sglg <- function(model, ...) {
 
         }
 
-        #par(mfrow = c(2, 2))
         plots_cw <- cweight(model)
         plots_r <- respert(model)
         grid.arrange(plots_cw$plot1, plots_cw$plot2, plots_r$plot3, plots_r$plot4, ncol=2)

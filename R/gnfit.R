@@ -7,7 +7,7 @@
 #' @param starts numeric vector. Initial parameters to maximize the likelihood function
 #' @param data numeric vector. A sample of a generalized log-gamma distribution.
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
-#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' \dontrun{
 #' set.seed(1)

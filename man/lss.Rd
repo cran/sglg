@@ -14,19 +14,19 @@ lss(mu, sigma, lambda)
 \item{lambda}{numeric, represents the shape parameter of a generalized log-gamma distribution. Default value is 1.}
 }
 \description{
-\code{lss} is used to obtain the mean, variance, skewness and kurtosis for a generalized log-gamma distribution.
+\code{lss} is used to obtain the mean, median, mode, variance, coefficient of variation, skewness and kurtosis for a generalized log-gamma distribution.
 }
 \examples{
 lss(0,1,-1)    # Extreme value type I distribution, maximum case.
 lss(0,1,1)     # Extreme value type I distribution, minimum case.
-lss(0,1,0.005) # Standard normal distribution.
+lss(0,1,0.01) # Standard normal distribution.
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 
 National Institute of Standards and Technology, NIST.  Engineering Statistics Handbook.
-http://www.itl.nist.gov/div898/handbook/apr/section1/apr163.htm
+https://www.itl.nist.gov/div898/handbook/eda/section3/eda366g.htm
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

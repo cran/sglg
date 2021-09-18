@@ -4,7 +4,7 @@
 \alias{bootglg}
 \title{Bootstrap inference for a generalized log-gamma distribution}
 \usage{
-bootglg(y, R, alpha, method, type)
+bootglg(y, R, alpha = 0.05, method, type)
 }
 \arguments{
 \item{y}{vector, a numeric random sample.}
@@ -25,7 +25,9 @@ Other kind of bootstrap intervals are the percentile-type intervals. We offer th
 
 \code{boot_mean_estimates} is a vector of mean of the bootstrap estimates associated with the location, scale, and shape parameters.
 
-\code{boot_sd_estimates} is a vector of bootstrap standard errors of the estimates associated with the location, scale, and shape parameters.
+\code{boot_bias_estimates} is a vector of bootstrap estimate of bias associated with the location, scale, and shape estimators.
+
+\code{boot_sd_estimates} is a vector of bootstrap standard errors of the estimates associated with the location, scale, and shape estimators.
 
 \code{type} indicates the type of confidence intervals.
 
@@ -36,12 +38,12 @@ Other kind of bootstrap intervals are the percentile-type intervals. We offer th
 }
 \examples{
 set.seed(1)
-y <- rglg(200,location=1,scale=0.5,shape=1)
+y <- rglg(200,location=0,scale=0.5,shape=1)
 \dontrun{
-bootglg(y,R=300,method='Parametric',type='normal')
-bootglg(y,R=300,method='Nonparametric',type='t_student')
-bootglg(y,R=300,method='Parametric',type='bootstrap_t')
-bootglg(y,R=300,method='Nonparametric',type='BCa')
+bootglg(y,R=500,method='Parametric',type='normal',alpha=0.02)
+bootglg(y,R=500,method='Nonparametric',type='t_student')
+bootglg(y,R=500,method='Parametric',type='bootstrap_t')
+bootglg(y,R=500,method='Nonparametric',type='BCa')
 }
 }
 \references{
@@ -50,5 +52,5 @@ Cardozo C, Paula G and Vanegas L. sglg: An R package to fit semi-parametric gene
 Efron B and Tibshirani R (1993). An introduction to the Bootstrap. Chapman-Hall.
 }
 \author{
-Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 }

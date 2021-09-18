@@ -5,7 +5,7 @@
 #' @param object an object of the class sglg. This object is returned from the call to glg(), sglg(), survglg() or ssurvglg().
 #' @param ... other arguments.
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
-#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>, G. Paula and L. Vanegas.
+#' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' # Example 1
 #'n <- 300
