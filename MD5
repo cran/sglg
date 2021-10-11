@@ -1,4 +1,4 @@
-d252f45aec0f8d01228657c87be0f57d *DESCRIPTION
+d3a9f002621697b496d3c0d736b8dfe6 *DESCRIPTION
 0a9489efffbbea5291e6dc204952d224 *NAMESPACE
 a4ab16b081e0824cf0813ae79d6400a8 *R/Gu.R
 2d7ea48950582ea336cd6a5c9bb366cf *R/aux_fs.R
@@ -22,7 +22,7 @@ d329ec0706be12898b6f0812eb6f21ad *R/plot.npc.R
 93e9243954faaeed869edaddc34f62f5 *R/quantile_residuals.R
 bba231604794732312d5c5f2c73433fa *R/residuals.sglg.R
 24737d1ffa8a792809064dd3855fa6cd *R/rglg.R
-c3aaaae9c6117a9a5577df3c0db51d17 *R/sglg.R
+fcd8a0169e7235f7dee779c1b5b967cc *R/sglg.R
 5baaaa0f3723a68411f566730150c376 *R/shape.R
 722d62b680869352de556876c226a7e2 *R/smooth_parameters.R
 abf01b1be851f8f0c839219588e652b1 *R/ssurvglg.R
@@ -50,7 +50,7 @@ dd34e13c26f615d640d0fbc177798913 *man/plotnpc.Rd
 f4d9eb858d5a48cf9b5dd772d93ad45a *man/quantile_residuals.Rd
 59497f0b4ca300dce75d941909bf88fb *man/residuals.sglg.Rd
 8e882cb3854aa210dfa619aee95b8d32 *man/rglg.Rd
-7fcd7ffb29a190253dde7b9f562791f8 *man/sglg.Rd
+747021536d639a5811c57471994407cd *man/sglg.Rd
 e3bf96e5ac5addec9f110ce8db5663b8 *man/shape.Rd
 4b5844f387c27e1e8fc5b42daba7b681 *man/smoothp.Rd
 4f18da50bdfcba3b1a20d8f7f4febc40 *man/ssurvglg.Rd

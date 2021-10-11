@@ -13,7 +13,7 @@
 #' @param method There are two possibles algorithms to estimate the parameters. The default algorithm is 'FS' Fisher-Scoring,
 #' the other option is 'GSFS' an adequate combination between the block matrix version of non-linear Gauss-Seidel algorithm and Fisher-Scoring algorithm.
 #' @param alpha0 is a vector of positive values for the smoothing parameters alpha. Default vector with 1 in each entry.
-#' @param nknts is a vector of the number of knots in each non-linear component of the model.
+#' @param Knot is a vector of the number of knots in each non-linear component of the model.
 #' @param Tolerance an optional positive value, which represents the convergence criterion. Default value is 5e-05.
 #' @param Maxiter an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.
 #' @param format an optional string value that indicates if you want a simple or a complete report of the estimating process. Default value is 'complete'.
@@ -65,7 +65,7 @@
 #' @import methods
 #' @export sglg
 #'
-sglg = function(formula, npc, basis, data, shape=0.2, method, alpha0, nknts, Tolerance=5e-05, Maxiter=1000,format='complete') {
+sglg = function(formula, npc, basis, data, shape=0.2, method, alpha0, Knot, Tolerance=5e-05, Maxiter=1000,format='complete') {
   if (missingArg(formula)) {
     stop("The formula argument is missing.")
   }
@@ -96,12 +96,13 @@ sglg = function(formula, npc, basis, data, shape=0.2, method, alpha0, nknts, Tol
   p <- ncol(X)
   n <- nrow(X)
 
-  Knot <- vector()
   XX <- cbind(X, npc)
+  Knot_0 <- vector()
 
-  if(missingArg(nknts)){
+  if(missingArg(Knot)){
     op1 <- floor(n^(1/3))
-    intknt <- function(x) {
+
+    intknt <- function(x){
       op2 <- length(as.numeric(levels(factor(x))))
       knt <- min(op1, op2)
       if (knt < 3) {
@@ -111,14 +112,13 @@ sglg = function(formula, npc, basis, data, shape=0.2, method, alpha0, nknts, Tol
     }
 
     for (i in 1:k) {
-      Knot <- append(Knot,intknt(XX[, (p + i)]))
+      Knot_0 <- append(Knot_0,intknt(XX[, (p + i)]))
     }
-  }
-  else{
-    if(min(nknts)>2)
-      Knot <- nknts
-    else
+
+    if(min(Knot_0) < 2)
       stop("Each covariate must have at least three knots.")
+
+    Knot <- Knot_0
   }
 
   Tknot <- sum(Knot)

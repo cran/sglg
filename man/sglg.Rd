@@ -12,7 +12,7 @@ sglg(
   shape = 0.2,
   method,
   alpha0,
-  nknts,
+  Knot,
   Tolerance = 5e-05,
   Maxiter = 1000,
   format = "complete"
@@ -35,7 +35,7 @@ the other option is 'GSFS' an adequate combination between the block matrix vers
 
 \item{alpha0}{is a vector of positive values for the smoothing parameters alpha. Default vector with 1 in each entry.}
 
-\item{nknts}{is a vector of the number of knots in each non-linear component of the model.}
+\item{Knot}{is a vector of the number of knots in each non-linear component of the model.}
 
 \item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 5e-05.}
 
