@@ -550,11 +550,6 @@ ssurvglg = function(formula, npc, basis, data, shape, alpha0, Maxiter, Tolerance
         return(output)
     }
 
-    #opt_alph = function(alph) {
-        #out = optimize(AIC_p, c(0, alph + 2), tol = 0.001)
-    #    return(c(out$minimum, out$objective))
-    #}
-
     opt_alph <- function(alph){
         alphas <- as.matrix(alph)
         values <- apply(X=alphas,1,FUN=AIC_p)

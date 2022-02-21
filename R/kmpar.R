@@ -39,12 +39,7 @@
 plotsurv.sglg = function(fit) {
     Delta <- 1 - fit$delta
     km <- survfit(Surv(exp(fit$y), Delta) ~ 1, conf.type = "log-log")
-    #plot(km, col = 2, xlab = "Survival time", ylab = "Estimated survival functions")
     obst <- exp(fit$y)[Delta==1]
-    #lines(sort(obst),sort(fit$modelsurv,decreasing=TRUE))
-    #xlim <- range(km$time)
-    #delta <- seq(0, xlim[2], length = 5)
-    #legend(delta[4], 1, lty = c(1, 1), c("KM", "sglg"), col = c(2, 1), lwd = 1)
     ###################################################################################
 
     a <- sort(exp(fit$y))

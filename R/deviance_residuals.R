@@ -21,35 +21,45 @@
 #'fit <- glg(y~x,data=as.data.frame(y,x))
 #'deviance_residuals(fit)
 #'
+#'@importFrom plotly ggplotly subplot
 #'@export deviance_residuals
 deviance_residuals <- function(object, ...) {
   lambda <- object$lambda
   rord <- object$rord
   rdev <- object$rdev
   y_est <- object$y_est
+  ext <- max(abs(rdev)) + 0.5
   if (object$censored == FALSE) {
-    ext <- max(abs(rdev)) + 0.5
-    plot1 <- ggplot(data=as.data.frame(rdev),aes(rdev)) + ggtitle("Density Deviance Residuals") + geom_density(colour="orange",fill="orange",alpha=0.25) + xlim(c(-ext,ext)) + xlab("Sample Deviances") + ylab("Density") + geom_hline(yintercept=0)
-    plot2 <- ggplot(data=as.data.frame(y_est,rdev),aes(y_est,rdev)) +  ggtitle("Deviance Residuals") + geom_point(colour="blue",alpha=0.5) + xlab("y_i estimated") + ylab("Deviance values") + ylim(c(-ext,ext)) + geom_hline(yintercept=ext) + geom_hline(yintercept=-ext)
-    grid.arrange(plot1, plot2, ncol=2)
+    plot1 <- ggplot(data=as.data.frame(rdev),aes(rdev)) +
+                    ggtitle("Density Deviance Residuals") +
+                    geom_density(colour="orange",fill="orange",alpha=0.5) +
+                    xlim(c(-ext,ext)) + xlab("Sample Deviances") + ylab("Density") +
+                    geom_hline(yintercept=0,colour='orange')
+    plot2 <- ggplot(data=as.data.frame(y_est,rdev),aes(y_est,rdev)) +
+                    ggtitle("Deviance Residuals") +
+                    geom_point(colour="blue",alpha=0.5) +
+                    xlab("y_i estimated") +
+                    ylab("Deviance values") + ylim(c(-ext,ext)) +
+                    geom_hline(yintercept=3,colour='red') +
+                    geom_hline(yintercept=-3,colour='red')
+    return(subplot(ggplotly(plot1), ggplotly(plot2)))
   }
 
   if (object$censored == TRUE) {
 
     delta <- object$delta
-
-    C <- rep(3, length(y_est))
-    plot(y_est, rdev, main = "Deviance residuals", xlab = "Fitted values",
-         ylab = "Deviance-type residuals", ylim = c(-3.2, 3.2), pch = 20)
-    abline(h = C, col = 2)
-    abline(h = -C, col = 2)
+    plot3 <- ggplot(data=as.data.frame(y_est,rdev),aes(y_est,rdev)) +
+      ggtitle("Deviance Residuals") +
+      geom_point(colour="blue",alpha=0.5) +
+      xlab("y_i estimated") +
+      ylab("Deviance values") +
+      ylim(c(-ext,ext)) +
+      geom_hline(yintercept=3,colour='red') +
+      geom_hline(yintercept=-3,colour='red')
 
     ekm <- survfit(Surv(exp(rord), 1 - delta) ~ 1)
     surv <- as.numeric(unlist(as.vector(summary(ekm)[6])))
     Fkm <- 1 - surv
-    # plot(ftimes, surv, xlab = 'Multiplicative error', ylab = 'Survival
-    # values', main = 'Survival function', type = 'l', pch = 20)
-
     res <- sort((rord * (1 - delta))[delta == 0])
     Fs <- pglg(res, shape = lambda)
     r_q <- qnorm(Fs)

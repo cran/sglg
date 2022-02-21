@@ -21,10 +21,15 @@
 #' data.example <- data.frame(y1,X)
 #' fit1 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
 #' influence(fit1)
-#'
+#' @importFrom plotly ggplotly subplot
 #' @export
 influence.sglg <- function(model, ...) {
     epsil <- model$rord
+    plot1 <- ggplot()
+    plot2 <- ggplot()
+    plot3 <- ggplot()
+    plot4 <- ggplot()
+
     if (model$censored == FALSE) {
 
         if (model$Knot == 0)
@@ -34,11 +39,6 @@ influence.sglg <- function(model, ...) {
 
         n <- dim(Xbar)[1]
         q <- dim(Xbar)[2]
-
-        plot1 <- ggplot()
-        plot2 <- ggplot()
-        plot3 <- ggplot()
-        plot4 <- ggplot()
 
         cweight <- function(model) {
 
@@ -73,7 +73,7 @@ influence.sglg <- function(model, ...) {
             vls1 <- abs(Cmax)
             df1 <- as.data.frame(vls1)
             plot1 <- ggplot(data=df1,aes(1:n,vls1)) +
-            geom_point(colour="orange",alpha=0.5) +
+            geom_point(colour="orange",alpha=0.75) +
             ggtitle("Case-weight perturbation") +
             xlab("Index") +
             ylab("Local Influence")
@@ -81,7 +81,7 @@ influence.sglg <- function(model, ...) {
             vls2 <- dCNC
             df2 <- as.data.frame(vls2)
             plot2 <- ggplot(data=df2,aes(1:n,vls2)) +
-            geom_point(colour="orange",alpha=0.5) +
+            geom_point(colour="orange",alpha=0.75) +
             ggtitle("Case-weight perturbation") +
             xlab("Index") +
             ylab("Total Local Influence")
@@ -118,7 +118,7 @@ influence.sglg <- function(model, ...) {
             vls3 <- abs(Cmax)
             df3 <- as.data.frame(vls3)
             plot3 <- ggplot(data=df3,aes(1:n,vls3)) +
-              geom_point(colour="orange",alpha=0.5) +
+              geom_point(colour="orange",alpha=0.75) +
               ggtitle("Response Perturbation") +
               xlab("Index") +
               ylab("Local Influence")
@@ -126,7 +126,7 @@ influence.sglg <- function(model, ...) {
             vls4 <- dCNC
             df4 <- as.data.frame(vls4)
             plot4 <- ggplot(data=df4,aes(1:n,vls4)) +
-              geom_point(colour="orange",alpha=0.5) +
+              geom_point(colour="orange",alpha=0.75) +
               ggtitle("Response Perturbation") +
               xlab("Index") +
               ylab("Total Local Influence")
@@ -137,13 +137,11 @@ influence.sglg <- function(model, ...) {
 
         plots_cw <- cweight(model)
         plots_r <- respert(model)
-        grid.arrange(plots_cw$plot1, plots_cw$plot2, plots_r$plot3, plots_r$plot4, ncol=2)
-
+        return(subplot(ggplotly(plots_cw$plot1), ggplotly(plots_cw$plot2), ggplotly(plots_r$plot3), ggplotly(plots_r$plot4)))
     }
-    if (model$censored == TRUE) {
-
-        delta <- model$delta
-        cweight <- function(model) {
+    else{
+         delta <- model$delta
+         cweight <- function(model) {
 
             X_bar <- model$X_bar
             n <- model$size
@@ -178,27 +176,21 @@ influence.sglg <- function(model, ...) {
             Eigen = eigen(CNC)
             Cmax <- Eigen$vectors[, 1]
             lci <- abs(Cmax)
-            plot(1:n, lci, xlab = "Index", ylab = "e_max_i", main = "Case-weight perturbation",
-                pch = 20)
-            pinfp <- order(lci)[(n - 1):n]
-            text(pinfp, lci[pinfp], label = as.character(pinfp), cex = 0.7,
-                pos = 4)
-            dCNC = diag(CNC)
-            plot(1:n, dCNC, xlab = "Index", ylab = "B_i", main = "Case-weight perturbation",
-                pch = 20)
-            pinfp <- order(dCNC)[(n - 1):n]
-            text(pinfp, dCNC[pinfp], label = as.character(pinfp), cex = 0.7,
-                pos = 4)
+            #plot(1:n, lci, xlab = "Index", ylab = "e_max_i", main = "Case-weight perturbation",pch = 20)
+            #pinfp <- order(lci)[(n - 1):n]
+            #text(pinfp, lci[pinfp], label = as.character(pinfp), cex = 0.7,pos = 4)
+            #dCNC = diag(CNC)
+            #plot(1:n, dCNC, xlab = "Index", ylab = "B_i", main = "Case-weight perturbation",pch = 20)
+            #pinfp <- order(dCNC)[(n - 1):n]
+            #text(pinfp, dCNC[pinfp], label = as.character(pinfp), cex = 0.7,pos = 4)
         }
 
         respert <- function(model) {
             X <- model$X
             n <- dim(X)[1]
             p <- dim(X)[2]
-
             sigma <- model$sigma
             lambda <- model$lambda
-
             w <- as.vector(exp(lambda * epsil))
             Ds <- diag(w, n)
             aaa = (1/lambda^2) * exp(lambda * epsil)
@@ -211,9 +203,7 @@ influence.sglg <- function(model, ...) {
                   epsil) + delta * (-(lambda/sigma)^2) * bb * (aaa - 1/lambda^2 -
                   bb))
             }
-
-            Delt_sw <- (1/sigma * lambda^2) * (Ds %*% (lambda * epsil + 1) -
-                1)
+            Delt_sw <- (1/sigma * lambda^2) * (Ds %*% (lambda * epsil + 1) - 1)
             expep <- exp(lambda * epsil)
             Delt_sw <- (1 - delta) * (1/(lambda * (sigma^2))) * (-1 + expep +
                 lambda * epsil * expep) + delta * ((((lambda/sigma)^2) *
@@ -226,12 +216,14 @@ influence.sglg <- function(model, ...) {
             CNC = NC/norm
             Eigen = eigen(CNC)
             Cmax = Eigen$vectors[, 1]
-            plot(1:n, abs(Cmax), xlab = "Index", ylab = "Local influence",
-                main = "Response perturbation", pch = 20)
+            #plot(1:n, abs(Cmax), xlab = "Index", ylab = "Local influence",main = "Response perturbation", pch = 20)
             dCNC = diag(CNC)
-            plot(1:n, dCNC, xlab = "Index", ylab = "Total local influence",
-                main = "Response perturbation", pch = 20)
+            #plot(1:n, dCNC, xlab = "Index", ylab = "Total local influence",main = "Response perturbation", pch = 20)
         }
-
+        #par(mfrow=c(2,2))
+        #plots_cw <- cweight(model)
+        #plots_r <- respert(model)
+        #return(plots_cw,plots_r)
+        #return(subplot(ggplotly(plots_cw$plot1), ggplotly(plots_cw$plot2), ggplotly(plots_r$plot3), ggplotly(plots_r$plot4)))
     }
 }

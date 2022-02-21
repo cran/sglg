@@ -26,7 +26,7 @@
 #' fit <- glg(y1 ~ x1 + x2 - 1,data=data.example)
 #' envelope.sglg(fit,Rep=50)
 #' @import stats
-#' @import graphics
+#' @importFrom plotly ggplotly
 #' @export envelope.sglg
 #'
 envelope.sglg <- function(fit, Rep) {
@@ -99,7 +99,7 @@ envelope.sglg <- function(fit, Rep) {
         ggtitle("Envelope") +
         xlab("Theoretical Quantiles") +
         ylab("Desviance-type residuals")
-        grid.arrange(plot1, ncol=1)
+        return(ggplotly(plot1))
     }
 
     if (fit$censored == TRUE) {

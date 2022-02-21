@@ -7,7 +7,6 @@
 #' @references Eilers P.H.C. and Marx B.D. (1996). Flexible smoothing with B-splines and penalties. Statistical Science. 11, 89-121.
 #' @references Wood, S. (2017). Additive generalized models: An R introduction. Chapman and Hall.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
-#' @import graphics
 #' @import ggplot2
 #' @examples
 #' set.seed(1)
@@ -52,16 +51,10 @@ plotnpc <- function(fit,conf_lev) {
 
         df <- as.data.frame(cbind(y,N,f_est))
         plot <- ggplot(data=df,aes(npc,y))+
-
         geom_point(colour="blue",alpha=0.4)+
-        #geom_line(aes(npc,f_est_up),colour = "orange",size=1.2) +
-
         geom_line(aes(npc,f_est),size=1.2) +
-
-        #geom_line(aes(npc,f_est_low),colour = "orange",size=1.2) +
-
-            xlab(colnames(npc))+
-            ggtitle(add_comp)
+        xlab(colnames(npc))+
+        ggtitle(add_comp)
         return(plot)
     }
 
@@ -73,7 +66,6 @@ plotnpc <- function(fit,conf_lev) {
     f_est_up <- f_est + qnorm(1 - 0.5*conf_lev)*st_error_f_est
     df <- as.data.frame(cbind(y,N,f_est))
     plot <- ggplot(data=df,aes(npc,y))+
-    #geom_point(colour="blue",alpha=0.4)+
     geom_line(aes(npc,f_est_up),colour = "orange",size=1.2) +
     geom_line(aes(npc,f_est),size=1.2) +
     geom_line(aes(npc,f_est_low),colour = "orange",size=1.2) +

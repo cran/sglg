@@ -27,17 +27,11 @@ Gu <- function(t, knot) {
     }
 
     spl.N <- function(t, tk) {
-        #q <- length(tk) + 1
-        #n <- length(t)
-        #N <- matrix(1, n, q)
-        #N[, 1] <- t
-        #N[, 2:q] <- outer(t, tk, FUN = r3)
         N <- cbind(t,outer(t, tk, FUN = r3))
         return(N)
     }
 
     spl.S <- function(tk) {
-        #q <- length(tk) + 1
         S <- matrix(0, q, q)
         S[2:q, 2:q] <- outer(tk, tk, FUN = r3)
         return(S)

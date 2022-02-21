@@ -399,10 +399,6 @@ sglg = function(formula, npc, basis, data, shape=0.2, method, alpha0, Knot, Tole
                                                                            Tknot + 2] * ordresidual) - (1/output[p + Tknot + 2]) * ordresidual -
                                   (1/output[p + Tknot + 2])^2)
     Devian <- sum(dev^2)
-
-    #good_fit <- gfit(ordresidual, output[p + Tknot + 2])
-    #goodnessoffit = good_fit
-
     part2 <- ((output[p + Tknot + 1])/(output[p + Tknot + 2])) * (digamma((1/output[p +
                                                                                       Tknot + 2])^2) - log((1/output[p + Tknot + 2])^2))
     y_est2 <- y_est + part2

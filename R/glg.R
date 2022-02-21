@@ -37,9 +37,9 @@
 #' t_lambda <- 1 # 1 -0.9
 #' error <- rglg(rows, 0, 1, t_lambda)
 #' y1 <- X %*%t_beta + t_sigma * error
-#' data.example <- data.frame(y1,X)
-#' fit <- glg(y1 ~ x1 + x2 - 1,data=data.example) # (-0.9,6.1) and (1,5.6)
-#' logLik(fit) # -180.598 and -183.907
+#' data.example <- data.frame(y1,X)               #    uq
+#' fit <- glg(y1 ~ x1 + x2 - 1,data=data.example) # 4.002952
+#' logLik(fit) # -183.907
 #' summary(fit)
 #' deviance_residuals(fit)
 #' #############################
@@ -48,11 +48,8 @@
 #' #                           #
 #' #############################
 #' # When the parameter lambda goes to zero the GLG tends to a standard normal distribution.
-#' t_lambda <- 0.001
 #' set.seed(8142031)
-#' error <- rglg(rows, 0, 1, t_lambda)
-#' hist(error)
-#' y1 <- X %*%t_beta + t_sigma * error
+#' y1 <- X %*%t_beta + t_sigma * rnorm(rows)
 #' data.example <- data.frame(y1, X)
 #' fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
 #' logLik(fit0)
@@ -73,7 +70,7 @@
 #' @importFrom Rcpp sourceCpp
 #' @export glg
 
-glg = function(formula, data, shape=0.2, Tolerance=5e-05, Maxiter=1000, format, envelope= FALSE) {
+glg = function(formula, data, shape=0.2, Tolerance=5e-05, Maxiter=1000, format='complete', envelope= FALSE) {
     if (missingArg(formula)) {
         stop("The formula argument is missing.")
     }
@@ -81,8 +78,6 @@ glg = function(formula, data, shape=0.2, Tolerance=5e-05, Maxiter=1000, format, 
         stop("The data argument is missing.")
     }
 
-    if (missingArg(format))
-        format <- 'complete'
     if (class(data) == "list")
         data <- as.data.frame(data)
 
@@ -125,10 +120,9 @@ glg = function(formula, data, shape=0.2, Tolerance=5e-05, Maxiter=1000, format, 
     }
 
     I_theta <- function(sigm,lambd) {
-        output <- matrix(0, p + 2, p + 2)
-        output[1:p,] = cbind(I_11(sigm),I_12(sigm,lambd),I_13(sigm,lambd))
-        output[(p + 1),] = c(output[1:p, (p + 1)],I_22(n,sigm,lambd),I_23(n,sigm,lambd))
-        output[(p + 2),] = c(I_13(sigm,lambd),I_23(n,sigm,lambd),I_33(sigm,lambd))
+        output <- cbind(I_11(sigm),I_12(sigm,lambd),I_13(sigm,lambd))
+        output <- rbind(output,c(output[1:p, (p + 1)],I_22(n,sigm,lambd),I_23(n,sigm,lambd)))
+        output <- rbind(output,c(output[1:p,(p+2)],output[(p+1),(p+2)],I_33(sigm,lambd)))
         return(output)
     }
 
@@ -164,7 +158,7 @@ glg = function(formula, data, shape=0.2, Tolerance=5e-05, Maxiter=1000, format, 
 
     t_One <- t(One)
     U_sigma <- function(bet, sigm, lambd) {
-        return(-(1/sigm) * n - (1/(lambd * sigm)) * t_One %*% W(bet,sigm, lambd) %*% eps(bet, sigm))
+        return(-(1/sigm) * n - (1/(lambd * sigm)) * t_One %*% (W(bet,sigm, lambd) %*% eps(bet, sigm)))
     }
 
     U_lambda <- function(bet, sigm, lambd) {
@@ -186,7 +180,7 @@ glg = function(formula, data, shape=0.2, Tolerance=5e-05, Maxiter=1000, format, 
     loglikglg <- function(bet, sigm, lambd) {
         epsilon <- eps(bet, sigm)
         invlamb <- 1/lambd
-        return(n * log(c_l(lambd)/sigm) + (invlamb) * t_One %*% epsilon - (invlamb^2) * t_One %*% D(epsilon, lambd) %*% One)
+        return(n * log(c_l(lambd)/sigm) + (invlamb) * t_One %*% epsilon - (invlamb^2) * t_One %*% (D(epsilon, lambd) %*% One))
     }
 
     ## THE ESTIMATES

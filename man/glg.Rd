@@ -10,7 +10,7 @@ glg(
   shape = 0.2,
   Tolerance = 5e-05,
   Maxiter = 1000,
-  format,
+  format = "complete",
   envelope = FALSE
 )
 }
@@ -62,9 +62,9 @@ t_sigma <- 1
 t_lambda <- 1 # 1 -0.9
 error <- rglg(rows, 0, 1, t_lambda)
 y1 <- X \%*\%t_beta + t_sigma * error
-data.example <- data.frame(y1,X)
-fit <- glg(y1 ~ x1 + x2 - 1,data=data.example) # (-0.9,6.1) and (1,5.6)
-logLik(fit) # -180.598 and -183.907
+data.example <- data.frame(y1,X)               #    uq
+fit <- glg(y1 ~ x1 + x2 - 1,data=data.example) # 4.002952
+logLik(fit) # -183.907
 summary(fit)
 deviance_residuals(fit)
 #############################
@@ -73,11 +73,8 @@ deviance_residuals(fit)
 #                           #
 #############################
 # When the parameter lambda goes to zero the GLG tends to a standard normal distribution.
-t_lambda <- 0.001
 set.seed(8142031)
-error <- rglg(rows, 0, 1, t_lambda)
-hist(error)
-y1 <- X \%*\%t_beta + t_sigma * error
+y1 <- X \%*\%t_beta + t_sigma * rnorm(rows)
 data.example <- data.frame(y1, X)
 fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
 logLik(fit0)

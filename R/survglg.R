@@ -80,9 +80,7 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
     formula2 <- formula(formula2, lhs = 0)
     formula2 <- update(formula2, y ~ .)
 
-    #################################################################################################################################################
-
-    ############################################################################################################################################################
+ ############################################################################################################################################################
 
     fit0 <- glg(formula2, data = datus, format='simple')
     beta0 <- fit0$mu
@@ -327,13 +325,11 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
         iter <- output$iter
         condition <- output$cond
         output <- output$est
-
         llglg <- loglikglg(output[1:p], output[(p + 1)], lambda0)
         aic <- -2 * llglg + 2 * (p + 1)
         bic <- -2 * llglg + log(n) * (p + 1)
         aic2 <- aic + 2 * sum(y)
         scores <- U_theta(output[1:p], output[p + 1], lambda0)
-        covar <- matrix(0, p + 1, p + 1)
         covar <- I_tetha(output[1:p], output[p + 1], lambda0)
         inter <- matrix(0, p + 1, 2)
         pval <- 0 * output
@@ -367,7 +363,7 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
         output <- list(formula = formula, size = n, per.censo = per.censo,
             p = p, mu = output[1:p], sigma = output[p + 1], lambda = lambda0,
             y = Y[, 1], delta = Delta, X_bar = X, y_est = y_est, rord = ordresidual,
-            rdev = dev, deviance = devian, modelsurv=msurv, survItheta = scovar, scores = scores,
+            rdev = dev, deviance = devian, modelsurv=msurv, Itheta = covar, scores = scores,
             goodnessoffit = good_fit, llglg = llglg, AIC = aic, BIC = bic,
             AIC2 = aic2, st_error = ste, z_values = zs, p.values = pval,
             interval = inter, convergence = conv, condition = condition,

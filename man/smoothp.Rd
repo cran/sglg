@@ -19,10 +19,10 @@ Generalized Cross Validation 'GCV'. The default method is 'PAIC'.}
 \item{basis}{a name of the cubic spline basis to be used in the model. Supported basis include deBoor and Gu basis.}
 
 \item{interval}{an optional numerical vector of length 2. In this interval is the maximum likelihood estimate of the shape parameter of the model.
-By default is [0.5,2].}
+By default is [0.1,2].}
 
 \item{step}{an optional positive value. This parameter represents the length of the step of the partition of the interval parameter.
-By default is 0.5.}
+By default is 0.2.}
 }
 \description{
 Tool that supports the selection of the smoothing parameters in semi-parametric generalized log-gamma models.
@@ -46,10 +46,12 @@ colnames(y) <- "y"
 data <- data.frame(y,X,t)
 fit1 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "deBoor",alpha0=1)
 fit1$AIC
+# We can get (probably) better values of alpha with the function smoothp
 smoothp(y ~ x1 + x2 - 1,npc=t,data=data,basis = "deBoor")
 fit2 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "Gu",alpha0=0.5)
 fit2$BIC
-smoothp(y ~ x1 + x2 - 1,npc=t,data=data,basis = "Gu")
+# Again using the smooth function
+smoothp(y ~ x1 + x2 - 1,npc=t,data=data,basis = "Gu",method='PBIC')
 #################################################
 # An example with two non-parametric components #
 #################################################
@@ -62,6 +64,7 @@ y_2 <- X \%*\%t_beta + f_t + f_t_2 + t_sigma*error
 colnames(y_2) <- 'y_2'
 data2 <- data.frame(y_2,X,t,t_2)
 npcs <- cbind(t,t_2)
+# Some intuition about the best alpha values
 smoothp(y ~ x1 + x2 - 1,npc=npcs,data=data, method='GCV')
 }
 \references{
