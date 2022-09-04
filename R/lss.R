@@ -15,14 +15,7 @@
 #' lss(0,1,1)     # Extreme value type I distribution, minimum case.
 #' lss(0,1,0.01) # Standard normal distribution.
 #' @export lss
-lss = function(mu, sigma, lambda) {
-    if (missingArg(mu))
-        mu <- 0
-    if (missingArg(sigma))
-        sigma <- 1
-    if (missingArg(lambda))
-        lambda <- 1
-
+lss = function(mu = 0, sigma = 1, lambda = 1) {
     lambda_2 <- lambda^2
     m_lambda_2 <- 1/lambda_2
     mean <- mu + sigma * ((digamma(m_lambda_2) - log(m_lambda_2))/lambda)

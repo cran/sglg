@@ -6,10 +6,11 @@
 #' @param scale numeric, represents the scale parameter of a generalized log-gamma distribution. Default value is 1.
 #' @param shape numeric, represents the shape parameter of a generalized log-gamma distribution. Default value is 1.
 
+#' @return A vector of size n with the generalized log-gamma random values.
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
-#' rglg(10,location=-1,scale=0.5,shape=1)
+#' u <- rglg(100, location = 0, scale = 1, shape = -1)
 #' @export rglg
 rglg = function(n, location, scale, shape) {
     if (missingArg(location))

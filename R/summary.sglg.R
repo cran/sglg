@@ -14,7 +14,7 @@ summary.sglg <- function(object, ...) {
         print(object$censored)
         cat("\n ------------------------ Location model ---------------------- \n\n")
 
-        cat(" ---------- Parametric component ----------\n\n")
+        cat(" -------------------- Parametric component --------------------\n\n")
         p <- object$p
         Estimate <- object$mu
         StdErr <- object$st_error[1:p]
@@ -25,7 +25,7 @@ summary.sglg <- function(object, ...) {
         rownames(table) <- colnames(object$X)
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
-        cat("\n -------------------- Scale parameter -------------------- \n\n")
+        cat("\n ----------------------- Scale parameter ---------------------- \n\n")
         Estimate <- object$sigma
         StdErr <- object$st_error[p + 1]
         tval <- Estimate/StdErr
@@ -35,7 +35,7 @@ summary.sglg <- function(object, ...) {
         rownames(table) <- colnames("sigma")
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
-        cat("\n -------------------- Shape parameter -------------------- \n\n")
+        cat("\n ---------------------- Shape parameter ---------------------- \n\n")
         Estimate <- object$lambda
         StdErr <- object$st_error[p + 2]
         tval <- Estimate/StdErr
@@ -45,14 +45,14 @@ summary.sglg <- function(object, ...) {
         rownames(table) <- colnames("lambda")
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = TRUE, tst.ind = c(2, 3))
-        cat(" ------------------------------------------------------------\n\n")
+        cat(" -------------------------------------------------------------\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
-        cat(" ------ Penalized Log-likelihood ------\n\n")
+        cat(" ----------------- Penalized Log-likelihood ------------------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
-        cat(" ------ Information criterion ------\n\n")
+        cat(" ------------------ Information criterion --------------------\n\n")
         cat(" AIC: ", round(object$AIC, digits = 2), "\n")
         cat(" BIC: ", round(object$BIC, digits = 2), "\n\n")
-        cat(" --------------------------------------------------------------\n")
+        cat(" -------------------------------------------------------------\n")
     }
     if (object$semi == FALSE & object$censored == TRUE) {
         cat(" -------------------------------------------------------------- ")
@@ -76,7 +76,7 @@ summary.sglg <- function(object, ...) {
         rownames(table) <- colnames(object$X)
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
-        cat("\n -------------------- Scale parameter -------------------- \n\n")
+        cat("\n --------------------- Scale parameter --------------------- \n\n")
         Estimate <- object$sigma
         StdErr <- object$st_error[p + 1]
         tval <- Estimate/StdErr
@@ -89,9 +89,9 @@ summary.sglg <- function(object, ...) {
         cat(" ------------------------------------------------------------\n\n")
         cat(" Shape: ", round(object$lambda, digits = 2), "\n\n")
         cat(" Deviance: ", round(object$deviance, digits = 2), "\n\n")
-        cat(" ------ Penalized Log-likelihood ------\n\n")
+        cat(" ----------------- Penalized Log-likelihood -----------------\n\n")
         cat(" Log-lik: ", round(object$llglg, digits = 2), "\n\n")
-        cat(" ------ Information criterion ------\n\n")
+        cat(" ------------------ Information criterion -------------------\n\n")
         cat(" AIC: ", round(object$AIC, digits = 2), "\n")
         cat(" BIC: ", round(object$BIC, digits = 2), "\n\n")
         cat(" --------------------------------------------------------------\n")
@@ -103,7 +103,7 @@ summary.sglg <- function(object, ...) {
         cat(" Sample size: ", length(object$y_est))
         cat(" Censored: ")
         print(object$censored)
-        cat("\n ------------------------ Location model ---------------------- \n\n")
+        cat("\n ---------------------- Location model --------------------- \n\n")
 
         cat(" ---------- Parametric component ----------\n\n")
         p <- object$p
@@ -138,7 +138,7 @@ summary.sglg <- function(object, ...) {
         rownames(table) <- colnames("sigma")
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
-        cat("\n -------------------- Shape parameter -------------------- \n\n")
+        cat("\n --------------------- Shape parameter -------------------- \n\n")
         Estimate <- object$lambda
         StdErr <- object$st_error[p + Tknot + 2]
         tval <- Estimate/StdErr

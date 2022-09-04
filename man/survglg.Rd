@@ -60,6 +60,8 @@ summary(fit3)
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros. In preparation.
+
+Cardozo C.A.,  Paula G., and Vanegas L. (2022). Generalized log-gamma additive partial linear models with P-spline smoothing. Statistical Papers.
 }
 \author{
 Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>

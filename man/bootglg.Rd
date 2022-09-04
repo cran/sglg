@@ -2,54 +2,68 @@
 % Please edit documentation in R/bootglg.R
 \name{bootglg}
 \alias{bootglg}
-\title{Bootstrap inference for a generalized log-gamma distribution}
+\title{Bootstrap inference for a generalized log-gamma regression}
 \usage{
-bootglg(y, R, alpha = 0.05, method, type)
+bootglg(formula, data, B = 500, alpha = 0.05, type = "normal", plt_den = FALSE)
 }
 \arguments{
-\item{y}{vector, a numeric random sample.}
+\item{formula}{a symbolic description of the systematic component of the model to be fitted.}
 
-\item{R}{integer, represents the number of replications. Default value is 1000.}
+\item{data}{data.frame, contains the variables in the formula object.}
+
+\item{B}{integer, represents the number of bootstrap replications. Default value is 500.}
 
 \item{alpha}{numeric, represents a confidence level for the bootstrap intervals. Default value is 0.05.}
-
-\item{method}{character, indicates the type of bootstrap 'Nonparametric' or 'Parametric'. Default value is 'Parametric'.}
 
 \item{type}{character, indicates the type of bootstrap confidence interval for the estimated parameters. The options are:
 'normal', 't_student' or 'bootstrap_t'. These intervals used the bootstrap estimated standard error of the ML estimates of the parameters.
 Other kind of bootstrap intervals are the percentile-type intervals. We offer the option 'BCa'. It is a bias-corrected and accelerated percentile interval.
  The default value for the 'type' argument is 'normal'.}
+
+\item{plt_den}{boolean value, to request a density-type plot of the bootstrap estimates. Default value is FALSE.}
 }
 \value{
-\code{ml_estimates} is a vector of maximum likelihood estimates associated with the location, scale, and shape parameters.
+\code{ml_estimates} is a vector of maximum likelihood estimates associated with the coefficients of linear structure, scale, and shape parameters.
 
-\code{boot_mean_estimates} is a vector of mean of the bootstrap estimates associated with the location, scale, and shape parameters.
+\code{boot_mean_estimates} is a vector of mean of the bootstrap estimates associated with the coefficients of linear structure, scale, and shape parameters.
 
-\code{boot_bias_estimates} is a vector of bootstrap estimate of bias associated with the location, scale, and shape estimators.
+\code{boot_bias_estimates} is a vector of bootstrap estimate of bias associated with the coefficients of linear structure, scale, and shape estimators.
 
-\code{boot_sd_estimates} is a vector of bootstrap standard errors of the estimates associated with the location, scale, and shape estimators.
+\code{boot_sd_estimates} is a vector of bootstrap standard errors of the estimates associated with the coefficients of linear structure, scale, and shape estimators.
 
 \code{type} indicates the type of confidence intervals.
 
-\code{intervals} array of the confidence intervals of the location,scale and shape.
+\code{intervals} array of the confidence intervals of the coefficients of linear structure, scale, and shape.
 }
 \description{
-\code{bootglg} is used to generate bootstrap inference, such as, estimated standard errors and approximate confidence intervals for the parameters of a generalized log-gamma distribution.
+\code{bootglg} is used to generate parametric bootstrap inference, such as, estimated standard errors and approximate confidence intervals for a generalized log-gamma regression.
 }
 \examples{
+##################################################################################################
 set.seed(1)
-y <- rglg(200,location=0,scale=0.5,shape=1)
-\dontrun{
-bootglg(y,R=500,method='Parametric',type='normal',alpha=0.02)
-bootglg(y,R=500,method='Nonparametric',type='t_student')
-bootglg(y,R=500,method='Parametric',type='bootstrap_t')
-bootglg(y,R=500,method='Nonparametric',type='BCa')
-}
+n <- 300
+x1 <- runif(n, 0, 1)
+t_beta  <- 1.2
+t_sigma <- 0.5
+t_lambda <- 0.7
+error <- rglg(n, 0, t_sigma, t_lambda)
+y1 <- t_beta*x1 + error
+data <- data.frame(y1, x1)
+# The following examples are based on 50 bootstrap replications.
+# A 90\% bootstrap confidence interval with the method 'normal'.
+bootglg(y1 ~ x1 - 1, data = data, type='normal', B = 50, alpha = 0.1)
+# A 95\% bootstrap confidence interval with the method 't_student'.
+bootglg(y1 ~ x1 - 1, data = data, type='t_student', B = 50)
+# A 95\% bootstrap confidence interval with the method 'bootstrap_t'.
+bootglg(y1 ~ x1 - 1, data = data, type='bootstrap_t', B = 50)
+# A 98\% bootstrap confidence interval with the method 'BCa'.
+# bootglg(y1 ~ x1 - 1, data = data, type='BCa', B = 50, alpha = 0.02)
+#################################################################################################
 }
 \references{
-Cardozo C, Paula G and Vanegas L. sglg: An R package to fit semi-parametric generalized log-gamma regression models. In preparation.
+Cardozo C. A., Paula G. and Vanegas L. sglg: An R package to fit semi-parametric generalized log-gamma regression models. In preparation.
 
-Efron B and Tibshirani R (1993). An introduction to the Bootstrap. Chapman-Hall.
+Efron B and Tibshirani R (1993). An introduction to the Bootstrap. Chapman & Hall, Inc.
 }
 \author{
 Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>

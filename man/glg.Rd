@@ -7,7 +7,7 @@
 glg(
   formula,
   data,
-  shape = 0.2,
+  shape = -0.75,
   Tolerance = 5e-05,
   Maxiter = 1000,
   format = "complete",
@@ -15,9 +15,9 @@ glg(
 )
 }
 \arguments{
-\item{formula}{a symbolic description of the systematic component of the model to be fitted. See details for further information.}
+\item{formula}{a symbolic description of the systematic component of the model to be fitted.}
 
-\item{data}{an optional data frame, list containing the variables in the model.}
+\item{data}{a data frame with the variables in the model.}
 
 \item{shape}{an optional value for the shape parameter of the error distribution of a generalized log-gamma distribution. Default value is 0.2.}
 
@@ -45,8 +45,8 @@ Deviance the deviance associated with the model.
 In this setup, the location parameter of the response variable is explicitly modeled by a linear function of the parameters.
 }
 \examples{
-set.seed(21)
-rows <- 120
+set.seed(22)
+rows <- 300
 x1 <- rbinom(rows, 1, 0.5)
 x2 <- runif(rows, 0, 1)
 X <- cbind(x1,x2)
@@ -59,12 +59,14 @@ t_sigma <- 1
 #                    #
 ######################
 
-t_lambda <- 1 # 1 -0.9
+t_lambda <- 1
 error <- rglg(rows, 0, 1, t_lambda)
-y1 <- X \%*\%t_beta + t_sigma * error
-data.example <- data.frame(y1,X)               #    uq
-fit <- glg(y1 ~ x1 + x2 - 1,data=data.example) # 4.002952
-logLik(fit) # -183.907
+y1 <- error
+y1 <- X \%*\%t_beta + t_sigma*error
+data.example <- data.frame(y1,X)
+data.example <- data.frame(y1)
+fit <- glg(y1 ~ x1 + x2 - 1, data=data.example)
+logLik(fit) # -449.47  # Time: 14 milliseconds
 summary(fit)
 deviance_residuals(fit)
 #############################
@@ -94,6 +96,8 @@ coefficients(fit2)
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
+
+Cardozo C.A.,  Paula G., and Vanegas L. (2022). Generalized log-gamma additive partial linear models with P-spline smoothing. Statistical Papers.
 }
 \author{
 Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>

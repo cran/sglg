@@ -14,6 +14,7 @@
 #' @return interval estimate of a 95\% confidence interval for each estimate parameters associated with the model.
 #' @return Deviance the deviance associated with the model.
 #' @references Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros. In preparation.
+#' @references Cardozo C.A.,  Paula G., and Vanegas L. (2022). Generalized log-gamma additive partial linear models with P-spline smoothing. Statistical Papers.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' require(survival)
@@ -45,13 +46,12 @@
 #' @import methods
 #' @export survglg
 survglg = function(formula, data, shape, Maxiter, Tolerance) {
-    if (missingArg(formula)) {
+    if (missingArg(formula))
         stop("The formula argument is missing.")
-    }
-    if (missingArg(data)) {
+    if (missingArg(data))
         stop("The data argument is missing.")
-    }
-
+    if (!is.data.frame(data))
+        stop("The data argument must be a data frame.")
     if (missingArg(Tolerance))
         Tolerance <- 1e-04
     if (missingArg(Maxiter))
@@ -59,14 +59,9 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
     if (missingArg(shape))
         shape <- 1
 
-    if (class(data) == "list")
-        data <- as.data.frame(data)
-
     data <- model.frame(formula, data = data)
-
     X <- model.matrix(formula, data = data)
     p <- ncol(X)
-
     Y <- cbind(data[, 1][, 1], data[, 1][, 2])
     Delta <- as.factor(Y[, 2])
     y <- Y[, 1][Delta == 0]
@@ -74,12 +69,10 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
     Delta <- as.numeric(as.vector(Delta))
     per.censo <- 100 * mean(Delta)
     datus <- data.frame(y, XX)
-
     formula2 <- formula
     formula2 <- Formula(formula2)
     formula2 <- formula(formula2, lhs = 0)
     formula2 <- update(formula2, y ~ .)
-
  ############################################################################################################################################################
 
     fit0 <- glg(formula2, data = datus, format='simple')

@@ -21,6 +21,7 @@
 #' @return Deviance the deviance associated with the model.
 
 #' @references Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros: Censored case. In preparation.
+#' @references Cardozo C.A.,  Paula G., and Vanegas L. (2022). Generalized log-gamma additive partial linear models with P-spline smoothing. Statistical Papers.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' require(survival)
@@ -69,13 +70,12 @@
 #' @export ssurvglg
 #'
 ssurvglg = function(formula, npc, basis, data, shape, alpha0, Maxiter, Tolerance) {
-    if (missingArg(formula)) {
+    if (missingArg(formula))
         stop("The formula argument is missing.")
-    }
-    if (missingArg(data)) {
+    if (missingArg(data))
         stop("The data argument is missing.")
-    }
-
+    if (!is.data.frame(data))
+        stop("The data argument must be a data frame.")
     if (missingArg(Tolerance))
         Tolerance <- 1e-04
     if (missingArg(Maxiter))
@@ -84,10 +84,6 @@ ssurvglg = function(formula, npc, basis, data, shape, alpha0, Maxiter, Tolerance
         shape <- 1
     if (missingArg(basis))
         basis = rep("deBoor", dim(npc)[2])
-
-    if (class(data) == "list")
-        data <- as.data.frame(data)
-
     data1 <- model.frame(formula, data = data)
     X <- model.matrix(formula, data1)
     Y <- model.response(data1)

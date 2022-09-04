@@ -7,20 +7,23 @@
 pglg(x, location, scale, shape)
 }
 \arguments{
-\item{x}{numeric, a real number.}
+\item{x}{numeric, a vector of real values.}
 
-\item{location}{numeric, represent the location parameter of a generalized log-gamma distribution. Default value is 0.}
+\item{location}{numeric, represents the location parameter of a generalized log-gamma distribution. Default value is 0.}
 
-\item{scale}{numeric, represent the scale parameter of a generalized log-gamma distribution. Default value is 1.}
+\item{scale}{numeric, represents the scale parameter of a generalized log-gamma distribution. Default value is 1.}
 
-\item{shape}{numeric, represent the shape parameter of a generalized log-gamma distribution. Default value is 1.}
+\item{shape}{numeric, represents the shape parameter of a generalized log-gamma distribution. Default value is 1.}
+}
+\value{
+A vector with the same size of x with the cumulative probability values of a generalized log-gamma distribution.
 }
 \description{
 \code{pglg} is used to calculate the cumulative distribution function of a generalized log-gamma variable at x.
 }
 \examples{
 x <- runif(3,-1,1)
-pglg(sort(x),location=0.5,scale=1,shape=1)
+pglg(sort(x),location=0, scale=1, shape=1)
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.

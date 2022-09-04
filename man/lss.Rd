@@ -4,7 +4,7 @@
 \alias{lss}
 \title{Measures of location, scale and shape measures for a generalized log-gamma distribution}
 \usage{
-lss(mu, sigma, lambda)
+lss(mu = 0, sigma = 1, lambda = 1)
 }
 \arguments{
 \item{mu}{numeric, represents the location parameter of a generalized log-gamma distribution. Default value is 0.}

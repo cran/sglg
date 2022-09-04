@@ -2,25 +2,29 @@
 % Please edit documentation in R/qglg.R
 \name{qglg}
 \alias{qglg}
-\title{Quantile function for a generalized log-gamma variable}
+\title{Quantile function for a generalized log-gamma distribution}
 \usage{
 qglg(x, location, scale, shape)
 }
 \arguments{
-\item{x}{numeric, a real number between 0 and 1.}
+\item{x}{numeric, a vector with values between 0 and 1.}
 
-\item{location}{numeric, represent the location parameter of a generalized log-gamma distribution. Default value is 0.}
+\item{location}{numeric, represents the location parameter of a generalized log-gamma distribution. Default value is 0.}
 
-\item{scale}{numeric, represent the scale parameter of a generalized log-gamma distribution. Default value is 1.}
+\item{scale}{numeric, represents the scale parameter of a generalized log-gamma distribution. Default value is 1.}
 
-\item{shape}{numeric, represent the shape parameter of a generalized log-gamma distribution. Default value is 1.}
+\item{shape}{numeric, represents the shape parameter of a generalized log-gamma distribution. Default value is 1.}
+}
+\value{
+A vector with the same size of x with the quantile values of a generalized log-gamma distribution.
 }
 \description{
 \code{qglg} is used to calculate the quantile function of a generalized log-gamma variable at x.
 }
 \examples{
-x <- runif(3,0,1)
-qglg(sort(x),location=0,scale=1,shape=1)
+# Calculating the quartiles of a glg(0,1,-1) distribution
+x <- c(0.25, 0.5, 0.75)
+qglg(x, location = 0, scale = 1, shape = -1)
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.

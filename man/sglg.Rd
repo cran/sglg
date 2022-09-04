@@ -61,7 +61,7 @@ natural cubic splines or cubic P-splines.
 }
 \examples{
 set.seed(1)
-rows<- 200
+rows<- 300
 t_beta <- c(0.5,2)
 t_sigma <- 0.5
 t_lambda <- 1
@@ -75,16 +75,16 @@ error <- rglg(rows,0,1,t_lambda)
 y <- X \%*\%t_beta + f_t + t_sigma*error
 colnames(y) <- "y"
 data <- data.frame(y,X,t)
-fit1 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "deBoor",alpha0 = 0.1)
-logLik(fit1) # -195.4538
+fit1 <- sglg(y ~ x1 + x2 - 1, npc = t, data = data, basis = "deBoor", alpha0 = 0.1)
+logLik(fit1) # -288.1859 time: 90 milliseconds
 quantile_residuals(fit1)
-fit2 <- sglg(y ~ x1 + x2 - 1,npc=t,data=data,basis = "Gu",alpha0=0.5)
+fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.005)
 logLik(fit2)
 #################################################
 # An example with two non-parametric components #
 #################################################
 set.seed(2)
-t_2 <- as.matrix(rnorm(rows,sd=0.5))
+t_2 <- as.matrix(rnorm(rows, sd = 0.5))
 colnames(t_2) <- 't_2'
 f_t_2 <- exp(t_2)
 error <- rglg(rows,0,1,t_lambda)
@@ -92,12 +92,12 @@ y_2 <- X \%*\%t_beta + f_t + f_t_2 + t_sigma*error
 colnames(y_2) <- 'y_2'
 data2 <- data.frame(y_2,X,t,t_2)
 npcs <- cbind(t,t_2)
-fit3 <- sglg(y_2 ~ x1 + x2 - 1, npc=npcs, data=data2, alpha0 = c(0.45,0.65))
+fit3 <- sglg(y_2 ~ x1 + x2 - 1, npc = npcs, data = data2, alpha0 = c(0.45,0.65))
 logLik(fit3)
 #############################################################################
 }
 \references{
-Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric generalized log-gamma regression models. In preparation.
+Cardozo C.A.,  Paula G., and Vanegas L. (2022). Generalized log-gamma additive partial linear models with P-spline smoothing. Statistical Papers.
 }
 \author{
 Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>

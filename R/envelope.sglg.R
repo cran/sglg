@@ -7,6 +7,7 @@
 #' @param Rep a positive integer. This is the number of replications on which to build the simulated envelope. Default is Rep=50.
 
 #' @references  Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
+#' @references Cardozo C.A.,  Paula G., and Vanegas L. (2022). Generalized log-gamma additive partial linear models with P-spline smoothing. Statistical Papers.
 #' @references  Ortega, E., Paula, G. A. and Bolfarine, H. (2008) Deviance residuals in generalized log-gamma regression models with censored observations. Journal of Statistical Computation and Simulation, 78, 747-764.
 
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
