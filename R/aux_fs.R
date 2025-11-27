@@ -1,14 +1,12 @@
 # Normalizing function LL
 c_l <- function(lambd){
-       if (abs(lambd) < 0.15){
-           if (lambd > 0) lambd <- 0.15
-           else lambd <- -0.15
+       if (abs(lambd) < 0.1){
+           if (lambd > 0) lambd <- 0.1
+           else lambd <- -0.1
     }
   invlambdos <- 1/lambd^2
   c <- abs(lambd)/gamma(invlambdos)
   output <- c * (invlambdos^invlambdos)
-  #lc <- log(abs(lambd)) - lgamma(invlambdos)
-  #output <- lc + invlambdos*log(invlambdos)
   return(output)
 }
 

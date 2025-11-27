@@ -1,6 +1,6 @@
 #' Survival, Hazard, and Cumulative Hazard functions for a Generalized Gamma Distribution
 #'
-#'\code{survival_gg} is used to obtain the value of survival, hazard and cumulative hazard functions of a generalized gamma distribution at a positive value.
+#'\code{survival_gg} is used to obtain the value of survival, hazard, and cumulative hazard functions of a generalized gamma distribution at a positive value.
 #' @param x numeric, represent a vector of positive values. Default value is 1.
 #' @param mu numeric, represents the location parameter of a generalized gamma distribution. Default value is 0.
 #' @param sigma numeric, represents the scale parameter of a generalized gamma distribution. Default value is 1.

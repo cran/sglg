@@ -7,7 +7,7 @@
 glg(
   formula,
   data,
-  shape = -0.75,
+  shape = 0.75,
   Tolerance = 5e-05,
   Maxiter = 1000,
   format = "complete",
@@ -46,7 +46,7 @@ In this setup, the location parameter of the response variable is explicitly mod
 }
 \examples{
 set.seed(22)
-rows <- 300
+rows <- 200
 x1 <- rbinom(rows, 1, 0.5)
 x2 <- runif(rows, 0, 1)
 X <- cbind(x1,x2)
@@ -59,14 +59,14 @@ t_sigma <- 1
 #                    #
 ######################
 
-t_lambda <- 1
+t_lambda <- -1
 error <- rglg(rows, 0, 1, t_lambda)
 y1 <- error
 y1 <- X \%*\%t_beta + t_sigma*error
 data.example <- data.frame(y1,X)
-data.example <- data.frame(y1)
 fit <- glg(y1 ~ x1 + x2 - 1, data=data.example)
-logLik(fit) # -449.47  # Time: 14 milliseconds
+fit$condition
+logLik(fit)
 summary(fit)
 deviance_residuals(fit)
 #############################

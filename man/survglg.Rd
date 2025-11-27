@@ -13,7 +13,7 @@ survglg(formula, data, shape, Maxiter, Tolerance)
 
 \item{shape}{an optional value for the shape parameter of the model.}
 
-\item{Maxiter}{an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.}
+\item{Maxiter}{an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 500.}
 
 \item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 1e-04.}
 }
@@ -34,18 +34,18 @@ In this setup, the location parameter of the logarithm of the response variable 
 }
 \examples{
 require(survival)
-rows  <- 240
+rows  <- 5000
 columns <- 2
 t_beta  <- c(0.5, 2)
 t_sigma <- 1
 set.seed(8142031)
 x1 <- rbinom(rows, 1, 0.5)
-x2 <- runif(columns, 0, 1)
+x2 <- runif(rows, 0, 1)
 X <- cbind(x1,x2)
 s         <- t_sigma^2
 a         <- 1/s
-t_ini1    <- exp(X \%*\% t_beta) * rgamma(rows, scale = s, shape = a)
-cens.time <- rweibull(rows, 0.3, 14)
+t_ini1    <- exp(X \%*\% t_beta) * rweibull(rows, scale = s, shape = a)
+cens.time <- rweibull(rows, 0.75, 20)
 delta1     <- ifelse(t_ini1 > cens.time, 1, 0)
 obst1 <- t_ini1
 for (i in 1:rows) {
@@ -54,9 +54,11 @@ if (delta1[i] == 1) {
   }
 }
 data.example <- data.frame(obst1,delta1,X)
-fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example,shape=0.9)
+fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example, shape = 1)
 logLik(fit3)
 summary(fit3)
+fit4 <- survreg(Surv(obst1,delta1) ~ x1 + x2 - 1, data=data.example, dist = 'weibull')
+summary(fit4)
 }
 \references{
 Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros. In preparation.

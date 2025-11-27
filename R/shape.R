@@ -21,7 +21,7 @@
 #' t_lambda <- 1
 #' set.seed(8142031)
 #' x1 <- rbinom(rows, 1, 0.5)
-#' x2 <- runif(columns, 0, 1)
+#' x2 <- runif(rows, 0, 1)
 #' X <- cbind(x1,x2)
 #' s         <- t_sigma^2
 #' a         <- 1/s
@@ -38,7 +38,7 @@
 #' lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example)
 #' lambda
 #' # To change interval or step or both options
-#' lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example, interval=c(0.95,1.3), step=0.05)
+#' lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example, interval=c(0.9,1.3), step=0.01)
 #' lambda
 #' @export shape
 
@@ -46,7 +46,7 @@ shape = function(formula, npc, data, interval, semi, step){
     if (missingArg(interval))
         interval <- c(0.1, 1.5)
     if (missingArg(step))
-        step <- 0.1
+        step <- 0.05
     if (missingArg(semi))
         semi = FALSE
     if (semi == TRUE & missingArg(npc))

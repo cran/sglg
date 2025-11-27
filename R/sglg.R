@@ -44,7 +44,7 @@
 #' data <- data.frame(y,X,t)
 #' fit1 <- sglg(y ~ x1 + x2 - 1, npc = t, data = data, basis = "deBoor", alpha0 = 0.1)
 #' logLik(fit1) # -288.1859 time: 90 milliseconds
-#' quantile_residuals(fit1)
+#' quantile_sglg(fit1)
 #' fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.005)
 #' logLik(fit2)
 #' #################################################
@@ -64,7 +64,7 @@
 #' #############################################################################
 #' @import methods
 #' @export sglg
-#'
+
 sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, Tolerance = 5e-05, Maxiter = 1000, format = 'complete') {
   if (missingArg(formula))
     stop("The formula argument is missing.")

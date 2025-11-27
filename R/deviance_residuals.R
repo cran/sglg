@@ -18,7 +18,7 @@
 #'error <- rglg(n,0,1,1)
 #'x <- runif(n,-3,3)
 #'y <- 0.5 +  2*x + error
-#'fit <- glg(y~x,data=as.data.frame(y,x))
+#'fit <- glg(y~x,data=data.frame(y,x))
 #'deviance_residuals(fit)
 #'
 #'@importFrom plotly ggplotly subplot

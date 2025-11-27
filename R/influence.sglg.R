@@ -1,6 +1,6 @@
-#' influence
+#' case-weight scheme
 #'
-#' influence.sglg extracts from a object of class sglg the local influence measures and displays their graphs versus the index of the observations.
+#' cweight_scheme extracts from a object of class sglg the local influence measures and displays their graphs versus the index of the observations.
 #'
 #' @param model an object of the class sglg. This object is returned from the call to glg(), sglg(), survglg() or ssurvglg().
 #' @param ... other arguments.
@@ -21,10 +21,10 @@
 #' y1 <- X %*%t_beta + t_sigma * error
 #' data.example <- data.frame(y1,X)
 #' fit1 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-#' influence(fit1)
+#' cweight_scheme(fit1)
 #' @importFrom plotly ggplotly subplot
-#' @export
-influence.sglg <- function(model, ...) {
+#' @export cweight_scheme
+cweight_scheme <- function(model, ...) {
     epsil <- model$rord
     plot1 <- ggplot()
     plot2 <- ggplot()
@@ -73,72 +73,29 @@ influence.sglg <- function(model, ...) {
 
             vls1 <- abs(Cmax)
             df1 <- as.data.frame(vls1)
+            up_limit_li <- mean(vls1) + 3*sd(vls1)
             plot1 <- ggplot(data=df1,aes(1:n,vls1)) +
             geom_point(colour="orange",alpha=0.75) +
             ggtitle("Case-weight perturbation") +
             xlab("Index") +
+            geom_hline(yintercept=up_limit_li) +
             ylab("Local Influence")
 
             vls2 <- dCNC
             df2 <- as.data.frame(vls2)
+            up_limit_tli <- mean(vls2) + 3*sd(vls2)
             plot2 <- ggplot(data=df2,aes(1:n,vls2)) +
             geom_point(colour="orange",alpha=0.75) +
             ggtitle("Case-weight perturbation") +
             xlab("Index") +
+            geom_hline(yintercept=up_limit_tli) +
             ylab("Total Local Influence")
 
             return(list(plot1=plot1,plot2=plot2))
             }
 
-        respert <- function(model) {
-
-            D = function(epsilon, lambd) {
-                w <- as.vector(exp(lambd * epsilon))
-                D_eps <- diag(w, n, n)
-                return(D_eps)
-            }
-            Ds <- D(epsil, model$lambda)
-
-            Delt_gammas <- (1/model$sigma^2) * t(Xbar) %*% Ds
-            Delt_sw <- (1/model$sigma * model$lambda^2) * (Ds %*% (model$lambda *
-                epsil + 1) - 1)
-            Delt_lw <- (1/model$sigma * (model$lambda^2)) * (-1 + Ds %*%
-                (1 - model$lambda * epsil))
-
-            Delta <- Delt_gammas
-            Delta <- rbind(Delta, t(Delt_sw))
-            Delta <- rbind(Delta, t(Delt_lw))
-
-            NC = t(Delta) %*% model$Itheta %*% Delta
-            norm = sqrt(sum(diag(t(NC) %*% NC)))
-            CNC = NC/norm
-            Eigen = eigen(CNC)
-            Cmax = Eigen$vectors[, 1]
-            dCNC = diag(CNC)
-
-            vls3 <- abs(Cmax)
-            df3 <- as.data.frame(vls3)
-            plot3 <- ggplot(data=df3,aes(1:n,vls3)) +
-              geom_point(colour="orange",alpha=0.75) +
-              ggtitle("Response Perturbation") +
-              xlab("Index") +
-              ylab("Local Influence")
-
-            vls4 <- dCNC
-            df4 <- as.data.frame(vls4)
-            plot4 <- ggplot(data=df4,aes(1:n,vls4)) +
-              geom_point(colour="orange",alpha=0.75) +
-              ggtitle("Response Perturbation") +
-              xlab("Index") +
-              ylab("Total Local Influence")
-
-            return(list(plot3=plot3,plot4=plot4))
-
-        }
-
         plots_cw <- cweight(model)
-        plots_r <- respert(model)
-        return(subplot(ggplotly(plots_cw$plot1), ggplotly(plots_cw$plot2), ggplotly(plots_r$plot3), ggplotly(plots_r$plot4)))
+        return(subplot(ggplotly(plots_cw$plot1), ggplotly(plots_cw$plot2)))
     }
     else{
          delta <- model$delta

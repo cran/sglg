@@ -7,7 +7,7 @@
 #' @param data an optional data frame, list containing the variables in the model.
 #' @param shape an optional value for the shape parameter of the model.
 #' @param Tolerance an optional positive value, which represents the convergence criterion. Default value is 1e-04.
-#' @param Maxiter an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.
+#' @param Maxiter an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 500.
 #' @return mu a vector of parameter estimates asociated with the location parameter.
 #' @return sigma estimate of the scale parameter associated with the model.
 #' @return lambda estimate of the shape parameter associated with the model.
@@ -18,18 +18,18 @@
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' require(survival)
-#' rows  <- 240
+#' rows  <- 5000
 #' columns <- 2
 #' t_beta  <- c(0.5, 2)
 #' t_sigma <- 1
 #' set.seed(8142031)
 #' x1 <- rbinom(rows, 1, 0.5)
-#' x2 <- runif(columns, 0, 1)
+#' x2 <- runif(rows, 0, 1)
 #' X <- cbind(x1,x2)
 #' s         <- t_sigma^2
 #' a         <- 1/s
-#' t_ini1    <- exp(X %*% t_beta) * rgamma(rows, scale = s, shape = a)
-#' cens.time <- rweibull(rows, 0.3, 14)
+#' t_ini1    <- exp(X %*% t_beta) * rweibull(rows, scale = s, shape = a)
+#' cens.time <- rweibull(rows, 0.75, 20)
 #' delta1     <- ifelse(t_ini1 > cens.time, 1, 0)
 #' obst1 <- t_ini1
 #' for (i in 1:rows) {
@@ -38,9 +38,11 @@
 #'   }
 #' }
 #' data.example <- data.frame(obst1,delta1,X)
-#' fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example,shape=0.9)
+#' fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example, shape = 1)
 #' logLik(fit3)
 #' summary(fit3)
+#' fit4 <- survreg(Surv(obst1,delta1) ~ x1 + x2 - 1, data=data.example, dist = 'weibull')
+#' summary(fit4)
 #' @import Formula
 #' @import survival
 #' @import methods
@@ -55,9 +57,9 @@ survglg = function(formula, data, shape, Maxiter, Tolerance) {
     if (missingArg(Tolerance))
         Tolerance <- 1e-04
     if (missingArg(Maxiter))
-        Maxiter <- 1000
+        Maxiter <- 500
     if (missingArg(shape))
-        shape <- 1
+        shape <- 0.5
 
     data <- model.frame(formula, data = data)
     X <- model.matrix(formula, data = data)

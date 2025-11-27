@@ -48,6 +48,7 @@ n <- 200
 k <- 100
 system.time(order_sample(N,n,k))
 sample_1 <- order_sample(N,n,k)
+par(mfrow=c(1,2))
 hist(sample_1)
 summary(sample_1)
 # Method 2

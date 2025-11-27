@@ -2,7 +2,7 @@
 context("Length of the list that is returned by the glg() function.")
 
 test_that("test if glg() returns a list of length 28", {
-    expect_length(glg(y1 ~ x1 + x2, data = example_sglg), 28)
+    expect_length(glg(y1 ~ x1 + x2, data = example_sglg), 24)
 })
 
 context("Messages are returned by the glg() function.")

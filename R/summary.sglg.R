@@ -9,17 +9,19 @@ summary.sglg <- function(object, ...) {
         cat(" -------------------------------------------------------------- ")
         cat("\n Semi-parametric generalized log-gamma regression model \n")
         cat(" --------------------------------------------------------------\n")
-        cat(" Sample size: ", length(object$y_est))
-        cat(" Censored: ")
-        print(object$censored)
+        cat(" Sample size: ", object$size)
+        cat("\n Censored sample: ", object$censored)
+        cat("\n Formula: ")
+        print(object$formula)
         cat("\n ------------------------ Location model ---------------------- \n\n")
 
         cat(" -------------------- Parametric component --------------------\n\n")
         p <- object$p
         Estimate <- object$mu
-        StdErr <- object$st_error[1:p]
+        ste <- sqrt(diag(solve(object$Itheta)))
+        StdErr <- ste[1:p]
         tval <- Estimate/StdErr
-        p.value <- object$p.values[1:p]
+        p.value <- 1 - (pnorm(abs(tval)) - pnorm(-abs(tval)))
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames(object$X)
@@ -27,9 +29,9 @@ summary.sglg <- function(object, ...) {
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat("\n ----------------------- Scale parameter ---------------------- \n\n")
         Estimate <- object$sigma
-        StdErr <- object$st_error[p + 1]
+        StdErr <- ste[p + 1]
         tval <- Estimate/StdErr
-        p.value <- object$p.values[p + 1]
+        p.value <- 1 - (pnorm(abs(tval)) - pnorm(-abs(tval)))
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("sigma")
@@ -37,9 +39,9 @@ summary.sglg <- function(object, ...) {
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat("\n ---------------------- Shape parameter ---------------------- \n\n")
         Estimate <- object$lambda
-        StdErr <- object$st_error[p + 2]
+        StdErr <- ste[p + 2]
         tval <- Estimate/StdErr
-        p.value <- object$p.values[p + 2]
+        p.value <- 1 - (pnorm(abs(tval)) - pnorm(-abs(tval)))
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
         rownames(table) <- colnames("lambda")
@@ -58,7 +60,7 @@ summary.sglg <- function(object, ...) {
         cat(" -------------------------------------------------------------- ")
         cat("\n Semi-parametric generalized log-gamma regression model \n")
         cat(" --------------------------------------------------------------\n")
-        cat(" Sample size: ", length(object$y_est))
+        cat(" Sample size: ", object$size)
         cat(" Censored: ")
         print(object$censored)
         cat(" Percentage of censored observations: ")
@@ -100,9 +102,10 @@ summary.sglg <- function(object, ...) {
         cat(" -------------------------------------------------------------- ")
         cat("\n Semi-parametric generalized log-gamma regression model \n")
         cat(" --------------------------------------------------------------\n")
-        cat(" Sample size: ", length(object$y_est))
-        cat(" Censored: ")
-        print(object$censored)
+        cat(" Sample size: ", object$size)
+        cat("\n Censored: ", object$censored)
+        cat("\n Formula (Linear Component): ")
+        print(object$formula)
         cat("\n ---------------------- Location model --------------------- \n\n")
 
         cat(" ---------- Parametric component ----------\n\n")
@@ -122,8 +125,8 @@ summary.sglg <- function(object, ...) {
         d.f <- round(object$d.f.npc,4)
         BasisD <- Knot
         table <- cbind(Smoothp, BasisD)
-        cat(" Type of basis: ", as.character(object$basis),"\n\n")
-        cat(" Degrees of freedom: ", as.character(d.f),"\n\n")
+        cat(" Basis: ", as.character(object$basis),"\n")
+        cat(" Degrees of freedom: ", as.character(d.f),"\n")
         colnames(table) <- c("Smooth parameter", "Basis dimension")
         rownames(table) <- colnames(object$npc)
         printCoefmat(table)
@@ -161,9 +164,8 @@ summary.sglg <- function(object, ...) {
         cat(" -------------------------------------------------------------- ")
         cat("\n Semi-parametric generalized log-gamma regression model \n")
         cat(" --------------------------------------------------------------\n")
-        cat(" Sample size: ", length(object$y_est))
-        cat(" Censored: ")
-        print(object$censored)
+        cat(" Sample size: ", object$size)
+        cat("\n Censored: ", object$censored)
         cat("\n ------------------------ Location model ---------------------- \n\n")
 
         cat(" ---------- Parametric component ----------\n\n")
