@@ -1,16 +1,14 @@
-# Normalizing function LL
-c_l <- function(lambd){
-       if (abs(lambd) < 0.1){
-           if (lambd > 0) lambd <- 0.1
-           else lambd <- -0.1
-    }
-  invlambdos <- 1/lambd^2
-  c <- abs(lambd)/gamma(invlambdos)
-  output <- c * (invlambdos^invlambdos)
-  return(output)
-}
-
 # Some special functions
+c_l <- function(lambd){
+  if(abs(lambd) < 0.15){
+    output <- -(lambd - 0.15)*(lambd + 0.15) + 7.9813e+18
+    return(output)}
+  if(abs(lambd) >= 0.15){
+    invlambdos <- 1/lambd^2
+    c <- abs(lambd)/gamma(invlambdos)
+    output <- c * (invlambdos^invlambdos)
+    return(output)}
+}
 u_lambda <- function(lambd) {
   invlamb <- 1/lambd^2
   output <- (1/lambd) * (digamma(1 + invlamb) - log(invlamb))

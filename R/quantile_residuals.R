@@ -20,7 +20,7 @@
 #'n <- 500
 #'set.seed(6)
 #'error <- rglg(n,0,0.5,1)
-#'x1 <- runif(n,-2,2)
+#'x1 <- runif(n,-1,1)
 #'beta <- c(0.5,2)
 #'y <- cbind(1,x1)%*%beta + error
 #'data <- data.frame(y=y,x1=x1)
@@ -45,8 +45,8 @@ if(sum(cond_2) > 0)
 left <- 0.995*min(r_quantile)
 rigth <- 1.005*max(r_quantile)
 plot1 <- ggplot(data=as.data.frame(r_quantile),aes(r_quantile)) +  ggtitle("Density Quantile Residuals") + geom_density(colour="orange",fill="orange",alpha=0.3) + xlab("Sample Quantiles") + ylab("Density") + xlim(c(left,rigth)) + geom_hline(yintercept=0)
-plot2 <- ggplot(data=as.data.frame(r_quantile),aes(sample=r_quantile)) + ggtitle("Normal Q-Q Plot") + stat_qq(colour="blue",alpha=0.5) + stat_qq_line(line.p = c(0.05, 0.95)) + xlab("Theoretical Quantiles") + ylab("Sample Quantiles")
+plot2 <- ggplot(data=as.data.frame(r_quantile),aes(sample=r_quantile)) + ggtitle("Normal Q-Q Plot") + stat_qq(colour="blue",alpha=0.5) + stat_qq_line(line.p = c(0.02, 0.98)) + xlab("Theoretical Quantiles") + ylab("Sample Quantiles")
 grid.arrange(plot1, plot2, ncol=2)
-output <- list(mean=round(mean(r_quantile),2),sd= round(sd(r_quantile),2),skew =  round(skewness(r_quantile),2), kurt = round(kurtosis(r_quantile),2))
+output <- list(mean=round(mean(r_quantile),3),sd= round(sd(r_quantile),3),skew =  round(skewness(r_quantile),3), kurt = round(kurtosis(r_quantile),3))
 return(output)
 }

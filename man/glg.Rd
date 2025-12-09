@@ -8,7 +8,7 @@ glg(
   formula,
   data,
   shape = 0.75,
-  Tolerance = 5e-05,
+  Tolerance = 1e-06,
   Maxiter = 1000,
   format = "complete",
   envelope = FALSE
@@ -21,7 +21,7 @@ glg(
 
 \item{shape}{an optional value for the shape parameter of the error distribution of a generalized log-gamma distribution. Default value is 0.2.}
 
-\item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 1e-04.}
+\item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 1e-06.}
 
 \item{Maxiter}{an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.}
 
@@ -45,9 +45,9 @@ Deviance the deviance associated with the model.
 In this setup, the location parameter of the response variable is explicitly modeled by a linear function of the parameters.
 }
 \examples{
-set.seed(22)
+set.seed(2026)
 rows <- 200
-x1 <- rbinom(rows, 1, 0.5)
+x1 <- rnorm(rows, mean=2.5, sd=1)
 x2 <- runif(rows, 0, 1)
 X <- cbind(x1,x2)
 t_beta  <- c(0.5, 2)
@@ -74,15 +74,16 @@ deviance_residuals(fit)
 # Normal case: A limit case #
 #                           #
 #############################
-# When the parameter lambda goes to zero the GLG tends to a standard normal distribution.
-set.seed(8142031)
-y1 <- X \%*\%t_beta + t_sigma * rnorm(rows)
+# When the parameter lambda goes to zero the GLG tends to a normal distribution.
+set.seed(2026)
+y1 <- X \%*\%t_beta + rnorm(rows, mean=0, sd=0.5)
 data.example <- data.frame(y1, X)
 fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-logLik(fit0)
-fit0$AIC
 fit0$mu
-
+fit0$sigma
+fit0$lambda
+fit0$llglg
+fit0$AIC
 ############################################
 #                                          #
 #  A comparison with a normal linear model #
@@ -90,9 +91,9 @@ fit0$mu
 ############################################
 
 fit2 <- lm(y1 ~ x1 + x2 - 1,data=data.example)
+coefficients(fit2)
 logLik(fit2)
 AIC(fit2)
-coefficients(fit2)
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.

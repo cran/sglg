@@ -9,9 +9,10 @@
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
-#' x <- seq(-4,4,length=100)
+#' x <- seq(-7,4.5,length=100)
 #' dglg(x,location=0,scale=1,shape=1)
-#' plot(x,dglg(x,location=0,scale=1,shape=1),type="l",xlab="x",ylab="Density")
+#' plot(x,dglg(x,location=0,scale=1,shape=1),type="l",xlab="x",ylab="Density",col='red')
+#' abline(h=0)
 #' @export dglg
 
 dglg = function(x, location, scale, shape) {

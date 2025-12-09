@@ -28,7 +28,7 @@ quantile_sglg(fit_0)
 n <- 500
 set.seed(6)
 error <- rglg(n,0,0.5,1)
-x1 <- runif(n,-2,2)
+x1 <- runif(n,-1,1)
 beta <- c(0.5,2)
 y <- cbind(1,x1)\%*\%beta + error
 data <- data.frame(y=y,x1=x1)

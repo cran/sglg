@@ -34,7 +34,7 @@ In this setup, the location parameter of the logarithm of the response variable 
 }
 \examples{
 require(survival)
-rows  <- 5000
+rows  <- 500
 columns <- 2
 t_beta  <- c(0.5, 2)
 t_sigma <- 1

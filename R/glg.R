@@ -6,7 +6,7 @@
 #' @param formula a symbolic description of the systematic component of the model to be fitted.
 #' @param data a data frame with the variables in the model.
 #' @param shape an optional value for the shape parameter of the error distribution of a generalized log-gamma distribution. Default value is 0.2.
-#' @param Tolerance an optional positive value, which represents the convergence criterion. Default value is 1e-04.
+#' @param Tolerance an optional positive value, which represents the convergence criterion. Default value is 1e-06.
 #' @param Maxiter an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.
 #' @param format an optional string value that indicates if you want a simple or a complete report of the estimating process. Default value is 'complete'.
 #' @param envelope an optional and internal logical value that indicates if the glg function will be employed for build an envelope plot. Default value is 'FALSE'.
@@ -21,9 +21,9 @@
 #' @references Cardozo C.A.,  Paula G., and Vanegas L. (2022). Generalized log-gamma additive partial linear models with P-spline smoothing. Statistical Papers.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
-#' set.seed(22)
+#' set.seed(2026)
 #' rows <- 200
-#' x1 <- rbinom(rows, 1, 0.5)
+#' x1 <- rnorm(rows, mean=2.5, sd=1)
 #' x2 <- runif(rows, 0, 1)
 #' X <- cbind(x1,x2)
 #' t_beta  <- c(0.5, 2)
@@ -50,15 +50,16 @@
 #' # Normal case: A limit case #
 #' #                           #
 #' #############################
-#' # When the parameter lambda goes to zero the GLG tends to a standard normal distribution.
-#' set.seed(8142031)
-#' y1 <- X %*%t_beta + t_sigma * rnorm(rows)
+#' # When the parameter lambda goes to zero the GLG tends to a normal distribution.
+#' set.seed(2026)
+#' y1 <- X %*%t_beta + rnorm(rows, mean=0, sd=0.5)
 #' data.example <- data.frame(y1, X)
 #' fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-#' logLik(fit0)
-#' fit0$AIC
 #' fit0$mu
-#'
+#' fit0$sigma
+#' fit0$lambda
+#' fit0$llglg
+#' fit0$AIC
 #' ############################################
 #' #                                          #
 #' #  A comparison with a normal linear model #
@@ -66,14 +67,14 @@
 #' ############################################
 #'
 #' fit2 <- lm(y1 ~ x1 + x2 - 1,data=data.example)
+#' coefficients(fit2)
 #' logLik(fit2)
 #' AIC(fit2)
-#' coefficients(fit2)
 #' @import methods
 #' @importFrom Rcpp sourceCpp
 #' @export glg
 
-glg = function(formula, data, shape=0.75, Tolerance=5e-05, Maxiter=1000, format='complete', envelope= FALSE) {
+glg = function(formula, data, shape=0.75, Tolerance=1e-06, Maxiter=1000, format='complete', envelope= FALSE) {
     if (missingArg(formula)) {
         stop("The formula argument is missing.")
     }
@@ -180,9 +181,9 @@ glg = function(formula, data, shape=0.75, Tolerance=5e-05, Maxiter=1000, format=
       dir <-  solve(I) %*% scores
       llglg_ini <- loglikglg(bet, sigm, lambd)
       condition <- -1
-      M <- 0
-      while (condition < 0 & M <= 10) {
-          new <- ini + (0.8**M)*dir
+      M <- 1
+      while (condition < 0 & M <= 100) {
+          new <- ini + (0.95**M)*dir
           llglg_new <- loglikglg(new[1:p], new[p1], new[p2])
           condition <- llglg_new - llglg_ini
           M <- M + 1

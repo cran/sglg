@@ -33,39 +33,41 @@
 #' t_sigma <- 0.5
 #' t_lambda <- 1
 #' x1 <- runif(rows,-3,3)
-#' x2 <- rbinom(rows,1,0.5)
+#' x2 <- rnorm(rows,mean=2.5,sd=0.5)
 #' X <- cbind(x1,x2)
-#' t <- as.matrix((2*1:rows - 1)/(2*rows))
+#' t <- as.matrix(seq(0.01,0.99,length=rows))
 #' colnames(t) <- "t"
 #' f_t <- cos(4*pi*t)
+#' plot(t,f_t,type='l')
 #' error <- rglg(rows,0,1,t_lambda)
 #' y <- X %*%t_beta + f_t + t_sigma*error
 #' colnames(y) <- "y"
 #' data <- data.frame(y,X,t)
 #' fit1 <- sglg(y ~ x1 + x2 - 1, npc = t, data = data, basis = "deBoor", alpha0 = 0.1)
-#' logLik(fit1) # -288.1859 time: 90 milliseconds
+#' logLik(fit1)
 #' quantile_sglg(fit1)
-#' fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.005)
+#' fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.001)
 #' logLik(fit2)
+#' quantile_sglg(fit2)
 #' #################################################
 #' # An example with two non-parametric components #
-#' #################################################
-#' set.seed(2)
-#' t_2 <- as.matrix(rnorm(rows, sd = 0.5))
-#' colnames(t_2) <- 't_2'
-#' f_t_2 <- exp(t_2)
-#' error <- rglg(rows,0,1,t_lambda)
-#' y_2 <- X %*%t_beta + f_t + f_t_2 + t_sigma*error
-#' colnames(y_2) <- 'y_2'
-#' data2 <- data.frame(y_2,X,t,t_2)
-#' npcs <- cbind(t,t_2)
-#' fit3 <- sglg(y_2 ~ x1 + x2 - 1, npc = npcs, data = data2, alpha0 = c(0.45,0.65))
-#' logLik(fit3)
-#' #############################################################################
+#' ################################################################################
+#' #set.seed(2)
+#' #t_2 <- as.matrix(seq(2,4,length=rows))
+#' #colnames(t_2) <- 't_2'
+#' #f_t_2 <- exp(t_2)
+#' #error <- rglg(rows,0,1,t_lambda)
+#' #y_2 <- X %*%t_beta + f_t + f_t_2 + t_sigma*error
+#' #colnames(y_2) <- 'y_2'
+#' #data2 <- data.frame(y_2,X,t,t_2)
+#' #npcs <- cbind(t,t_2)
+#' #fit3 <- sglg(y_2 ~ x1 + x2 - 1, npc = npcs, data = data2, alpha0 = c(0.45,0.65))
+#' #logLik(fit3)
+#' ################################################################################
 #' @import methods
 #' @export sglg
 
-sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, Tolerance = 5e-05, Maxiter = 1000, format = 'complete') {
+sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, Tolerance = 1e-06, Maxiter = 500, format = 'complete'){
   if (missingArg(formula))
     stop("The formula argument is missing.")
   if (missingArg(npc))
@@ -79,13 +81,15 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
   k <- dim(npc)[2]
   if (missingArg(basis))
     basis <- rep("deBoor", k)
+
   ######################################################################################################################################
   ######################################################################################################################################
+
   data1 <- model.frame(formula, data = data)
   X <- model.matrix(formula, data = data1)
   y <- model.response(data1)
   p <- ncol(X)
-  p1 <- p + 1
+  p1 <- p + 1 # Por qué?
   n <- nrow(X)
   XX <- cbind(X, npc)
   Knot_0 <- vector()
@@ -99,29 +103,27 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
       }
       return(knt)
     }
-
-  for(i in 1:k){
+    for(i in 1:k){
       Knot_0 <- append(Knot_0,intknt(XX[, (p + i)]))
     }
-
     if(min(Knot_0) < 2)
       stop("Each covariate must have at least three knots.")
-
     Knot <- Knot_0
   }
-
   Tknot <- sum(Knot)
   ptknot <- p + Tknot
   ptknot1 <- ptknot + 1
   ptknot2 <- ptknot + 2
 
   ############################################################################################################
+
   formula2 <- formula
   for (j in 1:k) {
     formul <- paste(".~. + ", colnames(npc)[j])
     formul <- as.formula(formul)
     formula2 <- update(formula2, formul)
   }
+
   ############################################################################################################################################################
 
   # Initial values
@@ -132,7 +134,7 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
   sigma0  <- fit0$sigma
   lambda0 <- fit0$lambda
 
-  if(missingArg(alpha0)) {
+  if(missingArg(alpha0)){
     alpha0 <- rep(1,k)
   }
 
@@ -145,7 +147,7 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
   K <- matrix(0, ptknot, ptknot)
   for (j in 1:k) {
     if(basis[j]=="deBoor")
-       output <- deBoor2(npc[, j], Knot[j])
+      output <- deBoor2(npc[, j], Knot[j])
     else
       output <- Gu(npc[, j],Knot[j])
 
@@ -161,9 +163,11 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
     return((1/(sigm^2)) * t_NN + K)
   }
   t_NOne <- t_N %*% One
+
   I_gammassigma <- function(sigm, lambd) {
     return((1/sigm^2) * u_lambda(lambd) * t_NOne)
   }
+
   I_gammaslambda <- function(sigm, lambd) {
     return(-(sigm/lambd) * I_gammassigma(sigm, lambd))
   }
@@ -195,14 +199,15 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
     eta_lambd <- (invlamb) * (1 + 2 * (invlambtwo) * (digamma(invlambtwo) + 2 * log(abs(lambd)) - 1))
     Ds <- D(eps(bet, g, sigm), lambd)
     epsilons <- eps(bet, g, sigm)
-    output <- n * eta_lambd - (invlambtwo) * t_One %*% epsilons + (2 * invlamb^3) * t_One %*% Ds %*% One - (invlambtwo) * t_One %*% (Ds %*% epsilons)
+    t_One_Ds <- t_One %*% Ds
+    output <-  n * eta_lambd - invlambtwo *  t_One %*% epsilons +  2 * (invlamb^3) * t_One_Ds %*% One - invlambtwo * t_One_Ds %*% epsilons
     return(output)
   }
   U_gammas <- function(bet, g, sigm, lambd){
     return((-1/(sigm * lambd)) * t_N %*% (W(bet, g, sigm, lambd) %*% One) - K %*% c(bet, g))
   }
   U_theta <- function(bet, g, sigm, lambd) {
-    return(c(U_gammas(bet, g, sigm, lambd),U_sigma(bet, g, sigm, lambd),U_lambda(bet, g, sigm,lambd)))
+    return(c(U_gammas(bet, g, sigm, lambd), U_sigma(bet, g, sigm, lambd),U_lambda(bet, g, sigm,lambd)))
   }
   ## Defining the components of the FIM
   I_33 <- function(sigm, lambd) {
@@ -222,7 +227,7 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
   }
   ## LOG-LIKELIHOOD
 
-  loglikglg <- function(bet, g, sigm, lambd) {
+  loglikglg <- function(bet, g, sigm, lambd){
     epsilon <- eps(bet, g, sigm)
     invlambd <- 1/lambd
     output <- n * log(c_l(lambd)/sigm) + invlambd * t_One %*% epsilon - invlambd^2 * t_One %*% D(epsilon, lambd) %*% One -0.5 * t(c(bet, g)) %*% (K %*% c(bet, g))
@@ -231,26 +236,32 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
 
   newpar <- function(bet, g, sigm, lambd) {
     output <- matrix(0, ptknot2, Maxiter)
-    output[, 1] <- c(bet, g, sigm, lambd)
-    new <- output[, 1]
+    l <- 1
+    output[, l] <- c(bet, g, sigm, lambd)
+    new <- output[, l]
     llglg <- loglikglg(new[1:p], new[p1:ptknot], new[ptknot1], new[ptknot2])
-
+    condition <- 1
     if (method == "FS") {
-      output[, 2] <- output[, 1] + solve(I_theta(sigm, lambd)) %*% U_theta(bet, g, sigm, lambd)
-      condition <- loglikglg(output[1:p, 2], output[p1:ptknot, 2], output[ptknot1, 2], output[ptknot2, 2]) - llglg
-      if (condition > 0) {
-        new <- output[, 2]
-      }
-      condition <- 1
-      l <- 2
-      while (abs(condition) > Tolerance & l < Maxiter) {
-        l <- l + 1
-        output[, l] <- output[, (l - 1)] + solve(I_theta(output[ptknot1, (l - 1)], output[ptknot2, (l - 1)])) %*% U_theta(output[1:p, (l - 1)], output[p1:ptknot, (l - 1)], output[ptknot1, (l - 1)], output[ptknot2, (l - 1)])
-        llglg <- loglikglg(new[1:p], new[p1:ptknot], new[ptknot1], new[ptknot2])
-        condition <- loglikglg(output[1:p, l], output[p1:ptknot, l], output[ptknot1, l], output[ptknot2, l]) - llglg
-        if (abs(condition) > 0) {
-          new <- output[, l]
-          llglg <- loglikglg(new[1:p], new[p1:ptknot], new[ptknot1], new[ptknot2])
+      while (condition > Tolerance & l < Maxiter) {
+        ini <- output[, l]
+        llglg <- loglikglg(ini[1:p], ini[p1:ptknot], ini[ptknot1], ini[ptknot2])
+        dir <- solve(I_theta(ini[ptknot1], ini[ptknot2])) %*% U_theta(ini[1:p], ini[p1:ptknot], ini[ptknot1], ini[ptknot2])
+        new <- ini + dir
+        condition <- loglikglg(new[1:p], new[p1:ptknot], new[ptknot1], new[ptknot2]) - llglg
+        M <- 1
+        if (condition < 0){
+          while (condition < 0 & M <= 150) {
+            new <- ini + (0.96**M)*dir
+            llglg_new <- loglikglg(new[1:p],new[p1:ptknot], new[ptknot1], new[ptknot2])
+            condition <- llglg_new - llglg
+            M <- M + 1
+          }
+        }
+        if (condition > 0 & M <= 150){
+          l <- l + 1
+          print(paste('log-lik condition = ', condition))
+          output[, l] <- new
+
         }
       }
     }
@@ -277,11 +288,10 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
         }
       }
     }
-    return(list(est = new, ll = llglg, cond = condition, iter = l))
+    return(list(est = output[, l], ll = loglikglg(output[1:p,l],output[p1:ptknot,l], output[ptknot1,l], output[ptknot2,l]), cond = condition, iter = l))
   }
 
   ## Effective degree freedom - EDF
-
   inv_root_A <- function(A) {
     e <- eigen(A)
     V <- e$vectors
@@ -301,7 +311,7 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
   masterf <- function() {
     news <- newpar(beta0, g0s, sigma0, lambda0)
     if (news$iter >= Maxiter)
-        stop('The algorithm did not converge!')
+      stop('The algorithm did not converge!')
     else {
       Conv <- TRUE
       num.iter <- news$iter
@@ -339,8 +349,8 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
   }
 
   total_optimum <- function(start) {
-    output0 <- c(start,masterf()$AIC)
-    output1 <- output0[1:k]
+    #output0 <- c(start,masterf()$AIC)
+    #output1 <- output0[1:k]
     output3 <- masterf()
     df <- output3$df
     dfnpc <- df - p
@@ -397,7 +407,7 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
                 st_error = ste,
                 Z_values = zs,
                 p.values = pval,
-                alpha = output1,
+                alpha=alpha0,
                 d.f.model = df,
                 d.f.npc = dfnpc,
                 deviance = Devian,

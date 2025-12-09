@@ -13,8 +13,8 @@ sglg(
   method,
   alpha0,
   Knot,
-  Tolerance = 5e-05,
-  Maxiter = 1000,
+  Tolerance = 1e-06,
+  Maxiter = 500,
   format = "complete"
 )
 }
@@ -66,35 +66,37 @@ t_beta <- c(0.5,2)
 t_sigma <- 0.5
 t_lambda <- 1
 x1 <- runif(rows,-3,3)
-x2 <- rbinom(rows,1,0.5)
+x2 <- rnorm(rows,mean=2.5,sd=0.5)
 X <- cbind(x1,x2)
-t <- as.matrix((2*1:rows - 1)/(2*rows))
+t <- as.matrix(seq(0.01,0.99,length=rows))
 colnames(t) <- "t"
 f_t <- cos(4*pi*t)
+plot(t,f_t,type='l')
 error <- rglg(rows,0,1,t_lambda)
 y <- X \%*\%t_beta + f_t + t_sigma*error
 colnames(y) <- "y"
 data <- data.frame(y,X,t)
 fit1 <- sglg(y ~ x1 + x2 - 1, npc = t, data = data, basis = "deBoor", alpha0 = 0.1)
-logLik(fit1) # -288.1859 time: 90 milliseconds
+logLik(fit1)
 quantile_sglg(fit1)
-fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.005)
+fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.001)
 logLik(fit2)
+quantile_sglg(fit2)
 #################################################
 # An example with two non-parametric components #
-#################################################
-set.seed(2)
-t_2 <- as.matrix(rnorm(rows, sd = 0.5))
-colnames(t_2) <- 't_2'
-f_t_2 <- exp(t_2)
-error <- rglg(rows,0,1,t_lambda)
-y_2 <- X \%*\%t_beta + f_t + f_t_2 + t_sigma*error
-colnames(y_2) <- 'y_2'
-data2 <- data.frame(y_2,X,t,t_2)
-npcs <- cbind(t,t_2)
-fit3 <- sglg(y_2 ~ x1 + x2 - 1, npc = npcs, data = data2, alpha0 = c(0.45,0.65))
-logLik(fit3)
-#############################################################################
+################################################################################
+#set.seed(2)
+#t_2 <- as.matrix(seq(2,4,length=rows))
+#colnames(t_2) <- 't_2'
+#f_t_2 <- exp(t_2)
+#error <- rglg(rows,0,1,t_lambda)
+#y_2 <- X \%*\%t_beta + f_t + f_t_2 + t_sigma*error
+#colnames(y_2) <- 'y_2'
+#data2 <- data.frame(y_2,X,t,t_2)
+#npcs <- cbind(t,t_2)
+#fit3 <- sglg(y_2 ~ x1 + x2 - 1, npc = npcs, data = data2, alpha0 = c(0.45,0.65))
+#logLik(fit3)
+################################################################################
 }
 \references{
 Cardozo C.A.,  Paula G., and Vanegas L. (2022). Generalized log-gamma additive partial linear models with P-spline smoothing. Statistical Papers.
