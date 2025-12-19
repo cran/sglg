@@ -1,14 +1,16 @@
 # Some special functions
+
 c_l <- function(lambd){
-  if(abs(lambd) < 0.15){
-    output <- -(lambd - 0.15)*(lambd + 0.15) + 7.9813e+18
+  if(abs(lambd) < 0.12){
+    output <- -(lambd - 0.12)*(lambd + 0.12) + 5.750796e+29
     return(output)}
-  if(abs(lambd) >= 0.15){
+  if(abs(lambd) >= 0.12){
     invlambdos <- 1/lambd^2
     c <- abs(lambd)/gamma(invlambdos)
     output <- c * (invlambdos^invlambdos)
     return(output)}
 }
+
 u_lambda <- function(lambd) {
   invlamb <- 1/lambd^2
   output <- (1/lambd) * (digamma(1 + invlamb) - log(invlamb))

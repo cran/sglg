@@ -6,8 +6,8 @@
 #' @param formula a symbolic description of the systematic component of the model to be fitted.
 #' @param data a data frame with the variables in the model.
 #' @param shape an optional value for the shape parameter of the error distribution of a generalized log-gamma distribution. Default value is 0.2.
-#' @param Tolerance an optional positive value, which represents the convergence criterion. Default value is 1e-06.
-#' @param Maxiter an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.
+#' @param Tolerance an optional positive value, which represents the convergence criterion. Default value is 1e-07.
+#' @param Maxiter an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e04.
 #' @param format an optional string value that indicates if you want a simple or a complete report of the estimating process. Default value is 'complete'.
 #' @param envelope an optional and internal logical value that indicates if the glg function will be employed for build an envelope plot. Default value is 'FALSE'.
 #'
@@ -22,9 +22,9 @@
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
 #' set.seed(2026)
-#' rows <- 200
-#' x1 <- rnorm(rows, mean=2.5, sd=1)
-#' x2 <- runif(rows, 0, 1)
+#' n <- 250
+#' x1 <- rnorm(n, mean=2.5, sd=1)
+#' x2 <- runif(n, 0, 1)
 #' X <- cbind(x1,x2)
 #' t_beta  <- c(0.5, 2)
 #' t_sigma <- 1
@@ -36,45 +36,49 @@
 #' ######################
 #'
 #' t_lambda <- -1
-#' error <- rglg(rows, 0, 1, t_lambda)
-#' y1 <- error
+#' error <- rglg(n, 0, 1, t_lambda)
 #' y1 <- X %*%t_beta + t_sigma*error
 #' data.example <- data.frame(y1,X)
 #' fit <- glg(y1 ~ x1 + x2 - 1, data=data.example)
-#' fit$condition
+#' # Some typical S3 methods
 #' logLik(fit)
 #' summary(fit)
+#' coef(fit)
+#' vcov(fit)
 #' deviance_residuals(fit)
+#' fitted(fit)
 #' #############################
 #' #                           #
 #' # Normal case: A limit case #
 #' #                           #
 #' #############################
 #' # When the parameter lambda goes to zero the GLG tends to a normal distribution.
-#' set.seed(2026)
-#' y1 <- X %*%t_beta + rnorm(rows, mean=0, sd=0.5)
-#' data.example <- data.frame(y1, X)
-#' fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-#' fit0$mu
-#' fit0$sigma
-#' fit0$lambda
-#' fit0$llglg
-#' fit0$AIC
+#' set.seed(2025)
+#' y2 <- X %*%t_beta + rnorm(n)
+#' data2 <- data.frame(y2, X)
+#' fit2 <- glg(y2 ~ x1 + x2 - 1,data=data2)
+#' fit2$condition
+#' fit2$scores
+#' fit2$llglg
+#' fit2$AIC
+#' coef(fit2)
+#' fit2$sigma
+#' fit2$lambda
 #' ############################################
 #' #                                          #
 #' #  A comparison with a normal linear model #
 #' #                                          #
 #' ############################################
 #'
-#' fit2 <- lm(y1 ~ x1 + x2 - 1,data=data.example)
-#' coefficients(fit2)
-#' logLik(fit2)
-#' AIC(fit2)
+#' fit3 <- lm(y1 ~ x1 + x2 - 1,data=data.example)
+#' coefficients(fit3)
+#' logLik(fit3)
+#' AIC(fit3)
 #' @import methods
 #' @importFrom Rcpp sourceCpp
 #' @export glg
 
-glg = function(formula, data, shape=0.75, Tolerance=1e-06, Maxiter=1000, format='complete', envelope= FALSE) {
+glg = function(formula, data, shape=0.75, Tolerance=1e-07, Maxiter=5e03, format='complete', envelope= FALSE) {
     if (missingArg(formula)) {
         stop("The formula argument is missing.")
     }
@@ -98,7 +102,7 @@ glg = function(formula, data, shape=0.75, Tolerance=1e-06, Maxiter=1000, format=
     beta0 <- coef(fit0)
     ########################################################
     s_fit0 <-  sort(fit0[[3]])
-    breaks <- round(n*c(0.05,0.95))
+    breaks <- round(n*c(0.04,0.96))
     res_sam <- s_fit0[ seq(breaks[1],breaks[2],length=10)]
     sigma0 <- sqrt(sum((n*0.1)*(res_sam^2))/(n-p))
     ########################################################
@@ -177,20 +181,25 @@ glg = function(formula, data, shape=0.75, Tolerance=1e-06, Maxiter=1000, format=
     newpar <- function(bet, sigm, lambd) {
       scores <- U_theta(bet, sigm, lambd)
       I <- I_theta(sigm, lambd)
-      ini <- c(bet,sigm,lambd)
       dir <-  solve(I) %*% scores
+      ini <- c(bet,sigm,lambd)
       llglg_ini <- loglikglg(bet, sigm, lambd)
-      condition <- -1
+      #################
+      new <- ini + dir
+      llglg_new <- loglikglg(new[1:p], new[p+1], lambd)
+      condition = llglg_new - llglg_ini
+      ################
       M <- 1
-      while (condition < 0 & M <= 100) {
-          new <- ini + (0.95**M)*dir
+      while (condition < 0 & M <= 150) {
+          new <- ini + (0.6**M)*dir
           llglg_new <- loglikglg(new[1:p], new[p1], new[p2])
           condition <- llglg_new - llglg_ini
           M <- M + 1
-
       }
       return(new)
     }
+#########################
+
     optimum <- function(bet, sigm, lambd){
       fin <- c(bet,sigm,lambd)
       condition <- 1
@@ -201,15 +210,16 @@ glg = function(formula, data, shape=0.75, Tolerance=1e-06, Maxiter=1000, format=
         llglg_fin <- loglikglg(fin[1:p], fin[p1], fin[p2])
         condition <- llglg_temp - llglg_fin
         if (condition > 0){
-          fin <- temp
+           fin <- temp
         }
         l <- l + 1
       }
-      if (condition < Tolerance) {
-        return(list(est = fin, loglik = llglg_fin, cond = condition, conv = TRUE, iter = l))
+      if (condition < Tolerance & l < Maxiter) {
+        scores <- U_theta(fin[1:p], fin[p1], fin[p2])
+        return(list(est = fin, loglik = llglg_fin, cond = condition, scores = scores, conv = TRUE, iter = l))
       }
       else{
-        print("The optimization process was not successful.")
+        print("glg message: The optimization process was not successful.")
         return(list(conv = FALSE))
         stop("")
       }
@@ -221,7 +231,7 @@ glg = function(formula, data, shape=0.75, Tolerance=1e-06, Maxiter=1000, format=
            mu_est <- X %*% output$est[1:p]
            sgn <- sign(y - mu_est)
            ordresidual <- eps(output$est[1:p], output$est[p1])
-           dev <- sgn * 1.4142 * sqrt((1/output$est[p2]^2) * exp(output$est[p2] * ordresidual) - (1/output$est[p2]) * ordresidual - (1/output$est[p2])^2)
+           dev <- sgn *  sqrt(2) * sqrt((1/output$est[p2]^2) * exp(output$est[p2] * ordresidual) - (1/output$est[p2]) * ordresidual - (1/output$est[p2])^2)
            output <- list(mu = output$est[1:p], sigma = output$est[p1], lambda = output$est[p2], Knot = 0, rdev = dev, conv = output$conv, censored = FALSE)
            class(output) = "sglg"
            return(output)}
@@ -232,6 +242,8 @@ glg = function(formula, data, shape=0.75, Tolerance=1e-06, Maxiter=1000, format=
     }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------
         llglg <- output$loglik
+        llgg <- llglg - sum(y)
+        scores <- output$scores
         mus <- output$est[1:p]
         sigma <- output$est[p1]
         lambda <- output$est[p2]
@@ -243,11 +255,10 @@ glg = function(formula, data, shape=0.75, Tolerance=1e-06, Maxiter=1000, format=
         sgn <- sign(y - mu_est)
         ilambda <- 1/lambda
         ilambda2 <- ilambda^2
-        dev <- sgn * 1.4142 * sqrt(ilambda2 * exp(lambda * ordresidual) - ilambda * ordresidual - ilambda2)
+        dev <- sgn * sqrt(2) * sqrt(ilambda2 * exp(lambda * ordresidual) - ilambda * ordresidual - ilambda2)
         devian <- sum(dev^2)
         part2 <- (sigma*ilambda) * (digamma(ilambda2) - log(ilambda2))
         y_est <- mu_est + part2
-        scores <- U_theta(mus, sigma, lambda)
         output <- list(formula = formula,
                        size = n,
                        mu = mus,
@@ -258,12 +269,13 @@ glg = function(formula, data, shape=0.75, Tolerance=1e-06, Maxiter=1000, format=
                        X = X,
                        Knot = 0,
                        llglg = llglg,
+                       llgg = llgg,
                        scores = scores,
                        AIC = aic,
                        BIC = bic,
                        deviance = devian,
                        rdev = dev,
-                       Itheta = covar,
+                       vcov = covar,
                        convergence = output$conv,
                        condition = output$cond,
                        iterations = output$iter,

@@ -63,7 +63,7 @@ cweight_scheme <- function(model, ...) {
             Delta <- rbind(Delta, t(Delt_sw))
             Delta <- rbind(Delta, t(Delt_lw))
 
-            NC = t(Delta) %*% model$Itheta %*% Delta
+            NC = t(Delta) %*% model$vcov %*% Delta
             norm = sqrt(sum(diag(t(NC) %*% NC)))
             CNC = NC/norm
             Eigen = eigen(CNC)
@@ -128,7 +128,7 @@ cweight_scheme <- function(model, ...) {
             Delta <- Delt_gsw
             Delta <- rbind(Delta, Delt_sw)
 
-            NC = t(Delta) %*% model$Itheta %*% Delta
+            NC = t(Delta) %*% model$vcov %*% Delta
             norm = sqrt(sum(diag(t(NC) %*% NC)))
             CNC = NC/norm
             Eigen = eigen(CNC)
@@ -169,7 +169,7 @@ cweight_scheme <- function(model, ...) {
             Delt_sw <- t(as.matrix(Delt_sw))
             Delta <- Delt_bw
             Delta <- rbind(Delta, Delt_sw)
-            NC = t(Delta) %*% model$Itheta %*% Delta
+            NC = t(Delta) %*% model$vcov %*% Delta
             norm = sqrt(sum(diag(t(NC) %*% NC)))
             CNC = NC/norm
             Eigen = eigen(CNC)

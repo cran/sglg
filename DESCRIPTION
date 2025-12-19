@@ -1,7 +1,7 @@
 Package: sglg
 Type: Package
 Title: Fitting Semi-Parametric Generalized log-Gamma Regression Models
-Version: 0.2.4
+Version: 0.2.5
 Authors@R: c(person("Carlos Alberto","Cardozo Delgado",role = c("aut","cre","cph"), email="cardozorpackages@gmail.com", comment = c(ORCID = "0000-0002-8870-4795")), 
              person("Gilberto","Paula ",role = c("aut")), 
              person("Luis ","Vanegas ",role = c("aut")))
@@ -23,10 +23,10 @@ Imports: Formula, survival, methods, stats, AdequacyModel, ggplot2,
         plotly, moments, gridExtra, pracma, progress, Rcpp, plot3D,
         magrittr, TeachingSampling
 NeedsCompilation: no
-Packaged: 2025-12-09 16:39:38 UTC; CARLOS
+Packaged: 2025-12-19 00:14:23 UTC; CARLOS
 Author: Carlos Alberto Cardozo Delgado [aut, cre, cph] (ORCID:
     <https://orcid.org/0000-0002-8870-4795>),
   Gilberto Paula [aut],
   Luis Vanegas [aut]
 Repository: CRAN
-Date/Publication: 2025-12-09 18:10:02 UTC
+Date/Publication: 2025-12-19 01:10:02 UTC

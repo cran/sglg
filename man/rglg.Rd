@@ -22,7 +22,7 @@ A vector of size n with the generalized log-gamma random values.
 \code{rglg} is used to generate random numbers for a generalized log-gamma distribution.
 }
 \examples{
-u <- rglg(100, location = 0, scale = 1, shape = 1)
+u <- rglg(200, location = 0, scale = 1, shape = 1)
 hist(u)
 }
 \references{

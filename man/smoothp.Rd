@@ -37,7 +37,7 @@ t_lambda <- 1
 x1 <- runif(rows,-3,3)
 x2 <- rbinom(rows,1,0.5)
 X <- cbind(x1,x2)
-t <- as.matrix((2*1:rows - 1)/(2*rows))
+t <- as.matrix(seq(0.01,0.99,length=rows))
 colnames(t) <- "t"
 f_t <- cos(4*pi*t)
 error <- rglg(rows,0,1,t_lambda)

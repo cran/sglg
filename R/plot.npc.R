@@ -2,7 +2,7 @@
 #'
 #'\code{plotnpc} displays a graph of a fitted nonparametric effect, either natural cubic spline or P-spline, from an object of class sglg.
 #'
-#' @param fit an object of the class sglg. This object is returned from the call to glg(), sglg(), survglg() or ssurvglg().
+#' @param fit an object of the class sglg. This object is returned from the call to sglg() or ssurvglg().
 #' @param conf_lev is the confidence level of the asymptotic confidence band. Default value is 0.05.
 #' @references Eilers P.H.C. and Marx B.D. (1996). Flexible smoothing with B-splines and penalties. Statistical Science. 11, 89-121.
 #' @references Wood, S. (2017). Additive generalized models: An R introduction. Chapman and Hall.
@@ -10,16 +10,22 @@
 #' @import ggplot2
 #' @examples
 #' set.seed(1)
-#' n <- 300
-#' error <- rglg(n,0,0.5,1)
-#' t <- as.matrix((2*1:n - 1)/(2*n))
+#' rows<- 300
+#' t_beta <- c(0.5,2)
+#' t_sigma <- 0.5
+#' t_lambda <- 1
+#' x1 <- runif(rows,-3,3)
+#' x2 <- rnorm(rows,mean=2.5,sd=0.5)
+#' X <- cbind(x1,x2)
+#' t <- as.matrix(seq(0.01,0.99,length=rows))
 #' colnames(t) <- "t"
 #' f_t <- cos(4*pi*t)
-#' y <- 0.8 + f_t + error
+#' plot(t,f_t,type='l')
+#' error <- rglg(rows,0,1,t_lambda)
+#' y <- X %*%t_beta + f_t + t_sigma*error
 #' colnames(y) <- "y"
-#' data <- as.data.frame(cbind(y,1,t))
-#' fit1 <- sglg(y ~ 1,npc=t,data=data,basis = "deBoor",alpha0=0.0001)
-#' summary(fit1)
+#' data <- data.frame(y,X,t)
+#' fit1 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.001)
 #' # The adjusted (black) non-linear component
 #' plotnpc(fit1,conf_lev=0.02)
 #' @export plotnpc

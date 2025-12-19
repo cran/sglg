@@ -8,8 +8,8 @@ glg(
   formula,
   data,
   shape = 0.75,
-  Tolerance = 1e-06,
-  Maxiter = 1000,
+  Tolerance = 1e-07,
+  Maxiter = 5000,
   format = "complete",
   envelope = FALSE
 )
@@ -21,9 +21,9 @@ glg(
 
 \item{shape}{an optional value for the shape parameter of the error distribution of a generalized log-gamma distribution. Default value is 0.2.}
 
-\item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 1e-06.}
+\item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 1e-07.}
 
-\item{Maxiter}{an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e03.}
+\item{Maxiter}{an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1e04.}
 
 \item{format}{an optional string value that indicates if you want a simple or a complete report of the estimating process. Default value is 'complete'.}
 
@@ -46,9 +46,9 @@ In this setup, the location parameter of the response variable is explicitly mod
 }
 \examples{
 set.seed(2026)
-rows <- 200
-x1 <- rnorm(rows, mean=2.5, sd=1)
-x2 <- runif(rows, 0, 1)
+n <- 250
+x1 <- rnorm(n, mean=2.5, sd=1)
+x2 <- runif(n, 0, 1)
 X <- cbind(x1,x2)
 t_beta  <- c(0.5, 2)
 t_sigma <- 1
@@ -60,40 +60,44 @@ t_sigma <- 1
 ######################
 
 t_lambda <- -1
-error <- rglg(rows, 0, 1, t_lambda)
-y1 <- error
+error <- rglg(n, 0, 1, t_lambda)
 y1 <- X \%*\%t_beta + t_sigma*error
 data.example <- data.frame(y1,X)
 fit <- glg(y1 ~ x1 + x2 - 1, data=data.example)
-fit$condition
+# Some typical S3 methods
 logLik(fit)
 summary(fit)
+coef(fit)
+vcov(fit)
 deviance_residuals(fit)
+fitted(fit)
 #############################
 #                           #
 # Normal case: A limit case #
 #                           #
 #############################
 # When the parameter lambda goes to zero the GLG tends to a normal distribution.
-set.seed(2026)
-y1 <- X \%*\%t_beta + rnorm(rows, mean=0, sd=0.5)
-data.example <- data.frame(y1, X)
-fit0 <- glg(y1 ~ x1 + x2 - 1,data=data.example)
-fit0$mu
-fit0$sigma
-fit0$lambda
-fit0$llglg
-fit0$AIC
+set.seed(2025)
+y2 <- X \%*\%t_beta + rnorm(n)
+data2 <- data.frame(y2, X)
+fit2 <- glg(y2 ~ x1 + x2 - 1,data=data2)
+fit2$condition
+fit2$scores
+fit2$llglg
+fit2$AIC
+coef(fit2)
+fit2$sigma
+fit2$lambda
 ############################################
 #                                          #
 #  A comparison with a normal linear model #
 #                                          #
 ############################################
 
-fit2 <- lm(y1 ~ x1 + x2 - 1,data=data.example)
-coefficients(fit2)
-logLik(fit2)
-AIC(fit2)
+fit3 <- lm(y1 ~ x1 + x2 - 1,data=data.example)
+coefficients(fit3)
+logLik(fit3)
+AIC(fit3)
 }
 \references{
 Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.

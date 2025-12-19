@@ -14,7 +14,7 @@ sglg(
   alpha0,
   Knot,
   Tolerance = 1e-06,
-  Maxiter = 500,
+  Maxiter = 1000,
   format = "complete"
 )
 }
@@ -71,7 +71,6 @@ X <- cbind(x1,x2)
 t <- as.matrix(seq(0.01,0.99,length=rows))
 colnames(t) <- "t"
 f_t <- cos(4*pi*t)
-plot(t,f_t,type='l')
 error <- rglg(rows,0,1,t_lambda)
 y <- X \%*\%t_beta + f_t + t_sigma*error
 colnames(y) <- "y"
@@ -82,6 +81,7 @@ quantile_sglg(fit1)
 fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.001)
 logLik(fit2)
 quantile_sglg(fit2)
+coef(fit2)
 #################################################
 # An example with two non-parametric components #
 ################################################################################

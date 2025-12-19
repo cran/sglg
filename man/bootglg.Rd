@@ -41,11 +41,11 @@ Other kind of bootstrap intervals are the percentile-type intervals. We offer th
 \examples{
 ##################################################################################################
 set.seed(1)
-n <- 300
-x1 <- runif(n, 0, 1)
+n <- 250
+x1 <- rnorm(n,mean=3)
 t_beta  <- 1.2
 t_sigma <- 0.5
-t_lambda <- 0.7
+t_lambda <- 1
 error <- rglg(n, 0, t_sigma, t_lambda)
 y1 <- t_beta*x1 + error
 data <- data.frame(y1, x1)
@@ -57,7 +57,7 @@ bootglg(y1 ~ x1 - 1, data = data, type='t_student', B = 50)
 # A 95\% bootstrap confidence interval with the method 'bootstrap_t'.
 bootglg(y1 ~ x1 - 1, data = data, type='bootstrap_t', B = 50)
 # A 98\% bootstrap confidence interval with the method 'BCa'.
-# bootglg(y1 ~ x1 - 1, data = data, type='BCa', B = 50, alpha = 0.02)
+#bootglg(y1 ~ x1 - 1, data = data, type='BCa', B = 50, alpha = 0.02)
 #################################################################################################
 }
 \references{

@@ -4,7 +4,7 @@
 \alias{survglg}
 \title{Fitting linear generalized log-gamma regression models under the presence of right censored data.}
 \usage{
-survglg(formula, data, shape, Maxiter, Tolerance)
+survglg(formula, data, shape, Maxiter = 1000, Tolerance = 1e-06)
 }
 \arguments{
 \item{formula}{a symbolic description of the systematic component of the model to be fitted. See details for further information.}
@@ -13,9 +13,9 @@ survglg(formula, data, shape, Maxiter, Tolerance)
 
 \item{shape}{an optional value for the shape parameter of the model.}
 
-\item{Maxiter}{an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 500.}
+\item{Maxiter}{an optional positive integer giving the maximal number of iterations for the estimating process. Default value is 1000.}
 
-\item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 1e-04.}
+\item{Tolerance}{an optional positive value, which represents the convergence criterion. Default value is 1e-05.}
 }
 \value{
 mu a vector of parameter estimates asociated with the location parameter.
@@ -34,7 +34,7 @@ In this setup, the location parameter of the logarithm of the response variable 
 }
 \examples{
 require(survival)
-rows  <- 500
+rows  <- 200
 columns <- 2
 t_beta  <- c(0.5, 2)
 t_sigma <- 1
@@ -48,20 +48,20 @@ t_ini1    <- exp(X \%*\% t_beta) * rweibull(rows, scale = s, shape = a)
 cens.time <- rweibull(rows, 0.75, 20)
 delta1     <- ifelse(t_ini1 > cens.time, 1, 0)
 obst1 <- t_ini1
-for (i in 1:rows) {
-if (delta1[i] == 1) {
-   obst1[i] <- cens.time[i]
-  }
-}
+obst1[delta1==1] <- cens.time[delta1==1]
 data.example <- data.frame(obst1,delta1,X)
 fit3 <- survglg(Surv(log(obst1),delta1) ~ x1 + x2 - 1, data=data.example, shape = 1)
-logLik(fit3)
+fit3$condition
+fit3$scores
 summary(fit3)
-fit4 <- survreg(Surv(obst1,delta1) ~ x1 + x2 - 1, data=data.example, dist = 'weibull')
+# We can obtain the logLik (in the exp scale) from
+fit3$llgg
+delta2 = 1 - delta1
+fit4 <- survreg(Surv(obst1,delta2) ~ x1 + x2 - 1, data=data.example, dist = 'weibull')
 summary(fit4)
 }
 \references{
-Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma erros. In preparation.
+Carlos A. Cardozo, G. Paula and L. Vanegas. Semi-parametric accelerated failure time models with generalized log-gamma errors. In preparation.
 
 Cardozo C.A.,  Paula G., and Vanegas L. (2022). Generalized log-gamma additive partial linear models with P-spline smoothing. Statistical Papers.
 }

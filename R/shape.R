@@ -8,9 +8,9 @@
 #' @param npc a data frame with potential nonparametric variables of the systematic part of the model to be fitted.
 #' @param semi a logical value. TRUE means that the model has a non-parametric component. By default is FALSE.
 #' @param interval an optional numerical vector of length 2. In this interval is the maximum likelihood estimate of the shape parameter of the model.
-#' By default is [0.1,1.5].
+#' By default is [0.05,1.5].
 #' @param step an optional positive value. This parameter represents the length of the step of the partition of the interval parameter.
-#' By default is 0.1.
+#' By default is 0.05.
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
@@ -25,30 +25,21 @@
 #' X <- cbind(x1,x2)
 #' s         <- t_sigma^2
 #' a         <- 1/s
-#' t_ini1    <- exp(X %*% t_beta) * rgamma(rows, scale = s, shape = a)
-#' cens.time <- rweibull(rows, 0.3, 14)
+#' t_ini1    <- exp(X %*% t_beta) * rweibull(rows, scale = s, shape = a)
+#' cens.time <- rweibull(rows, 0.75, 20)
 #' delta     <- ifelse(t_ini1 > cens.time, 1, 0)
 #' obst1 = t_ini1
-#' for (i in 1:rows) {
-#' if (delta[i] == 1) {
-#'    obst1[i] = cens.time[i]
-#'   }
-#' }
+#' obst1[delta==1] <- cens.time[delta==1]
 #' example <- data.frame(obst1,delta,X)
 #' lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example)
 #' lambda
-#' # To change interval or step or both options
-#' lambda <- shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example, interval=c(0.9,1.3), step=0.01)
-#' lambda
+#' # To obtain even better estimates we can change the interval and/or step options
+#' shape(Surv(log(obst1),delta) ~ x1 + x2 - 1, data=example, interval=c(0.945,0.97), step=0.001)
 #' @export shape
 
-shape = function(formula, npc, data, interval, semi, step){
+shape = function(formula, npc, data, interval, semi = FALSE, step = 0.05){
     if (missingArg(interval))
-        interval <- c(0.1, 1.5)
-    if (missingArg(step))
-        step <- 0.05
-    if (missingArg(semi))
-        semi = FALSE
+        interval <- c(0.05, 1.5)
     if (semi == TRUE & missingArg(npc))
         stop("If the model is semiparametric you need to enter the non-parametric variable in the argument npc!")
 

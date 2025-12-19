@@ -38,7 +38,6 @@
 #' t <- as.matrix(seq(0.01,0.99,length=rows))
 #' colnames(t) <- "t"
 #' f_t <- cos(4*pi*t)
-#' plot(t,f_t,type='l')
 #' error <- rglg(rows,0,1,t_lambda)
 #' y <- X %*%t_beta + f_t + t_sigma*error
 #' colnames(y) <- "y"
@@ -49,6 +48,7 @@
 #' fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.001)
 #' logLik(fit2)
 #' quantile_sglg(fit2)
+#' coef(fit2)
 #' #################################################
 #' # An example with two non-parametric components #
 #' ################################################################################
@@ -67,7 +67,7 @@
 #' @import methods
 #' @export sglg
 
-sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, Tolerance = 1e-06, Maxiter = 500, format = 'complete'){
+sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, Tolerance = 1e-06, Maxiter = 1000, format = 'complete'){
   if (missingArg(formula))
     stop("The formula argument is missing.")
   if (missingArg(npc))
@@ -89,7 +89,7 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
   X <- model.matrix(formula, data = data1)
   y <- model.response(data1)
   p <- ncol(X)
-  p1 <- p + 1 # Por qué?
+  p1 <- p + 1
   n <- nrow(X)
   XX <- cbind(X, npc)
   Knot_0 <- vector()
@@ -259,7 +259,7 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
         }
         if (condition > 0 & M <= 150){
           l <- l + 1
-          print(paste('log-lik condition = ', condition))
+          #print(paste('log-lik condition = ', condition))
           output[, l] <- new
 
         }
@@ -349,8 +349,6 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
   }
 
   total_optimum <- function(start) {
-    #output0 <- c(start,masterf()$AIC)
-    #output1 <- output0[1:k]
     output3 <- masterf()
     df <- output3$df
     dfnpc <- df - p
@@ -378,7 +376,7 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
     sgn <- sign(y - y_est)
     ilambda <- 1/lambda
     ilambda2 <- ilambda^2
-    dev <- sgn * 1.4142 * sqrt(ilambda2 * exp(lambda * ordresidual) - ilambda * ordresidual - ilambda2)
+    dev <- sgn * sqrt(2) * sqrt(ilambda2 * exp(lambda * ordresidual) - ilambda * ordresidual - ilambda2)
     Devian <- sum(dev^2)
     part2 <- (sigma*ilambda) * (digamma(ilambda2) - log(ilambda2))
     y_est2 <- y_est + part2
@@ -402,7 +400,7 @@ sglg = function(formula, npc, basis, data, shape = 0.2, method, alpha0, Knot, To
                 AIC = output3$AIC,
                 BIC = output3$BIC,
                 scores = scores,
-                Itheta = covar,
+                vcov = covar,
                 scovar = scovar,
                 st_error = ste,
                 Z_values = zs,

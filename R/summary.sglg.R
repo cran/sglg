@@ -18,7 +18,7 @@ summary.sglg <- function(object, ...) {
         cat(" -------------------- Parametric component --------------------\n\n")
         p <- object$p
         Estimate <- object$mu
-        ste <- sqrt(diag(solve(object$Itheta)))
+        ste <- sqrt(diag(solve(object$vcov)))
         StdErr <- ste[1:p]
         tval <- Estimate/StdErr
         p.value <- 1 - (pnorm(abs(tval)) - pnorm(-abs(tval)))

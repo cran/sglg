@@ -10,7 +10,7 @@
 #' @references Carlos Alberto Cardozo Delgado, Semi-parametric generalized log-gamma regression models. Ph. D. thesis. Sao Paulo University.
 #' @author Carlos Alberto Cardozo Delgado <cardozorpackages@gmail.com>
 #' @examples
-#' u <- rglg(100, location = 0, scale = 1, shape = 1)
+#' u <- rglg(200, location = 0, scale = 1, shape = 1)
 #' hist(u)
 #' @export rglg
 rglg = function(n, location, scale, shape) {
@@ -21,6 +21,7 @@ rglg = function(n, location, scale, shape) {
     if (missingArg(shape))
         shape <- 1
     quantiles <- runif(n, 0, 1)
-    pQ <- location + scale*((1/shape) * log((0.5 * shape^2) * qchisq(quantiles, 2/shape^2)))
+    shape2 <- shape^2
+    pQ <- location + scale*((1/shape) * log((0.5 * shape2) * qchisq(quantiles, 2/shape2)))
     return(pQ)
 }
