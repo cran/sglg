@@ -4,12 +4,14 @@
 \alias{plotnpc}
 \title{Plotting a natural cubic splines or P-splines.}
 \usage{
-plotnpc(fit, conf_lev)
+plotnpc(fit, conf_lev, cband = FALSE)
 }
 \arguments{
 \item{fit}{an object of the class sglg. This object is returned from the call to sglg() or ssurvglg().}
 
 \item{conf_lev}{is the confidence level of the asymptotic confidence band. Default value is 0.05.}
+
+\item{cband}{is a boolean value. It indicates if the plot will contain confidence band or not. Default value is FALSE.}
 }
 \description{
 \code{plotnpc} displays a graph of a fitted nonparametric effect, either natural cubic spline or P-spline, from an object of class sglg.
@@ -26,14 +28,17 @@ X <- cbind(x1,x2)
 t <- as.matrix(seq(0.01,0.99,length=rows))
 colnames(t) <- "t"
 f_t <- cos(4*pi*t)
-plot(t,f_t,type='l')
 error <- rglg(rows,0,1,t_lambda)
 y <- X \%*\%t_beta + f_t + t_sigma*error
 colnames(y) <- "y"
 data <- data.frame(y,X,t)
-fit1 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", alpha0=0.001)
+fit1 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "deBoor", Knot= 5, alpha0=0.1)
 # The adjusted (black) non-linear component
-plotnpc(fit1,conf_lev=0.02)
+plotnpc(fit1)
+plotnpc(fit1,conf_lev=0.02,cband=TRUE)
+fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", Knot= 5, alpha0=0.001)
+# The adjusted (black) non-linear component
+plotnpc(fit2,conf_lev=0.02,cband=TRUE)
 }
 \references{
 Eilers P.H.C. and Marx B.D. (1996). Flexible smoothing with B-splines and penalties. Statistical Science. 11, 89-121.
