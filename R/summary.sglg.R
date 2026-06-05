@@ -34,7 +34,7 @@ summary.sglg <- function(object, ...) {
         p.value <- 1 - (pnorm(abs(tval)) - pnorm(-abs(tval)))
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
-        rownames(table) <- colnames("sigma")
+        rownames(table) <- "sigma"
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat("\n ---------------------- Shape parameter ---------------------- \n\n")
@@ -44,7 +44,7 @@ summary.sglg <- function(object, ...) {
         p.value <- 1 - (pnorm(abs(tval)) - pnorm(-abs(tval)))
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
-        rownames(table) <- colnames("lambda")
+        rownames(table) <- "lambda"
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = TRUE, tst.ind = c(2, 3))
         cat(" -------------------------------------------------------------\n\n")
@@ -85,7 +85,7 @@ summary.sglg <- function(object, ...) {
         p.value <- object$p.values[p + 1]
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
-        rownames(table) <- colnames("sigma")
+        rownames(table) <- "sigma"
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat(" ------------------------------------------------------------\n\n")
@@ -138,7 +138,7 @@ summary.sglg <- function(object, ...) {
         p.value <- object$p.values[p + Tknot + 1]
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
-        rownames(table) <- colnames("sigma")
+        rownames(table) <- "sigma"
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = FALSE, tst.ind = c(2, 3))
         cat("\n --------------------- Shape parameter -------------------- \n\n")
@@ -148,7 +148,7 @@ summary.sglg <- function(object, ...) {
         p.value <- object$p.values[p + Tknot + 2]
         table <- cbind(Estimate, StdErr, tval, p.value)
         colnames(table) <- c("Estimate", "Std.Err", "z-value", "Pr(>|z|)")
-        rownames(table) <- colnames("lambda")
+        rownames(table) <- "lambda"
         printCoefmat(table, P.values = TRUE, has.Pvalue = TRUE, digits = 5,
             signif.legend = TRUE, tst.ind = c(2, 3))
         cat(" ------------------------------------------------------------\n\n")

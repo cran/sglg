@@ -69,7 +69,7 @@ response_scheme <- function(model, ...) {
       df3 <- as.data.frame(vls3)
       up_limit_li <- mean(vls3) + 3*sd(vls3)
       plot3 <- ggplot(data=df3,aes(1:n,vls3)) +
-        geom_point(colour="orange",alpha=0.75) +
+        geom_point(colour="orange",size = 3,alpha=0.75) +
         ggtitle("Response Perturbation") +
         xlab("Index") +
         geom_hline(yintercept=up_limit_li) +
@@ -79,18 +79,19 @@ response_scheme <- function(model, ...) {
       df4 <- as.data.frame(vls4)
       up_limit_tli <- mean(vls4) + 3*sd(vls4)
       plot4 <- ggplot(data=df4,aes(1:n,vls4)) +
-        geom_point(colour="orange",alpha=0.75) +
+        geom_point(colour="orange",size = 3,alpha=0.75) +
         ggtitle("Response Perturbation") +
         xlab("Index") +
         geom_hline(yintercept=up_limit_tli) +
         ylab("Total Local Influence")
 
       return(list(plot3=plot3,plot4=plot4))
-
     }
 
     plots_r <- respert(model)
-    return(subplot(ggplotly(plots_r$plot3), ggplotly(plots_r$plot4)))
+    #p3 <-
+    #p4 <- ggplotly(plots_r$plot4)
+    return(subplot(ggplotly(plots_r$plot3), ggplotly(plots_r$plot4), shareX = TRUE, titleY = TRUE))
   }
   else{
     delta <- model$delta

@@ -11,7 +11,7 @@
 #' @import ggplot2
 #' @examples
 #' set.seed(1)
-#' rows<- 300
+#' rows<- 200
 #' t_beta <- c(0.5,2)
 #' t_sigma <- 0.5
 #' t_lambda <- 1
@@ -31,95 +31,75 @@
 #' plotnpc(fit1,conf_lev=0.02,cband=TRUE)
 #' fit2 <- sglg(y ~ x1 + x2 - 1, npc=t, data=data, basis = "Gu", Knot= 5, alpha0=0.001)
 #' # The adjusted (black) non-linear component
+#' plotnpc(fit2,conf_lev=0.02)
 #' plotnpc(fit2,conf_lev=0.02,cband=TRUE)
 #' @export plotnpc
 
 plotnpc <- function(fit,conf_lev,cband=FALSE) {
-    if (fit$semi == FALSE) {
-        stop("Sorry, for this kind of model it is not available this option.")
-    }
-    if(missingArg(conf_lev))
-       conf_lev <- 0.05
-
-    y <- fit$y
-    X <- fit$X
-    k <- fit$Knot
-    N <- fit$N
-    npc <- fit$npc
-    add_comp <- paste("f(",colnames(npc),sep="")
-    add_comp <- paste(add_comp,")",sep="")
-    add_comp <- paste("Estimated Additive Component", add_comp,sep=" ")
-    p <- fit$p
-    mu <- fit$mu
-    #conf_lev_ <- conf_lev/k
-
-    f_est <- N[,-(1:p)]%*%mu[-(1:p)]
-    df <- as.data.frame(cbind(y,N,f_est))
-    if (fit$basis == "deBoor"){
-        if(cband==TRUE){
-          var_gammas <- fit$scovar[(p+1):(p+k),(p+1):(p+k)]
-          var_f_est <- N[,-(1:p)]%*%var_gammas%*%t(N[,-(1:p)])
-          st_error_f_est <- sqrt(diag(var_f_est))
-          f_est_low <- f_est + qnorm(0.5*conf_lev)*st_error_f_est
-          f_est_up <- f_est + qnorm(1 - 0.5*conf_lev)*st_error_f_est
-          plot <- ggplot(data=df,aes(npc,y - X%*%mu[1:p]))+
-          geom_point(colour="blue",alpha=0.4)+
-          geom_line(colour="orange", aes(npc,f_est_up),size=0.9) +
-          geom_line(aes(npc,f_est),size=0.75) +
-          geom_line(colour="orange", aes(npc,f_est_low),size=0.9) +
-          xlab(colnames(npc))+
-          ylab('')+
-          ggtitle(add_comp)
-          return(plot)
-        }
-        plot <- ggplot(data=df,aes(npc,y - X%*%mu[1:p]))+
-          geom_point(colour="blue",alpha=0.4)+
-          geom_line(aes(npc,f_est),size=0.75) +
-          xlab(colnames(npc))+
-          ylab('')+
-          ggtitle(add_comp)
-        return(plot)
-    }
+  if (fit$semi == FALSE) {
+    stop("Sorry, for this kind of model it is not available this option.")
+  }
+  if(missingArg(conf_lev))
+    conf_lev <- 0.05
+  y <- fit$y
+  X <- fit$X
+  k <- fit$Knot
+  N <- fit$N
+  npc <- fit$npc
+  add_comp <- paste("f(",colnames(npc),sep="")
+  add_comp <- paste(add_comp,")",sep="")
+  add_comp <- paste("Estimated Additive Component", add_comp,sep=" ")
+  p <- fit$p
+  mu <- fit$mu
+  f_est <- N[,(p+1):(p+k)]%*%mu[(p+1):(p+k)]
+  df <- as.data.frame(cbind(y,N,f_est))
+  if (fit$basis == "deBoor"){
     if(cband==TRUE){
       var_gammas <- fit$scovar[(p+1):(p+k),(p+1):(p+k)]
-      var_f_est <- N[,-(1:p)]%*%var_gammas%*%t(N[,-(1:p)])
+      var_f_est <- N[,(p+1):(p+k)]%*%var_gammas%*%t(N[,(p+1):(p+k)])
       st_error_f_est <- sqrt(diag(var_f_est))
       f_est_low <- f_est + qnorm(0.5*conf_lev)*st_error_f_est
       f_est_up <- f_est + qnorm(1 - 0.5*conf_lev)*st_error_f_est
-      df <- as.data.frame(cbind(y,N,f_est))
-      plot <- ggplot(data=df,aes(npc,y- X%*%mu[1:p]))+
+      plot <- ggplot(data=df,aes(npc,y - X%*%mu[1:p])) +
+        geom_point(colour="blue",alpha=0.4)+
+        geom_line(colour="orange", aes(npc,f_est_up),size=0.9) +
+        geom_line(aes(npc,f_est),size=0.75) +
+        geom_line(colour="orange", aes(npc,f_est_low),size=0.9) +
+        xlab(colnames(npc)) +
+        ylab('') +
+        ggtitle(add_comp)
+      return(plot)
+    }
+    plot <- ggplot(data=df,aes(npc,y - X%*%mu[1:p])) +
+      geom_point(colour="blue",alpha=0.4) +
+      geom_line(aes(npc,f_est),size=0.75) +
+      xlab(colnames(npc)) +
+      ylab('')+
+      ggtitle(add_comp)
+    return(plot)
+  }
+  if(cband==TRUE){
+    var_gammas <- fit$scovar[(p+1):(p+k),(p+1):(p+k)]
+    var_f_est <- N[,-(1:p)]%*%var_gammas%*%t(N[,-(1:p)])
+    st_error_f_est <- sqrt(diag(var_f_est))
+    f_est_low <- f_est + qnorm(0.5*conf_lev)*st_error_f_est
+    f_est_up <- f_est + qnorm(1 - 0.5*conf_lev)*st_error_f_est
+    df <- as.data.frame(cbind(y,N,f_est))
+    plot <- ggplot(data=df,aes(npc,y- X%*%mu[1:p])) +
       geom_point(colour="blue",alpha=0.4)+
       geom_line(aes(npc,f_est_up),colour = "orange",size=0.9) +
       geom_line(aes(npc,f_est),size=0.75) +
       geom_line(aes(npc,f_est_low),colour = "orange",size=0.9) +
-      xlab(colnames(npc))+
-      ylab('')+
+      xlab(colnames(npc)) +
+      ylab('') +
       ggtitle(add_comp)
-      return(plot)
-    }
-    plot <- ggplot(data=df,aes(npc,y- X%*%mu[1:p]))+
-    geom_point(colour="blue",alpha=0.4)+
-    geom_line(aes(npc,f_est),size=0.75) +
-    xlab(colnames(npc))+
-    ylab('')+
-    ggtitle(add_comp)
     return(plot)
+  }
+    plot <- ggplot(data=df,aes(npc,y- X%*%mu[1:p])) +
+    geom_point(colour="blue",alpha=0.4) +
+    geom_line(aes(npc,f_est),size=0.75) +
+    xlab(colnames(npc)) +
+    ylab('') +
+    ggtitle(add_comp)
+  return(plot)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -75,7 +75,7 @@ cweight_scheme <- function(model, ...) {
             df1 <- as.data.frame(vls1)
             up_limit_li <- mean(vls1) + 3*sd(vls1)
             plot1 <- ggplot(data=df1,aes(1:n,vls1)) +
-            geom_point(colour="orange",alpha=0.75) +
+            geom_point(colour="orange",size = 3,alpha=0.75) +
             ggtitle("Case-weight perturbation") +
             xlab("Index") +
             geom_hline(yintercept=up_limit_li) +
@@ -85,17 +85,18 @@ cweight_scheme <- function(model, ...) {
             df2 <- as.data.frame(vls2)
             up_limit_tli <- mean(vls2) + 3*sd(vls2)
             plot2 <- ggplot(data=df2,aes(1:n,vls2)) +
-            geom_point(colour="orange",alpha=0.75) +
+            geom_point(colour="orange",size = 3,alpha=0.75) +
             ggtitle("Case-weight perturbation") +
             xlab("Index") +
             geom_hline(yintercept=up_limit_tli) +
             ylab("Total Local Influence")
-
             return(list(plot1=plot1,plot2=plot2))
             }
 
         plots_cw <- cweight(model)
-        return(subplot(ggplotly(plots_cw$plot1), ggplotly(plots_cw$plot2)))
+        #p1 <- ggplotly(plots_cw$plot1)
+        #p2 <- ggplotly(plots_cw$plot2)
+        return(subplot(ggplotly(plots_cw$plot1), ggplotly(plots_cw$plot2), shareX = TRUE, titleY = TRUE))
     }
     else{
          delta <- model$delta
